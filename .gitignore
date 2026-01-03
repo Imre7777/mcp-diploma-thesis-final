@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+venv/
+env/
+
+# Environment files
+.env
+.env.local
+*.env.bak*
+
+# Data directories
+data/incoming/*
+data/processed/*
+data/failed/*
+data/backups/*
+data/qdrant_storage/
+data/oauth_db/
+
+# Backup folder (reference only, not needed in repo)
+backup/
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker volumes
+volumes/
+*.db
+*.sqlite
+*.sqlite3
+
+# Large files
+*.zip
+*.tar.gz
