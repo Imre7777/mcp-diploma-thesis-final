@@ -15,10 +15,9 @@ sse-starlette>=1.6  # Server-Sent Events for streaming
 # Vector Database
 qdrant-client>=1.11.0
 
-# Embeddings (using pre-computed from colleague's data)
-# Note: Only needed if we generate embeddings on-the-fly
-sentence-transformers>=3.0.0  # For local embedding generation
-torch>=2.0.0  # Required by sentence-transformers
+# Embeddings - OpenAI API for query embeddings
+# Note: Document embeddings are pre-computed and stored in Qdrant
+# We only generate embeddings for search queries in real-time
 
 # Authentication & Security (Scalekit Integration)
 pyjwt[crypto]>=2.8.0  # JWT token verification
