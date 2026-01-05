@@ -91,33 +91,44 @@ Each line in the JSONL file is a complete JSON object:
 
 ---
 
-## ⚠️ Important Questions About `source` Field
+## ✅ Confirmed: `source` Field Format
 
-**Current Understanding**:
-- `metadata.source` currently contains: `"archive_exams_matura-2021.md"` (the file name)
-- User mentioned: *"only in the source field there will be no markdown content. it will contain the original source, but the field stays the same"*
+**CONFIRMED BY USER (2026-01-05)**:
+- `metadata.source` will contain: **Original URL**
+- Example: `"https://leowiki.at/archive/exams/matura-2021"`
 
-**Question for User**:
-What will the `source` field contain in future uploads?
-- ✅ A) Original URL (e.g., `"https://leowiki.at/archive/exams/matura-2021"`)
-- ✅ B) Source system identifier (e.g., `"leowiki"`)
-- ✅ C) File path (e.g., `"archive/exams/matura-2021.md"`)
-- ✅ D) Something else?
-
-**Impact**: We need to validate this field format in the ingestion pipeline.
+**Validation Strategy**:
+```python
+def validate_source_url(source: str) -> bool:
+    """Validate source field is a valid URL."""
+    import re
+    url_pattern = r'^https?://[^\s]+$'
+    return bool(re.match(url_pattern, source))
+```
 
 ---
 
 ## 🎯 RBAC Implementation Fields
 
-### Access Level Mapping
+### Access Level Mapping (CONFIRMED 2026-01-05)
+
+**IMPORTANT**: `public` does NOT mean "anonymous"! All users must be authenticated.
 
 | `access_level` | Visible To | Description |
 |----------------|------------|-------------|
-| `public` | Everyone | Publicly accessible content |
-| `student` | student, teacher, admin | Student-level content |
+| `public` | **student, teacher, admin** | Content visible to all authenticated users |
+| `student` | student, teacher, admin | Student-level content (same as public currently) |
 | `teacher` | teacher, admin | Teacher-only content |
 | `admin` | admin only | Admin-only sensitive content |
+
+**Access Control Matrix**:
+```
+Role → Can see:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+student  → public, student
+teacher  → public, student, teacher
+admin    → public, student, teacher, admin
+```
 
 ### Qdrant Payload Structure
 
@@ -342,15 +353,19 @@ def validate_document(doc: dict) -> tuple[bool, str]:
 
 ### High Priority
 
-1. **Clarify `source` field format** with colleague:
-   - What will it contain in future? (URL, system name, path?)
-   - Do we need to validate format?
+1. ✅ **CONFIRMED: `source` field format**:
+   - Will contain: **Original URL** (e.g., `"https://leowiki.at/..."`)
+   - Validation: Check valid HTTP/HTTPS URL format
 
-2. **Confirm `access_level` values**:
-   - Are `public`, `student`, `teacher`, `admin` the only values?
-   - Any additional roles needed?
+2. ✅ **CONFIRMED: `access_level` values**:
+   - Values: `public`, `student`, `teacher`, `admin` ✅
+   - **Important**: `public` = authenticated users (not anonymous!)
 
-3. **Test JSONL parsing**:
+3. ✅ **CONFIRMED: Authentication**:
+   - **Scalekit** (MCP-specific, partner's choice)
+   - NOT Caddy OAuth
+
+4. **Test JSONL parsing**:
    - Write quick validation script to check all 757 pages
    - Ensure no malformed JSON
 
