@@ -5,6 +5,7 @@
 
 # Core MCP Protocol
 mcp>=1.0.0
+fastmcp>=0.8.0  # Official FastMCP library for MCP servers
 
 # Web Framework & Server
 fastapi>=0.100.0
@@ -20,6 +21,7 @@ qdrant-client>=1.11.0
 # We only generate embeddings for search queries in real-time
 
 # Authentication & Security (Scalekit Integration)
+scalekit-sdk-python>=2.4.0  # Official Scalekit SDK for OAuth 2.1
 pyjwt[crypto]>=2.8.0  # JWT token verification
 cryptography>=41.0.0  # Crypto utilities for JWT
 httpx>=0.25.0  # For JWKS fetching from Scalekit

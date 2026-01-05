@@ -184,6 +184,7 @@ class ServerConfig(BaseSettings):
 
     # ========================================================================
     # Scalekit OAuth 2.1 Settings (Authentication & RBAC)
+    # Official Architecture: MCP Server as OAuth 2.1 Protected Resource
     # ========================================================================
     scalekit_env_url: str | None = Field(
         None,
@@ -197,21 +198,49 @@ class ServerConfig(BaseSettings):
         None,
         description="Scalekit OAuth client secret"
     )
+    scalekit_mcp_server_id: str | None = Field(
+        None,
+        description="MCP Server ID from Scalekit dashboard (unique identifier for this MCP server)"
+    )
+    scalekit_expected_audience: str | None = Field(
+        None,
+        description="Expected audience for token validation (e.g., http://localhost:8000/)"
+    )
+    scalekit_protected_resource_metadata: str | None = Field(
+        None,
+        description="OAuth 2.1 Protected Resource metadata JSON (copy from Scalekit MCP Server dashboard, minified)"
+    )
     scalekit_audience: str = Field(
         "mcp-educational-server",
-        description="Expected JWT audience (aud claim)"
+        description="[DEPRECATED] Expected JWT audience (use scalekit_expected_audience instead)"
     )
     scalekit_jwks_url: str | None = Field(
         None,
-        description="Scalekit JWKS URL for JWT verification (usually https://scalekit.com/.well-known/jwks.json)"
+        description="[DEPRECATED] Scalekit JWKS URL - use Scalekit SDK instead"
     )
     jwt_algorithm: str = Field(
         "RS256",
-        description="JWT algorithm for token verification"
+        description="[DEPRECATED] JWT algorithm - use Scalekit SDK instead"
     )
     jwt_leeway: int = Field(
         10,
-        description="JWT expiration leeway in seconds (to account for clock skew)"
+        description="[DEPRECATED] JWT expiration leeway - use Scalekit SDK instead"
+    )
+    
+    # ========================================================================
+    # Server Identification (for OAuth discovery)
+    # ========================================================================
+    server_name: str = Field(
+        "MCP Educational Server",
+        description="Human-readable server name"
+    )
+    server_version: str = Field(
+        "1.0.0",
+        description="Server version"
+    )
+    server_port: int = Field(
+        8000,
+        description="Server port (used for OAuth discovery URL generation)"
     )
 
     # ========================================================================
