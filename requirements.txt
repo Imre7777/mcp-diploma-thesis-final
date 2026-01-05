@@ -59,4 +59,9 @@ asyncio-throttle>=1.0.0  # Rate limiting for API calls
 slowapi>=0.1.9  # FastAPI rate limiting middleware
 
 # OpenAI for query embedding generation
-openai>=1.0.0  # Required for real-time query embeddings (matches text-embedding-3-large)
+openai>=1.0.0
+
+# JWT Authentication (for Scalekit OAuth 2.1)
+PyJWT>=2.8.0
+cryptography>=41.0.0
+httpx>=0.25.0  # Required for real-time query embeddings (matches text-embedding-3-large)

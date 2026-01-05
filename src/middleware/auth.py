@@ -11,6 +11,14 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
+# Scalekit client import
+try:
+    from auth.scalekit_client import ScalekitClient
+    SCALEKIT_AVAILABLE = True
+except ImportError:
+    SCALEKIT_AVAILABLE = False
+    ScalekitClient = None
+
 logger = logging.getLogger(__name__)
 
 # Public endpoints that don't require authentication
@@ -19,6 +27,7 @@ PUBLIC_ENDPOINTS = [
     "/auth/login",
     "/auth/callback",
     "/auth/logout",
+    "/.well-known/",  # OAuth metadata discovery
 ]
 
 # Development endpoints (can be disabled in production)
@@ -28,6 +37,13 @@ DEV_PUBLIC_ENDPOINTS = [
     "/redoc",
 ]
 
+# Default role mapping from Scalekit roles to our internal roles
+SCALEKIT_ROLE_MAPPING = {
+    "student": "student",
+    "teacher": "teacher",
+    "admin": "admin",
+}
+
 
 class AuthenticationMiddleware(BaseHTTPMiddleware):
     """
@@ -36,6 +52,7 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
     Public endpoints:
     - /health: Health check (required for monitoring)
     - /auth/*: Authentication flow endpoints
+    - /.well-known/*: OAuth metadata discovery
     
     Protected endpoints:
     - /mcp: MCP tool calls (requires authentication)
@@ -43,17 +60,37 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
     - /docs: API documentation (protected in production)
     """
     
-    def __init__(self, app, debug: bool = False):
+    def __init__(
+        self,
+        app,
+        scalekit_client: Optional[ScalekitClient] = None,
+        mcp_resource_url: str = "http://localhost:8000",
+        debug: bool = False,
+    ):
         """
         Initialize authentication middleware.
         
         Args:
             app: FastAPI application
+            scalekit_client: Scalekit client for token validation
+            mcp_resource_url: This MCP server's base URL (for audience validation)
             debug: If True, allow access to /docs without auth
         """
         super().__init__(app)
+        self.scalekit_client = scalekit_client
+        self.mcp_resource_url = mcp_resource_url
         self.debug = debug
         self.security = HTTPBearer(auto_error=False)
+        
+        if not SCALEKIT_AVAILABLE:
+            logger.warning(
+                "Scalekit SDK not available. Install with: pip install scalekit"
+            )
+        
+        if not scalekit_client:
+            logger.warning(
+                "No Scalekit client provided. Token validation will fail!"
+            )
     
     async def dispatch(self, request: Request, call_next) -> Response:
         """
@@ -131,9 +168,9 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
     
     async def _validate_token(self, token: str) -> Optional[dict]:
         """
-        Validate JWT token and extract user information.
+        Validate JWT token using Scalekit and extract user information.
         
-        This will be implemented in Week 2, Day 2-3 with Scalekit JWT validation.
+        Uses Scalekit's validate_access_token method with audience validation.
         
         Args:
             token: JWT token string
@@ -141,10 +178,65 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
         Returns:
             User info dict with role, email, etc. or None if invalid
         """
-        # TODO: Implement Scalekit JWT validation
-        # For now, return None (all tokens invalid until we implement validation)
-        logger.debug("Token validation not yet implemented")
-        return None
+        if not self.scalekit_client or not SCALEKIT_AVAILABLE:
+            logger.error("Cannot validate token: Scalekit client not available")
+            return None
+        
+        try:
+            # Validate token with Scalekit and get claims
+            # This verifies signature, expiration, issuer, and audience
+            claims = self.scalekit_client.validate_token_and_get_claims(
+                token=token,
+                audience=self.mcp_resource_url,
+            )
+            
+            # Extract user information from claims
+            user_info = {
+                "sub": claims.get("sub"),  # User ID
+                "email": claims.get("email"),
+                "role": self._extract_role(claims),
+                "name": claims.get("name"),
+                "org_id": claims.get("org_id"),
+                "claims": claims,  # Full claims for debugging
+            }
+            
+            logger.info(
+                f"Token validated successfully: user={user_info['email']}, "
+                f"role={user_info['role']}"
+            )
+            
+            return user_info
+            
+        except Exception as ex:
+            logger.error(f"Token validation failed: {ex}", exc_info=True)
+            return None
+    
+    def _extract_role(self, claims: dict) -> str:
+        """
+        Extract user role from Scalekit token claims.
+        
+        Scalekit tokens include roles in the 'roles' claim.
+        We map Scalekit roles to our internal roles (student, teacher, admin).
+        
+        Args:
+            claims: JWT token claims
+            
+        Returns:
+            User's role (defaults to 'student' if not found)
+        """
+        roles = claims.get("roles", [])
+        
+        # If multiple roles, use highest privilege
+        if "admin" in roles:
+            return "admin"
+        elif "teacher" in roles:
+            return "teacher"
+        elif "student" in roles:
+            return "student"
+        
+        # Default to student for authenticated users
+        logger.warning(f"No recognized role in token, defaulting to student. Roles: {roles}")
+        return "student"
 
 
 # Helper function to get current user from request
