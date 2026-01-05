@@ -211,14 +211,14 @@ def register_search_tools(
             logger.info(f"Getting collection stats for role={user_role}")
             
             # Get collection info
-            collection_info = db.client.get_collection(config.collection_name)
+            collection_info = db.client.get_collection(config.default_collection)
             total_count = collection_info.points_count
             
             # Get access level distribution
             access_distribution = {}
             for level in ["public", "student", "teacher", "admin"]:
                 count = db.client.count(
-                    collection_name=config.collection_name,
+                    collection_name=config.default_collection,
                     count_filter={
                         "must": [
                             {
@@ -231,7 +231,7 @@ def register_search_tools(
                 access_distribution[level] = count.count
             
             return {
-                "collection": config.collection_name,
+                "collection": config.default_collection,
                 "total_documents": total_count,
                 "vector_dimensions": collection_info.config.params.vectors.size,
                 "distance_metric": collection_info.config.params.vectors.distance.name,

@@ -70,10 +70,10 @@ class ServerManager:
             logger.info("Starting MCP Educational Server")
             logger.info("=" * 70)
             logger.info(f"Configuration:")
-            logger.info(f"  - Host: {self.config.host}")
-            logger.info(f"  - Port: {self.config.port}")
+            logger.info(f"  - Host: {self.config.http_host}")
+            logger.info(f"  - Port: {self.config.http_port}")
             logger.info(f"  - Vector DB: {self.config.vector_db_url}")
-            logger.info(f"  - Collection: {self.config.collection_name}")
+            logger.info(f"  - Collection: {self.config.default_collection}")
             logger.info(f"  - RBAC Enabled: {self.config.enable_rbac}")
             logger.info("=" * 70)
 

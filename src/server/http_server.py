@@ -158,8 +158,8 @@ class HTTPMCPServer(BaseMCPServer):
         # Configure and start Uvicorn server
         uvicorn_config = uvicorn.Config(
             self.app,
-            host=self.config.host,
-            port=self.config.port,
+            host=self.config.http_host,
+            port=self.config.http_port,
             log_level="info",
             access_log=True,
             server_header=False,  # Don't expose server version
@@ -169,11 +169,11 @@ class HTTPMCPServer(BaseMCPServer):
         self._uvicorn_server = uvicorn.Server(uvicorn_config)
         
         logger.info(
-            f"Starting HTTP server on {self.config.host}:{self.config.port}..."
+            f"Starting HTTP server on {self.config.http_host}:{self.config.http_port}..."
         )
-        logger.info(f"  - Swagger UI: http://{self.config.host}:{self.config.port}/docs")
-        logger.info(f"  - MCP endpoint: http://{self.config.host}:{self.config.port}/mcp")
-        logger.info(f"  - SSE endpoint: http://{self.config.host}:{self.config.port}/sse")
+        logger.info(f"  - Swagger UI: http://{self.config.http_host}:{self.config.http_port}/docs")
+        logger.info(f"  - MCP endpoint: http://{self.config.http_host}:{self.config.http_port}/mcp")
+        logger.info(f"  - SSE endpoint: http://{self.config.http_host}:{self.config.http_port}/sse")
         
         # Start the server (this blocks until shutdown)
         await self._uvicorn_server.serve()
