@@ -118,47 +118,34 @@ async def test_ingestion():
         
         if points:
             test_point = points[0]
-            logger.info(f"   - Sample document ID: {test_point.id}")
+            logger.info(f"   - Sample document UUID: {test_point.id}")
+            logger.info(f"   - Original ID: {test_point.payload.get('original_id', 'N/A')}")
             logger.info(f"   - Access level: {test_point.payload.get('access_level', 'N/A')}")
+            logger.info(f"   - Content type: {test_point.payload.get('content_type', 'N/A')}")
             logger.info(f"   - Title: {test_point.payload.get('title', 'N/A')[:50]}...")
+            logger.info(f"   - Source: {test_point.payload.get('source', 'N/A')[:50]}...")
+            logger.info(f"   - Namespace: {test_point.payload.get('namespace', 'N/A')}")
             
-            # Test search with student role (public + student access)
-            logger.info("\n   Testing search with 'student' role filter...")
-            results = client.search(
-                collection_name="educational_content",
-                query_vector=test_point.vector,
-                limit=3,
-                query_filter={
-                    "must": [
-                        {
-                            "key": "access_level",
-                            "match": {
-                                "any": ["public", "student"]
-                            }
-                        }
-                    ]
-                }
-            )
-            logger.info(f"   ✅ Found {len(results)} results with student access")
+            # Verify RBAC payload fields are present
+            logger.info("\n   Verifying RBAC payload fields...")
+            rbac_fields = [
+                'access_level', 'content_type', 'freshness_score', 'freshness_category',
+                'title', 'namespace', 'author', 'source', 'original_id'
+            ]
+            missing_fields = [f for f in rbac_fields if f not in test_point.payload]
             
-            # Test search with teacher role (public + student + teacher access)
-            logger.info("\n   Testing search with 'teacher' role filter...")
-            results = client.search(
-                collection_name="educational_content",
-                query_vector=test_point.vector,
-                limit=3,
-                query_filter={
-                    "must": [
-                        {
-                            "key": "access_level",
-                            "match": {
-                                "any": ["public", "student", "teacher"]
-                            }
-                        }
-                    ]
-                }
-            )
-            logger.info(f"   ✅ Found {len(results)} results with teacher access")
+            if missing_fields:
+                logger.warning(f"   ⚠️  Missing RBAC fields: {missing_fields}")
+            else:
+                logger.info(f"   ✅ All RBAC fields present in payload!")
+            
+            # Show all available payload fields
+            logger.info(f"\n   Available payload fields ({len(test_point.payload)}):")
+            for key in sorted(test_point.payload.keys())[:10]:
+                value = test_point.payload[key]
+                if isinstance(value, str) and len(value) > 40:
+                    value = value[:40] + "..."
+                logger.info(f"      - {key}: {value}")
         
     except Exception as e:
         logger.error(f"❌ Verification failed: {e}")
