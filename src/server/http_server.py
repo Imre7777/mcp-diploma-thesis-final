@@ -17,6 +17,9 @@ from sse_starlette.sse import EventSourceResponse
 
 from src.config.server_config import ServerConfig
 from src.server.base import BaseMCPServer
+from src.server.oauth_metadata import create_oauth_metadata_router
+from src.middleware.auth import AuthenticationMiddleware
+from src.auth.oauth_flow import create_oauth_router
 
 logger = logging.getLogger(__name__)
 
@@ -56,8 +59,39 @@ class HTTPMCPServer(BaseMCPServer):
         )
         
         self._uvicorn_server: Optional[uvicorn.Server] = None
+        self._register_routers()
         self._register_endpoints()
 
+    def _register_routers(self) -> None:
+        """
+        Register routers for OAuth and metadata endpoints.
+        
+        This must be called before _register_endpoints() to ensure
+        OAuth routes are registered before middleware is applied.
+        """
+        # Register OAuth metadata endpoint (if Scalekit configured)
+        if self.config.scalekit_env_url:
+            oauth_metadata_router = create_oauth_metadata_router(
+                auth_server_url=self.config.scalekit_env_url,
+                mcp_resource_url=f"http://localhost:{self.config.http_port}",
+                mcp_resource_id="mcp-edu-server",
+            )
+            self.app.include_router(oauth_metadata_router)
+            logger.info("OAuth metadata endpoints registered")
+            
+            # Register OAuth login/callback/logout endpoints
+            oauth_router = create_oauth_router(
+                scalekit_env_url=self.config.scalekit_env_url,
+                client_id=self.config.scalekit_client_id,
+                client_secret=self.config.scalekit_client_secret,
+                redirect_uri=f"http://localhost:{self.config.http_port}/auth/callback",
+                frontend_callback_url=None,  # Return JSON tokens (for API clients)
+            )
+            self.app.include_router(oauth_router)
+            logger.info("OAuth authentication endpoints registered: /auth/login, /auth/callback, /auth/logout")
+        else:
+            logger.warning("Scalekit not configured. OAuth endpoints not registered.")
+    
     def _register_endpoints(self) -> None:
         """
         Register HTTP endpoints for the server.
