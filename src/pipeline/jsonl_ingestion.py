@@ -13,6 +13,7 @@ embeddings into the Qdrant vector database. It includes:
 import asyncio
 import json
 import logging
+import uuid
 from pathlib import Path
 from typing import Any
 from datetime import datetime
@@ -304,8 +305,16 @@ class JSONLIngestionPipeline:
                         
                         # Extract payload and create Qdrant point
                         payload = extract_payload_from_document(doc)
+                        
+                        # Convert string ID to UUID (Qdrant requirement)
+                        # Using UUID5 for deterministic conversion (same string = same UUID)
+                        point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, doc["id"]))
+                        
+                        # Store original ID in payload for reference
+                        payload["original_id"] = doc["id"]
+                        
                         point = PointStruct(
-                            id=doc["id"],
+                            id=point_id,
                             vector=doc["embedding"],
                             payload=payload
                         )
