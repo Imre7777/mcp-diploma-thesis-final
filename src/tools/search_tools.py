@@ -18,11 +18,11 @@ logger = logging.getLogger(__name__)
 
 # Access level hierarchies for RBAC
 # Each role can see its own level plus all levels below it
+# NOTE: No "public" role - all users must authenticate!
 ROLE_ACCESS_LEVELS = {
-    "public": ["public"],
-    "student": ["public", "student"],
-    "teacher": ["public", "student", "teacher"],
-    "admin": ["public", "student", "teacher", "admin"],
+    "student": ["student"],
+    "teacher": ["student", "teacher"],
+    "admin": ["student", "teacher", "admin"],
 }
 
 
@@ -70,7 +70,7 @@ def register_search_tools(
     @mcp.tool()
     async def search_content(
         query: str,
-        user_role: str = "public",
+        user_role: str = "student",
         limit: int = 10,
         namespace: Optional[str] = None,
         content_type: Optional[str] = None,
@@ -83,7 +83,7 @@ def register_search_tools(
         
         Args:
             query: Search query text
-            user_role: User's role (public, student, teacher, admin). Default: public
+            user_role: User's role (student, teacher, admin). Default: student
             limit: Maximum number of results to return. Default: 10
             namespace: Optional namespace filter (e.g., "course:math")
             content_type: Optional content type filter (e.g., "KNOWLEDGE", "TUTORIAL")
@@ -114,8 +114,8 @@ def register_search_tools(
             
             # Validate user role
             if user_role not in ROLE_ACCESS_LEVELS:
-                logger.warning(f"Invalid user role '{user_role}', defaulting to 'public'")
-                user_role = "public"
+                logger.warning(f"Invalid user role '{user_role}', defaulting to 'student'")
+                user_role = "student"
             
             # Generate embedding for query
             logger.debug(f"Generating embedding for query: '{query[:50]}...'")

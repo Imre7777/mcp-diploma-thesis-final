@@ -67,10 +67,13 @@ class HTTPMCPServer(BaseMCPServer):
         - /sse: Server-Sent Events endpoint for MCP remotes
         """
         
-        @self.app.get("/health", tags=["monitoring"])
+        @self.app.get("/health", tags=["monitoring"], include_in_schema=False)
         async def health_check():
             """
             Health check endpoint for monitoring and load balancers.
+            
+            Public endpoint - no authentication required.
+            Used by Docker health checks, load balancers, and monitoring tools.
             
             Returns:
                 dict: Server status and basic info
@@ -80,6 +83,7 @@ class HTTPMCPServer(BaseMCPServer):
                 "server": self.name,
                 "initialized": self._initialized,
                 "rbac_enabled": self.config.enable_rbac,
+                "authentication": "required",
             }
 
         @self.app.get("/sse", tags=["mcp"])
