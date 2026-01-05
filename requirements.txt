@@ -1,0 +1,62 @@
+# ============================================================================
+# MCP Educational Server - Requirements
+# Diploma Thesis Project - HTL
+# ============================================================================
+
+# Core MCP Protocol
+mcp>=1.0.0
+
+# Web Framework & Server
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+python-multipart>=0.0.6  # File upload support
+sse-starlette>=1.6  # Server-Sent Events for streaming
+
+# Vector Database
+qdrant-client>=1.11.0
+
+# Embeddings - OpenAI API for query embeddings
+# Note: Document embeddings are pre-computed and stored in Qdrant
+# We only generate embeddings for search queries in real-time
+
+# Authentication & Security (Scalekit Integration)
+pyjwt[crypto]>=2.8.0  # JWT token verification
+cryptography>=41.0.0  # Crypto utilities for JWT
+httpx>=0.25.0  # For JWKS fetching from Scalekit
+python-jose[cryptography]>=3.3.0  # Alternative JWT library
+
+# Configuration & Validation
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+python-dotenv>=1.0.0
+
+# Data Pipeline (JSONL Ingestion)
+watchdog>=3.0.0  # File system monitoring
+aiofiles>=23.0.0  # Async file operations
+
+# Performance & Caching
+cachetools>=5.3.0  # In-memory caching
+numpy>=1.24.0  # Numerical operations
+
+# Logging & Observability
+structlog>=23.1.0  # Structured logging
+colorama>=0.4.6  # Colored terminal output
+
+# System Monitoring
+psutil>=5.9.0  # System metrics
+
+# Development & Testing
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.0.0
+pytest-httpx>=0.22.0  # HTTP client mocking
+ruff>=0.1.0  # Linting and formatting
+mypy>=1.5.0  # Type checking
+black>=23.0.0  # Code formatting
+
+# Rate Limiting
+asyncio-throttle>=1.0.0  # Rate limiting for API calls
+slowapi>=0.1.9  # FastAPI rate limiting middleware
+
+# OpenAI for query embedding generation
+openai>=1.0.0  # Required for real-time query embeddings (matches text-embedding-3-large)
