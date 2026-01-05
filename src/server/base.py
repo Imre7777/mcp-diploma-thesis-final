@@ -13,6 +13,7 @@ from mcp.server.fastmcp import FastMCP
 
 from src.backends import create_vector_backend
 from src.config.server_config import ServerConfig
+from src.utils.embeddings import create_embedding_service
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +45,7 @@ class BaseMCPServer:
         self.config = config or ServerConfig()
         self.mcp: Optional[FastMCP] = None
         self.db: Optional[any] = None
+        self.embedding_service: Optional[any] = None
         self._shutdown_event = asyncio.Event()
         self._initialized = False
         
@@ -100,6 +102,7 @@ class BaseMCPServer:
         
         Creates:
         - Vector database backend (Qdrant)
+        - Embedding service (OpenAI or mock)
         """
         try:
             logger.info("Creating vector database backend...")
@@ -109,6 +112,20 @@ class BaseMCPServer:
                 api_key=self.config.vector_db_api_key,
             )
             logger.info(f"Vector database backend created: {self.config.vector_db_backend}")
+            
+            logger.info("Creating embedding service...")
+            self.embedding_service = create_embedding_service(
+                model=self.config.embedding_model,
+                dimensions=self.config.vector_dimensions,
+                api_key=None,  # Will use OPENAI_API_KEY environment variable
+            )
+            if self.embedding_service.is_using_mock:
+                logger.warning(
+                    "⚠️  Using mock embeddings (no API key). "
+                    "Set OPENAI_API_KEY environment variable for real search."
+                )
+            else:
+                logger.info("✅ Embedding service ready (OpenAI API)")
 
         except Exception as e:
             logger.error(f"Failed to create dependencies: {e}", exc_info=True)
@@ -124,7 +141,7 @@ class BaseMCPServer:
             from src.tools import register_all_tools
             
             logger.info("Registering MCP tools...")
-            register_all_tools(self.mcp, self.db, self.config)
+            register_all_tools(self.mcp, self.db, self.embedding_service, self.config)
             logger.info("Tools registered successfully")
             
         except Exception as e:

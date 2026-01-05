@@ -53,6 +53,7 @@ def get_access_filter(user_role: str) -> Filter:
 def register_search_tools(
     mcp: FastMCP,
     db: QdrantBackend,
+    embedding_service,
     config: Optional[ServerConfig] = None
 ) -> None:
     """
@@ -61,6 +62,7 @@ def register_search_tools(
     Args:
         mcp: FastMCP server instance
         db: Qdrant database backend
+        embedding_service: Embedding service for query vectorization
         config: Server configuration
     """
     config = config or ServerConfig()
@@ -115,52 +117,84 @@ def register_search_tools(
                 logger.warning(f"Invalid user role '{user_role}', defaulting to 'public'")
                 user_role = "public"
             
-            # Build filters
-            filters = {}
+            # Generate embedding for query
+            logger.debug(f"Generating embedding for query: '{query[:50]}...'")
+            query_vector = embedding_service.embed_query(query)
+            logger.debug(f"Embedding generated: {len(query_vector)} dimensions")
+            
+            # Build Qdrant filters
+            query_filter = None
+            filter_conditions = []
             
             # Add RBAC filter if enabled
             if config.enable_rbac:
                 allowed_levels = ROLE_ACCESS_LEVELS[user_role]
-                filters["access_level"] = allowed_levels
+                filter_conditions.append(
+                    FieldCondition(
+                        key="access_level",
+                        match=MatchAny(any=allowed_levels)
+                    )
+                )
                 logger.debug(f"RBAC filter: access_level in {allowed_levels}")
             
             # Add optional filters
             if namespace:
-                filters["namespace"] = namespace
+                filter_conditions.append(
+                    FieldCondition(
+                        key="namespace",
+                        match={"value": namespace}
+                    )
+                )
                 logger.debug(f"Namespace filter: {namespace}")
             
             if content_type:
-                filters["content_type"] = content_type
+                filter_conditions.append(
+                    FieldCondition(
+                        key="content_type",
+                        match={"value": content_type}
+                    )
+                )
                 logger.debug(f"Content type filter: {content_type}")
             
-            # Perform search using the query method (new Qdrant API)
-            # Note: query() with query_text requires the Qdrant server to have
-            # a configured embedding model. For now, we'll need to generate
-            # embeddings client-side. This is a placeholder for the correct implementation.
+            # Create filter if we have conditions
+            if filter_conditions:
+                query_filter = Filter(must=filter_conditions)
             
-            # TODO: Integrate embedding service for client-side embedding generation
-            # For now, return a placeholder response
-            logger.warning(
-                "Embedding service not yet integrated. "
-                "This is a placeholder implementation."
+            # Perform vector search
+            logger.debug(f"Searching collection '{config.default_collection}' with {len(filter_conditions)} filters")
+            search_results = db.client.search(
+                collection_name=config.default_collection,
+                query_vector=query_vector,
+                limit=limit,
+                query_filter=query_filter,
+                with_payload=True,
+                with_vectors=False,
             )
             
-            return [
-                {
-                    "title": "Search implementation pending",
-                    "text": (
-                        f"Searching for: {query}\n"
-                        f"Role: {user_role}\n"
-                        f"Filters: {filters}\n"
-                        f"This tool will be fully functional after embedding service integration."
-                    ),
-                    "score": 1.0,
+            logger.info(f"Found {len(search_results)} results")
+            
+            # Format results
+            formatted_results = []
+            for result in search_results:
+                formatted_results.append({
+                    "title": result.payload.get("title", "Untitled"),
+                    "text": result.payload.get("text", "")[:500] + "..." if len(result.payload.get("text", "")) > 500 else result.payload.get("text", ""),
+                    "score": float(result.score),
                     "metadata": {
-                        "status": "pending_implementation",
-                        "filters_applied": filters,
+                        "id": result.payload.get("original_id", str(result.id)),
+                        "access_level": result.payload.get("access_level", "unknown"),
+                        "namespace": result.payload.get("namespace", "unknown"),
+                        "content_type": result.payload.get("content_type", "unknown"),
+                        "source": result.payload.get("source", "unknown"),
+                        "author": result.payload.get("author", "unknown"),
+                        "freshness_score": result.payload.get("freshness_score", 0),
+                        "freshness_category": result.payload.get("freshness_category", "unknown"),
+                        "chunk_index": result.payload.get("chunk_index", 0),
+                        "total_chunks": result.payload.get("total_chunks", 1),
                     }
-                }
-            ]
+                })
+            
+            return formatted_results
             
         except Exception as e:
             logger.error(f"Search error: {e}", exc_info=True)

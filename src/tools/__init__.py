@@ -13,17 +13,18 @@ __all__ = [
 ]
 
 
-def register_all_tools(mcp, db, config=None):
+def register_all_tools(mcp, db, embedding_service, config=None):
     """
     Register all MCP tools with the FastMCP server.
 
     Args:
         mcp: FastMCP server instance
-        db: Vector database instance  
+        db: Vector database instance
+        embedding_service: Embedding service for query vectorization
         config: Server configuration instance
     """
     # Register search tools with RBAC support
-    register_search_tools(mcp, db, config)
+    register_search_tools(mcp, db, embedding_service, config)
     
     # Future: Register additional tool categories
     # - Document management tools
