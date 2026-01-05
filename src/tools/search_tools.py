@@ -162,14 +162,14 @@ def register_search_tools(
             
             # Perform vector search
             logger.debug(f"Searching collection '{config.default_collection}' with {len(filter_conditions)} filters")
-            search_results = db.client.search(
+            search_results = db.client.query_points(
                 collection_name=config.default_collection,
-                query_vector=query_vector,
+                query=query_vector,
                 limit=limit,
                 query_filter=query_filter,
                 with_payload=True,
                 with_vectors=False,
-            )
+            ).points
             
             logger.info(f"Found {len(search_results)} results")
             

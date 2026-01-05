@@ -121,11 +121,11 @@ class BaseMCPServer:
             )
             if self.embedding_service.is_using_mock:
                 logger.warning(
-                    "⚠️  Using mock embeddings (no API key). "
+                    "WARNING: Using mock embeddings (no API key). "
                     "Set OPENAI_API_KEY environment variable for real search."
                 )
             else:
-                logger.info("✅ Embedding service ready (OpenAI API)")
+                logger.info("Embedding service ready (OpenAI API)")
 
         except Exception as e:
             logger.error(f"Failed to create dependencies: {e}", exc_info=True)
