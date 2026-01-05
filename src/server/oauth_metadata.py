@@ -15,9 +15,12 @@ Reference: https://docs.scalekit.com/authenticate/mcp/quickstart/
 """
 
 import json
+import logging
 from typing import Dict, Any
 from fastapi import Response
 from src.config.server_config import ServerConfig
+
+logger = logging.getLogger(__name__)
 
 
 async def get_oauth_protected_resource_metadata(config: ServerConfig) -> Response:
@@ -40,7 +43,6 @@ async def get_oauth_protected_resource_metadata(config: ServerConfig) -> Respons
     Returns:
         JSON response with OAuth 2.1 metadata
     """
-    logger = config.logger
     
     try:
         logger.info("OAuth protected resource metadata requested")

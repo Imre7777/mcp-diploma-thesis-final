@@ -34,6 +34,7 @@ Date: January 2026
 
 import sys
 import asyncio
+import logging
 from pathlib import Path
 
 # Add src to path
@@ -46,16 +47,22 @@ from starlette.middleware.cors import CORSMiddleware
 from src.config.server_config import ServerConfig
 from src.middleware.scalekit_auth import create_scalekit_middleware
 from src.server.oauth_metadata import get_oauth_protected_resource_metadata, validate_metadata_configuration
-from src.tools.search_tools import SearchTools
 from src.backends import create_vector_backend
-from src.utils.embeddings import OpenAIEmbeddingService
+from src.utils.embeddings import EmbeddingService
+from src.tools.search_tools import get_access_filter
 
 
 # ============================================================================
 # Configuration & Initialization
 # ============================================================================
 config = ServerConfig()
-logger = config.logger
+
+# Setup logger
+logging.basicConfig(
+    level=getattr(logging, config.log_level.upper(), logging.INFO),
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 logger.info("=" * 80)
 logger.info("MCP EDUCATIONAL SERVER - Official Scalekit Architecture")
@@ -108,39 +115,48 @@ async def search_content(
     try:
         logger.info(f"Search request: query='{query}', limit={limit}, access_level={access_level}")
         
-        # Initialize search tools if not already done
-        if not hasattr(search_content, '_tools'):
-            logger.info("Initializing search tools...")
-            db = create_vector_backend(
+        # Initialize backend and embedding service if not already done
+        if not hasattr(search_content, '_initialized'):
+            logger.info("Initializing search backend...")
+            search_content._db = create_vector_backend(
                 name=config.vector_db_backend,
                 url=config.vector_db_url,
                 api_key=config.vector_db_api_key
             )
-            embedding_service = OpenAIEmbeddingService(
+            search_content._embedding_service = EmbeddingService(
                 api_key=config.openai_api_key,
                 model=config.embedding_model
             )
-            search_content._tools = SearchTools(db=db, embedding_service=embedding_service, config=config)
-            logger.info("Search tools initialized successfully")
+            search_content._initialized = True
+            logger.info("Search backend initialized successfully")
+        
+        # Generate query embedding
+        query_embedding = await search_content._embedding_service.generate_embedding(query)
+        
+        # Create RBAC filter
+        access_filter = get_access_filter(access_level) if config.enable_rbac else None
         
         # Perform search
-        results = await search_content._tools.search_educational_content(
-            query=query,
+        results = await search_content._db.search(
+            collection_name=config.default_collection,
+            query_vector=query_embedding,
             limit=limit,
-            user_role=access_level
+            filters=access_filter
         )
         
-        logger.info(f"Search completed: {len(results.get('results', []))} results found")
+        logger.info(f"Search completed: {len(results)} results found")
+        
+        # Format results
+        formatted_results = "\n\n".join([
+            f"**Result {i+1}** (score: {r.score:.3f})\n{r.text}\n" +
+            f"Source: {r.metadata.get('source', 'N/A')}"
+            for i, r in enumerate(results)
+        ])
         
         return {
             "content": [{
                 "type": "text",
-                "text": f"Found {len(results.get('results', []))} results for '{query}'\n\n" +
-                       "\n\n".join([
-                           f"**Result {i+1}** (score: {r['score']:.3f})\n{r['text']}\n" +
-                           f"Source: {r['metadata'].get('source', 'N/A')}"
-                           for i, r in enumerate(results.get('results', []))
-                       ])
+                "text": f"Found {len(results)} results for '{query}'\n\n{formatted_results}" if results else f"No results found for '{query}'"
             }]
         }
         

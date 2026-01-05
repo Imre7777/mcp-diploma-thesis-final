@@ -14,6 +14,7 @@ Architecture:
 Reference: https://github.com/scalekit-inc/mcp-auth-demos
 """
 
+import logging
 from typing import Callable
 from fastapi import Request, Response
 from scalekit import ScalekitClient
@@ -38,7 +39,7 @@ class ScalekitAuthMiddleware:
             config: Server configuration with Scalekit credentials
         """
         self.config = config
-        self.logger = config.logger
+        self.logger = logging.getLogger(__name__)
         
         # Initialize Scalekit client
         try:
