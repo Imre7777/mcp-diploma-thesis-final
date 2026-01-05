@@ -321,14 +321,29 @@ async def startup_event():
 # Main Entry Point
 # ============================================================================
 if __name__ == "__main__":
-    import uvicorn
+    import sys
     
-    logger.info(f"Starting server on http://{config.http_host}:{config.server_port}")
-    logger.info(f"Log level: {config.log_level}")
+    # Determine transport mode:
+    # - STDIO mode: when Claude Desktop runs the server (no --http flag)
+    # - HTTP mode: when manually started with --http flag
     
-    uvicorn.run(
-        app,
-        host=config.http_host,
-        port=config.server_port,
-        log_level=config.log_level.lower(),
-    )
+    if "--http" in sys.argv:
+        # HTTP mode for direct server usage
+        import uvicorn
+        
+        logger.info(f"Starting HTTP server on http://{config.http_host}:{config.server_port}")
+        logger.info(f"Log level: {config.log_level}")
+        
+        uvicorn.run(
+            app,
+            host=config.http_host,
+            port=config.server_port,
+            log_level=config.log_level.lower(),
+        )
+    else:
+        # STDIO mode for Claude Desktop
+        logger.info("Running in STDIO mode (for Claude Desktop)")
+        logger.info("To run as HTTP server, use: python main.py --http")
+        
+        # Use FastMCP's built-in STDIO runner
+        mcp.run()
