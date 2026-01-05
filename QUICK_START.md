@@ -8,14 +8,14 @@
 
 ### 2. Start Qdrant
 ```powershell
-# Start Qdrant container
-docker run -d --name qdrant -p 6333:6333 -p 6334:6334 -v qdrant_data:/qdrant/storage qdrant/qdrant
+# Start Qdrant container (unique name to avoid conflicts)
+docker run -d --name qdrant-mcp-edu -p 6334:6333 -p 6335:6334 -v qdrant_mcp_edu_data:/qdrant/storage qdrant/qdrant
 
 # Verify it's running
-docker ps | Select-String "qdrant"
+docker ps | Select-String "qdrant-mcp-edu"
 
 # Check Qdrant is accessible
-curl http://localhost:6333
+curl http://localhost:6334
 ```
 
 Expected output: `{"title":"qdrant - vector search engine","version":"..."}`

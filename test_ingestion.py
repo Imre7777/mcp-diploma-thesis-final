@@ -33,7 +33,7 @@ async def test_ingestion():
     # Step 1: Connect to Qdrant
     logger.info("\n[1/5] Connecting to Qdrant...")
     try:
-        client = QdrantClient(url="http://localhost:6333")
+        client = QdrantClient(url="http://localhost:6334")  # Port 6334 for qdrant-mcp-edu container
         health = client.get_collections()
         logger.info(f"✅ Connected to Qdrant! Found {len(health.collections)} collections")
     except Exception as e:

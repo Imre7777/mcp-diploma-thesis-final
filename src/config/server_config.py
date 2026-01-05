@@ -66,8 +66,8 @@ class ServerConfig(BaseSettings):
         description="Vector database backend (currently only qdrant supported)"
     )
     vector_db_url: str = Field(
-        "http://localhost:6333",
-        description="Qdrant connection URL"
+        "http://localhost:6334",
+        description="Qdrant connection URL (port 6334 for qdrant-mcp-edu container)"
     )
     vector_db_api_key: str | None = Field(
         None,
