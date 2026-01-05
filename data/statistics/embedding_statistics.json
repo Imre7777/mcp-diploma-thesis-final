@@ -1,0 +1,18 @@
+{
+  "collections": {
+    "pages": {
+      "docs": 197,
+      "chunks": 757
+    },
+    "media": {
+      "docs": 300,
+      "chunks": 1523
+    }
+  },
+  "embedding_api": {
+    "total_tokens": 741403,
+    "total_requests": 24,
+    "total_cost": 0.09638238999999998
+  },
+  "timestamp": "2026-01-04T15:08:58.515924"
+}
