@@ -1,0 +1,110 @@
+# MCP Educational Server - Production Docker Compose
+# Domain: https://leowiki-mcp.stream
+# Raspberry Pi Deployment
+
+version: '3.8'
+
+services:
+  # Qdrant Vector Database
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: mcp-qdrant
+    restart: unless-stopped
+    ports:
+      - "6334:6334"
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__SERVICE__HTTP_PORT=6333
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - mcp-network
+
+  # MCP Educational Server
+  mcp-server:
+    build: .
+    container_name: mcp-server
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    environment:
+      # Vector Database
+      - VECTOR_DB_URL=http://qdrant:6334
+      - DEFAULT_COLLECTION=educational_content
+      
+      # Server Config
+      - HTTP_HOST=0.0.0.0
+      - HTTP_PORT=8000
+      - LOG_LEVEL=INFO
+      
+      # RBAC
+      - ENABLE_RBAC=true
+      - DEFAULT_USER_ROLE=student
+      
+      # OAuth (set via .env file)
+      - ENABLE_AUTH=${ENABLE_AUTH:-false}
+      - SCALEKIT_ENV_URL=${SCALEKIT_ENV_URL}
+      - SCALEKIT_CLIENT_ID=${SCALEKIT_CLIENT_ID}
+      - SCALEKIT_CLIENT_SECRET=${SCALEKIT_CLIENT_SECRET}
+      
+      # OpenAI
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - EMBEDDING_MODEL=text-embedding-3-large
+    volumes:
+      # Data directories for ingestion
+      - ./data/incoming:/app/data/incoming
+      - ./data/processed:/app/data/processed
+      - ./data/failed:/app/data/failed
+      - ./data/jsonl:/app/data/jsonl:ro
+      - ./data/statistics:/app/data/statistics
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - mcp-network
+
+  # Caddy Reverse Proxy (HTTPS with Let's Encrypt)
+  caddy:
+    image: caddy:2-alpine
+    container_name: mcp-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # HTTP/3 support
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      mcp-server:
+        condition: service_healthy
+    networks:
+      - mcp-network
+    environment:
+      - DOMAIN=leowiki-mcp.stream
+
+networks:
+  mcp-network:
+    driver: bridge
+
+volumes:
+  qdrant_data:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local
