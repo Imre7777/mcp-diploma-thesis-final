@@ -14,10 +14,12 @@ import asyncio
 import json
 import logging
 import shutil
+import time
 import uuid
 from pathlib import Path
 from typing import Any
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import aiofiles
 from watchdog.observers import Observer
@@ -31,15 +33,72 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 # Validation Functions
 # ============================================================================
+def _parse_inline_metadata(text: str, doc_id: str) -> dict:
+    """
+    Parse inline metadata from text field (legacy format support).
+    
+    Expected format in text:
+        "Title: ...\nNamespace: ...\nContent_Type: ..."
+    
+    Args:
+        text: Text content with inline metadata
+        doc_id: Document ID for logging
+        
+    Returns:
+        Dictionary with frontmatter structure
+    """
+    metadata = {
+        "title": "Untitled",
+        "namespace": "default",
+        "content_type": "KNOWLEDGE",
+        "access_level": "student"  # Default
+    }
+    
+    # Parse inline metadata from text (first few lines)
+    lines = text.split('\n')[:5]  # Check first 5 lines
+    
+    for line in lines:
+        if ':' in line:
+            key, value = line.split(':', 1)
+            key = key.strip().lower()
+            value = value.strip()
+            
+            if key == "title":
+                metadata["title"] = value
+            elif key == "namespace":
+                metadata["namespace"] = value
+                # Set access_level based on namespace
+                if "teacher" in value.lower() or "exams" in value.lower():
+                    metadata["access_level"] = "teacher"
+                elif "admin" in value.lower():
+                    metadata["access_level"] = "admin"
+                else:
+                    metadata["access_level"] = "student"
+            elif key == "content_type":
+                metadata["content_type"] = value
+    
+    logger.debug(
+        f"Parsed metadata for {doc_id}: "
+        f"title={metadata['title']}, namespace={metadata['namespace']}, "
+        f"access_level={metadata['access_level']}"
+    )
+    
+    return metadata
+
+
 def validate_jsonl_document(doc: dict) -> tuple[bool, str]:
     """
     Validate a single JSONL document structure.
+    
+    Supports two formats:
+    1. New format with metadata.frontmatter structure
+    2. Legacy format with inline metadata in text field (auto-converted)
     
     Required fields:
     - id: str
     - text: str
     - embedding: list[float] with 3072 dimensions
-    - metadata: dict with frontmatter containing access_level
+    - metadata: dict with frontmatter containing access_level (auto-created if missing)
     
     Args:
         doc: Document dictionary from JSONL line
@@ -59,9 +118,6 @@ def validate_jsonl_document(doc: dict) -> tuple[bool, str]:
     if "embedding" not in doc:
         return False, "Missing required field: 'embedding'"
     
-    if "metadata" not in doc or not isinstance(doc["metadata"], dict):
-        return False, "Missing or invalid 'metadata' field (must be dict)"
-    
     # Validate embedding dimensions
     embedding = doc["embedding"]
     if not isinstance(embedding, list):
@@ -74,12 +130,29 @@ def validate_jsonl_document(doc: dict) -> tuple[bool, str]:
     if not all(isinstance(v, (int, float)) for v in embedding):
         return False, "'embedding' must contain only numbers (int/float)"
     
-    # Validate metadata structure
-    metadata = doc["metadata"]
-    if "frontmatter" not in metadata:
-        return False, "Missing 'frontmatter' in metadata"
+    # Auto-create metadata structure if missing (legacy format support)
+    if "metadata" not in doc or not isinstance(doc["metadata"], dict):
+        logger.info(f"Auto-creating metadata structure for document {doc['id']} (legacy format)")
+        doc["metadata"] = {}
     
-    frontmatter = metadata["frontmatter"]
+    metadata = doc["metadata"]
+    
+    # Auto-create frontmatter if missing (legacy format support)
+    if "frontmatter" not in metadata:
+        # Check if metadata already has the required fields directly (flat structure)
+        if "access_level" in metadata or "title" in metadata:
+            # Metadata is already in the correct format, just flat instead of nested
+            logger.debug(f"Using flat metadata structure for document {doc['id']}")
+            frontmatter = metadata  # Use metadata directly as frontmatter (no nesting needed)
+        else:
+            # Parse from text field (old format)
+            logger.info(f"Parsing inline metadata from text field for document {doc['id']}")
+            frontmatter = _parse_inline_metadata(doc["text"], doc["id"])
+            metadata["frontmatter"] = frontmatter
+    
+    # Get frontmatter reference (either nested or flat)
+    frontmatter = metadata.get("frontmatter", metadata)
+    
     if not isinstance(frontmatter, dict):
         return False, "'frontmatter' must be a dict"
     
@@ -381,7 +454,7 @@ class JSONLIngestionPipeline:
             self.stats["files_processed"] += 1
             self.stats["documents_ingested"] += stats["ingested_points"]
             self.stats["documents_failed"] += stats["invalid_documents"]
-            self.stats["last_ingestion"] = datetime.now().isoformat()
+            self.stats["last_ingestion"] = datetime.now(ZoneInfo("Europe/Vienna")).isoformat()
             
             success_msg = (
                 f"Successfully ingested {file_path.name}: "
@@ -409,8 +482,8 @@ class JSONLIngestionPipeline:
         
         success, message, stats = await self.ingest_jsonl_file(file_path)
         
-        # Generate timestamp for filename
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        # Generate timestamp for filename (Europe/Vienna timezone)
+        timestamp = datetime.now(ZoneInfo("Europe/Vienna")).strftime("%Y%m%d_%H%M%S")
         
         if success:
             # Move to processed directory
@@ -477,6 +550,64 @@ class JSONLFileHandler(FileSystemEventHandler):
         self.pipeline = pipeline
         super().__init__()
     
+    def _wait_for_file_stable(self, file_path: Path, check_interval: float = 1.0, max_wait: int = 120) -> bool:
+        """
+        Wait until file size is stable (not growing anymore).
+        
+        This prevents processing files that are still being uploaded via SCP/rsync.
+        
+        Args:
+            file_path: Path to file
+            check_interval: Seconds between size checks
+            max_wait: Maximum seconds to wait
+            
+        Returns:
+            True if file is stable, False if timeout or error
+        """
+        logger.info(f"Waiting for file to stabilize: {file_path.name}")
+        
+        try:
+            previous_size = -1
+            stable_count = 0
+            elapsed = 0
+            
+            while elapsed < max_wait:
+                if not file_path.exists():
+                    logger.warning(f"File disappeared while waiting: {file_path.name}")
+                    return False
+                
+                current_size = file_path.stat().st_size
+                
+                if current_size == previous_size:
+                    stable_count += 1
+                    # File size hasn't changed for 2 consecutive checks
+                    if stable_count >= 2:
+                        logger.info(
+                            f"File is stable: {file_path.name} "
+                            f"({current_size / (1024*1024):.2f} MB)"
+                        )
+                        return True
+                else:
+                    stable_count = 0
+                    logger.debug(
+                        f"File still growing: {file_path.name} "
+                        f"({current_size / (1024*1024):.2f} MB)"
+                    )
+                
+                previous_size = current_size
+                time.sleep(check_interval)
+                elapsed += check_interval
+            
+            logger.warning(
+                f"Timeout waiting for file to stabilize: {file_path.name} "
+                f"(waited {max_wait}s)"
+            )
+            return False
+            
+        except Exception as e:
+            logger.error(f"Error waiting for file stability: {e}")
+            return False
+    
     def on_created(self, event: FileCreatedEvent):
         """Handle file creation event."""
         if event.is_directory:
@@ -489,6 +620,13 @@ class JSONLFileHandler(FileSystemEventHandler):
             return
         
         logger.info(f"Detected new file: {file_path.name}")
+        
+        # Wait for file to be completely uploaded
+        if not self._wait_for_file_stable(file_path):
+            logger.error(
+                f"File did not stabilize, skipping processing: {file_path.name}"
+            )
+            return
         
         # Process file asynchronously
         asyncio.run(self.pipeline.process_file(file_path))

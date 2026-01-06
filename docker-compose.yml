@@ -10,10 +10,11 @@ services:
     image: qdrant/qdrant:latest
     container_name: mcp-qdrant
     restart: unless-stopped
-    # NO ports exposed to host - only accessible within Docker network
+    # Port 6333 bound to localhost only for dashboard access
+    ports:
+      - "127.0.0.1:6333:6333"  # HTTP Dashboard - localhost only (SSH/Tailscale tunnel)
     expose:
       - "6334"  # gRPC - internal only
-      - "6333"  # HTTP - internal only
     volumes:
       - qdrant_data:/qdrant/storage
     environment:
@@ -77,6 +78,9 @@ services:
       qdrant:
         condition: service_started
     environment:
+      # Timezone
+      - TZ=Europe/Vienna
+      
       # Vector Database
       - VECTOR_DB_URL=http://qdrant:6333
       - DEFAULT_COLLECTION=educational_content
@@ -129,10 +133,11 @@ networks:
     driver_opts:
       com.docker.network.bridge.name: mcp-frontend
   
-  # Backend network: MCP Server/Watchdog <-> Qdrant (NO internet access)
+  # Backend network: MCP Server/Watchdog <-> Qdrant
+  # Note: internal=false allows localhost port mapping for dashboard access
+  # External access still blocked by UFW firewall
   backend-network:
     driver: bridge
-    internal: true  # ← IMPORTANT: No external access!
     driver_opts:
       com.docker.network.bridge.name: mcp-backend
 
