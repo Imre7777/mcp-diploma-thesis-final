@@ -64,6 +64,40 @@ services:
     networks:
       - mcp-network
 
+  # Watchdog Service (Automatic JSONL Processing)
+  watchdog:
+    build: .
+    container_name: mcp-watchdog
+    restart: unless-stopped
+    command: python -m src.pipeline.watchdog_service
+    depends_on:
+      qdrant:
+        condition: service_started
+    environment:
+      # Vector Database
+      - VECTOR_DB_URL=http://qdrant:6334
+      - DEFAULT_COLLECTION=educational_content
+      
+      # Directories
+      - INCOMING_DIR=/app/data/incoming
+      - PROCESSED_DIR=/app/data/processed
+      - FAILED_DIR=/app/data/failed
+      
+      # OpenAI for embeddings (if needed)
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - EMBEDDING_MODEL=text-embedding-3-large
+      
+      # Logging
+      - LOG_LEVEL=INFO
+    volumes:
+      # Data directories for ingestion
+      - ./data/incoming:/app/data/incoming
+      - ./data/processed:/app/data/processed
+      - ./data/failed:/app/data/failed
+      - ./data/statistics:/app/data/statistics
+    networks:
+      - mcp-network
+
   # Caddy Reverse Proxy (HTTPS with Let's Encrypt)
   caddy:
     image: caddy:2-alpine

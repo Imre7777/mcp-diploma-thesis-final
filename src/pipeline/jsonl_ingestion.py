@@ -13,6 +13,7 @@ embeddings into the Qdrant vector database. It includes:
 import asyncio
 import json
 import logging
+import shutil
 import uuid
 from pathlib import Path
 from typing import Any
@@ -396,12 +397,12 @@ class JSONLIngestionPipeline:
         if success:
             # Move to processed directory
             dest_path = self.processed_dir / f"{timestamp}_{file_path.name}"
-            file_path.rename(dest_path)
+            shutil.move(str(file_path), str(dest_path))
             logger.info(f"Moved {file_path.name} to processed: {dest_path.name}")
         else:
             # Move to failed directory
             dest_path = self.failed_dir / f"{timestamp}_{file_path.name}"
-            file_path.rename(dest_path)
+            shutil.move(str(file_path), str(dest_path))
             logger.error(f"Moved {file_path.name} to failed: {dest_path.name}")
             
             # Write error log

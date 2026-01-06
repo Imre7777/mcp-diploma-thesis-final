@@ -1,0 +1,12 @@
+{
+  "file": "pages_test.jsonl",
+  "timestamp": "20260106_132801",
+  "message": "Collection does not exist and could not be created",
+  "stats": {
+    "total_lines": 0,
+    "valid_documents": 0,
+    "invalid_documents": 0,
+    "ingested_points": 0,
+    "errors": []
+  }
+}
