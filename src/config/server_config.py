@@ -101,6 +101,10 @@ class ServerConfig(BaseSettings):
         "text-embedding-3-large",
         description="Embedding model name (must match pre-computed embeddings!)"
     )
+    openai_api_key: str | None = Field(
+        None,
+        description="OpenAI API key for generating query embeddings (required for semantic search)"
+    )
 
     # ========================================================================
     # Performance Settings

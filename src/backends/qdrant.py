@@ -238,16 +238,45 @@ class QdrantBackend(VectorDatabase):
         qdrant_filter = self.validate_filters(filters)
 
         # Step 4: Execute Qdrant search
-        # Note: Qdrant client 1.11.x uses 'query_filter' parameter (not 'filter')
-        return self.client.search(
-            collection_name=collection,
-            query_vector=query_vector,
-            limit=int(limit),
-            score_threshold=(float(score_threshold) if score_threshold is not None else None),
-            with_payload=bool(with_payload),
-            with_vectors=bool(with_vectors),
-            query_filter=qdrant_filter,
-        )
+        # Note: Modern Qdrant client uses 'query_points()' method with 'query_filter' parameter
+        try:
+            response = self.client.query_points(
+                collection_name=collection,
+                query=query_vector,  # 'query' parameter instead of 'query_vector'
+                limit=int(limit),
+                score_threshold=(float(score_threshold) if score_threshold is not None else None),
+                with_payload=bool(with_payload),
+                with_vectors=bool(with_vectors),
+                query_filter=qdrant_filter,
+            )
+            
+            # Convert Qdrant points to SearchResult objects
+            results = []
+            for point in response.points:
+                # Extract vector if requested
+                vec = None
+                if with_vectors and hasattr(point, "vector"):
+                    if isinstance(point.vector, dict) and "text" in point.vector:
+                        vec = point.vector["text"]
+                    elif isinstance(point.vector, list):
+                        vec = point.vector
+                
+                results.append(SearchResult(
+                    id=str(point.id),
+                    score=float(point.score) if hasattr(point, "score") else 0.0,
+                    payload=point.payload or {},
+                    vector=vec
+                ))
+            
+            logger.debug(f"Search in {collection}: {len(results)} results")
+            return results
+            
+        except ResponseHandlingException as e:
+            logger.error(f"Qdrant response error in search: {e}")
+            return []
+        except Exception as e:
+            logger.error(f"Failed to search collection {collection}: {e}")
+            return []
 
     def count(self, collection: str, filters: dict[str, Any] | None = None) -> int:
         """

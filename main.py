@@ -131,15 +131,15 @@ async def search_content(
             logger.info("Search backend initialized successfully")
         
         # Generate query embedding
-        query_embedding = await search_content._embedding_service.generate_embedding(query)
+        query_embedding = search_content._embedding_service.embed_query(query)
         
         # Create RBAC filter
         access_filter = get_access_filter(access_level) if config.enable_rbac else None
         
-        # Perform search
-        results = await search_content._db.search(
-            collection_name=config.default_collection,
+        # Perform search (synchronous call - Qdrant client is sync)
+        results = search_content._db.search(
             query_vector=query_embedding,
+            collection=config.default_collection,
             limit=limit,
             filters=access_filter
         )
@@ -148,8 +148,8 @@ async def search_content(
         
         # Format results
         formatted_results = "\n\n".join([
-            f"**Result {i+1}** (score: {r.score:.3f})\n{r.text}\n" +
-            f"Source: {r.metadata.get('source', 'N/A')}"
+            f"**Result {i+1}** (score: {r.score:.3f})\n{r.payload.get('text', 'No text available')}\n" +
+            f"Source: {r.payload.get('source', 'N/A')}"
             for i, r in enumerate(results)
         ])
         
@@ -189,10 +189,10 @@ logger.info(f"Registered {len(mcp._tool_manager._tools)} MCP tools")
 
 
 # ============================================================================
-# Create MCP ASGI App (MCP protocol at root "/")
+# Create MCP ASGI App (MCP protocol - path relative to mount point)
 # ============================================================================
-mcp_app = mcp.http_app(path="/")
-logger.info("MCP ASGI app created (mounted at /)")
+mcp_app = mcp.http_app(path="/")  # "/" relative to mount point
+logger.info("MCP ASGI app created (path=/ relative to mount)")
 
 
 # ============================================================================
@@ -271,10 +271,10 @@ logger.info("Public endpoints registered: /.well-known/oauth-protected-resource,
 
 
 # ============================================================================
-# Mount MCP at "/" (LAST so public routes take precedence)
+# Mount MCP at "/mcp" (for HTTP-Streamable production mode)
 # ============================================================================
-app.mount("/", mcp_app)
-logger.info("MCP app mounted at / (MCP protocol endpoints)")
+app.mount("/mcp", mcp_app)
+logger.info("MCP app mounted at /mcp (MCP protocol endpoints for HTTP clients)")
 
 
 # ============================================================================
