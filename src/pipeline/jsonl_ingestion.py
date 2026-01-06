@@ -338,6 +338,47 @@ class JSONLIngestionPipeline:
             logger.error(f"Failed to ensure collection exists: {e}")
             return False
     
+    def clear_collection(self) -> bool:
+        """
+        Delete all points from the collection.
+        
+        This ensures a clean state before ingesting new data,
+        preventing orphaned documents from previous uploads.
+        
+        Returns:
+            True if successful, False on error
+        """
+        try:
+            logger.info(f"🗑️  Clearing all points from collection '{self.collection_name}'...")
+            
+            # Delete all points by using a filter that matches everything
+            # Using scroll to get all point IDs, then delete them
+            scroll_result = self.qdrant_client.scroll(
+                collection_name=self.collection_name,
+                limit=10000,  # Get all points (adjust if you have more than 10k)
+                with_payload=False,
+                with_vectors=False,
+            )
+            
+            point_ids = [point.id for point in scroll_result[0]]
+            
+            if not point_ids:
+                logger.info("Collection is already empty")
+                return True
+            
+            logger.info(f"Deleting {len(point_ids)} existing points...")
+            self.qdrant_client.delete(
+                collection_name=self.collection_name,
+                points_selector=point_ids,
+            )
+            
+            logger.info(f"✅ Cleared {len(point_ids)} points from collection")
+            return True
+        
+        except Exception as e:
+            logger.error(f"Failed to clear collection: {e}")
+            return False
+    
     async def ingest_jsonl_file(self, file_path: Path) -> tuple[bool, str, dict]:
         """
         Ingest a single JSONL file into Qdrant.
@@ -364,6 +405,16 @@ class JSONLIngestionPipeline:
             # Ensure collection exists
             if not self.ensure_collection_exists():
                 return False, "Collection does not exist and could not be created", stats
+            
+            # Clear collection before ingestion if configured
+            # This ensures the uploaded file is the ONLY source of truth
+            clear_before_ingest = os.getenv("CLEAR_COLLECTION_BEFORE_INGEST", "false").lower() == "true"
+            if clear_before_ingest:
+                logger.info("🔄 CLEAR_COLLECTION_BEFORE_INGEST=true: Clearing existing data...")
+                if not self.clear_collection():
+                    logger.warning("Failed to clear collection, continuing anyway...")
+                else:
+                    logger.info("✅ Collection cleared, starting fresh ingestion...")
             
             # Read and process JSONL file line by line
             async with aiofiles.open(file_path, "r", encoding="utf-8") as f:

@@ -85,6 +85,10 @@ services:
       - VECTOR_DB_URL=http://qdrant:6333
       - DEFAULT_COLLECTION=educational_content
       
+      # Ingestion Behavior
+      # IMPORTANT: Clear collection before each upload to ensure colleague's file is the single source of truth
+      - CLEAR_COLLECTION_BEFORE_INGEST=true
+      
       # Directories
       - INCOMING_DIR=/app/data/incoming
       - PROCESSED_DIR=/app/data/processed
