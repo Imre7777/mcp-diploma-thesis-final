@@ -550,7 +550,7 @@ class JSONLFileHandler(FileSystemEventHandler):
         self.pipeline = pipeline
         super().__init__()
     
-    def _wait_for_file_stable(self, file_path: Path, check_interval: float = 1.0, max_wait: int = 120) -> bool:
+    def _wait_for_file_stable(self, file_path: Path, check_interval: float = 1.0, max_wait: int = 300) -> bool:
         """
         Wait until file size is stable (not growing anymore).
         
