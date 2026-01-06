@@ -18,12 +18,6 @@ services:
     environment:
       - QDRANT__SERVICE__GRPC_PORT=6334
       - QDRANT__SERVICE__HTTP_PORT=6333
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     networks:
       - mcp-network
 
@@ -36,7 +30,7 @@ services:
       - "8000:8000"
     depends_on:
       qdrant:
-        condition: service_healthy
+        condition: service_started
     environment:
       # Vector Database
       - VECTOR_DB_URL=http://qdrant:6334
@@ -67,12 +61,6 @@ services:
       - ./data/failed:/app/data/failed
       - ./data/jsonl:/app/data/jsonl:ro
       - ./data/statistics:/app/data/statistics
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     networks:
       - mcp-network
 
@@ -91,7 +79,7 @@ services:
       - caddy_config:/config
     depends_on:
       mcp-server:
-        condition: service_healthy
+        condition: service_started
     networks:
       - mcp-network
     environment:

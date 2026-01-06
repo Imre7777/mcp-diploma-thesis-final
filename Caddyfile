@@ -1,32 +1,54 @@
-# Caddy Configuration for MCP Educational Server
+# Caddy Configuration for MCP Educational Server - Diploma Thesis Final
 # Domain: leowiki-mcp.stream
-
-{
-    # Global options
-    email imre@leowiki-mcp.stream
-    
-    # Use Let's Encrypt production
-    acme_ca https://acme-v02.api.letsencrypt.org/directory
-}
+# HTTP Streamable Protocol with OAuth Support
 
 leowiki-mcp.stream {
-    # Reverse proxy to MCP server
-    reverse_proxy mcp-server:8000 {
-        # Health check
-        health_uri /health
-        health_interval 30s
-        health_timeout 10s
-        
-        # Headers
-        header_up Host {host}
-        header_up X-Real-IP {remote_host}
-        header_up X-Forwarded-For {remote_host}
-        header_up X-Forwarded-Proto {scheme}
+    tls imre.obermueller@gmail.com
+
+    # === SERVER-SENT EVENTS (SSE) CONFIGURATION ===
+    # Critical for MCP HTTP Streamable Protocol
+    @eventStream {
+        path /sse* /mcp
+        header Accept *event-stream*
     }
     
-    # Security headers
+    # Disable caching and buffering for SSE
+    header @eventStream {
+        Cache-Control "no-cache"
+        X-Accel-Buffering "no"
+    }
+
+    # === PUBLIC ENDPOINTS (No Authentication Required) ===
+    @public path /health* /docs* /openapi.json /swagger-ui* /favicon.ico /mcp* /sse* /.well-known/*
+    handle @public {
+        header Cache-Control "no-cache"
+        reverse_proxy http://mcp-server:8000 {
+            # Disable buffering for SSE/streaming responses
+            flush_interval -1
+            
+            # Extended timeout for long-lived SSE connections
+            transport http {
+                read_timeout 0
+                write_timeout 0
+            }
+        }
+    }
+
+    # === PROTECTED ENDPOINTS (OAuth Authentication via MCP Server) ===
+    # All other endpoints are protected by OAuth (handled by mcp-server)
+    handle {
+        reverse_proxy http://mcp-server:8000 {
+            # Standard headers for OAuth
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # === SECURITY HEADERS ===
     header {
-        # Enable HSTS
+        # HSTS - Force HTTPS
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
         
         # Prevent clickjacking
@@ -41,11 +63,11 @@ leowiki-mcp.stream {
         # Referrer policy
         Referrer-Policy "strict-origin-when-cross-origin"
         
-        # Remove server header
+        # Remove server header for security
         -Server
     }
-    
-    # Logging
+
+    # === LOGGING ===
     log {
         output file /data/access.log {
             roll_size 10mb
@@ -53,57 +75,9 @@ leowiki-mcp.stream {
         }
         format json
     }
-    
-    # Rate limiting (optional)
-    rate_limit {
-        zone mcp {
-            key {remote_host}
-            events 100
-            window 1m
-        }
-    }
-    
-    # Enable compression
+
+    # === COMPRESSION ===
     encode gzip zstd
-    
-    # OAuth metadata endpoint (for MCP clients)
-    handle /.well-known/oauth-protected-resource {
-        reverse_proxy mcp-server:8000
-    }
-    
-    # MCP endpoint (Server-Sent Events)
-    handle /mcp* {
-        reverse_proxy mcp-server:8000 {
-            # Important: Disable buffering for SSE
-            flush_interval -1
-            
-            # Longer timeout for SSE connections
-            transport http {
-                read_timeout 0
-                write_timeout 0
-            }
-        }
-    }
-    
-    # API endpoints
-    handle /api/* {
-        reverse_proxy mcp-server:8000
-    }
-    
-    # Health check (public)
-    handle /health {
-        reverse_proxy mcp-server:8000
-    }
-    
-    # Documentation
-    handle /docs* {
-        reverse_proxy mcp-server:8000
-    }
-    
-    # Root redirect to docs
-    handle / {
-        redir /docs permanent
-    }
 }
 
 # Redirect www to non-www
