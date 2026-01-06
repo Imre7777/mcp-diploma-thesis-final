@@ -85,7 +85,25 @@ def validate_jsonl_document(doc: dict) -> tuple[bool, str]:
     
     # Validate RBAC field (access_level)
     valid_access_levels = {"public", "student", "teacher", "admin"}
+    
+    # Map common aliases to standard values
+    access_level_mapping = {
+        "teacher_only": "teacher",
+        "student_only": "student",
+        "all": "public",
+    }
+    
     access_level = frontmatter.get("access_level", "public")
+    
+    # Apply alias mapping
+    if access_level in access_level_mapping:
+        original_level = access_level
+        access_level = access_level_mapping[access_level]
+        frontmatter["access_level"] = access_level
+        logger.debug(
+            f"Mapped access_level '{original_level}' to '{access_level}' "
+            f"for document {doc['id']}"
+        )
     
     if access_level not in valid_access_levels:
         # Warn but don't fail - default to public

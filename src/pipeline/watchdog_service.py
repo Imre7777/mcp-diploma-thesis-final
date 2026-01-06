@@ -65,7 +65,7 @@ class WatchdogService:
             logger.info("")
             
             # Load configuration from environment
-            qdrant_url = os.getenv("VECTOR_DB_URL", "http://qdrant:6334")
+            qdrant_url = os.getenv("VECTOR_DB_URL", "http://qdrant:6333")
             collection_name = os.getenv("DEFAULT_COLLECTION", "educational_content")
             incoming_dir = Path(os.getenv("INCOMING_DIR", "/app/data/incoming"))
             processed_dir = Path(os.getenv("PROCESSED_DIR", "/app/data/processed"))

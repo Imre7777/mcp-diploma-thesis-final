@@ -35,7 +35,7 @@ services:
         condition: service_started
     environment:
       # Vector Database
-      - VECTOR_DB_URL=http://qdrant:6334
+      - VECTOR_DB_URL=http://qdrant:6333
       - DEFAULT_COLLECTION=educational_content
       
       # Server Config
@@ -78,7 +78,7 @@ services:
         condition: service_started
     environment:
       # Vector Database
-      - VECTOR_DB_URL=http://qdrant:6334
+      - VECTOR_DB_URL=http://qdrant:6333
       - DEFAULT_COLLECTION=educational_content
       
       # Directories
