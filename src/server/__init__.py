@@ -2,13 +2,19 @@
 MCP Educational Server - Server Components
 
 This package contains the core server implementation for the MCP Educational Server,
-including base server functionality and protocol-specific implementations.
+including OAuth metadata handlers for the official Scalekit architecture.
+
+Note: The old http_server.py and base.py are deprecated.
+We now use FastMCP library in main.py instead of custom server implementation.
 """
 
-from src.server.base import BaseMCPServer
-from src.server.http_server import HTTPMCPServer
+# OAuth metadata handler (new official architecture)
+from src.server.oauth_metadata import (
+    get_oauth_protected_resource_metadata,
+    validate_metadata_configuration
+)
 
 __all__ = [
-    "BaseMCPServer",
-    "HTTPMCPServer",
+    "get_oauth_protected_resource_metadata",
+    "validate_metadata_configuration",
 ]
