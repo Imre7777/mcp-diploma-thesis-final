@@ -1,6 +1,5 @@
-# MCP Educational Server - Production Docker Compose
-# Domain: https://leowiki-mcp.stream
-# Raspberry Pi Deployment
+# MCP Educational Server - Production Docker Compose with Security
+# Enhanced security: Network isolation, no exposed ports except Caddy
 
 version: '3.8'
 
@@ -10,31 +9,41 @@ services:
     image: qdrant/qdrant:latest
     container_name: mcp-qdrant
     restart: unless-stopped
-    # NO ports exposed to host - only accessible within Docker network
+    # NO ports exposed to host!
     expose:
-      - "6334"  # gRPC - internal only
-      - "6333"  # HTTP - internal only
+      - "6334"  # gRPC - only accessible within Docker network
+      - "6333"  # HTTP - only accessible within Docker network
     volumes:
       - qdrant_data:/qdrant/storage
     environment:
       - QDRANT__SERVICE__GRPC_PORT=6334
       - QDRANT__SERVICE__HTTP_PORT=6333
     networks:
-      - backend-network
+      - backend-network  # Only backend network
+    # Security hardening
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+    read_only: true
+    tmpfs:
+      - /tmp
 
   # MCP Educational Server (NO external port - only via Caddy)
   mcp-server:
     build: .
     container_name: mcp-server
     restart: unless-stopped
-    # NO ports exposed to host - only accessible via Caddy reverse proxy
+    # NO ports exposed to host!
     expose:
-      - "8000"  # Internal only
+      - "8000"  # Only accessible within Docker network
     depends_on:
       qdrant:
         condition: service_started
     environment:
-      # Vector Database
+      # Vector Database (internal network)
       - VECTOR_DB_URL=http://qdrant:6334
       - DEFAULT_COLLECTION=educational_content
       
@@ -66,8 +75,13 @@ services:
     networks:
       - frontend-network  # For Caddy
       - backend-network   # For Qdrant
+    # Security hardening
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
 
-  # Watchdog Service (Automatic JSONL Processing - Backend only)
+  # Watchdog Service (Backend only)
   watchdog:
     build: .
     container_name: mcp-watchdog
@@ -77,7 +91,7 @@ services:
       qdrant:
         condition: service_started
     environment:
-      # Vector Database
+      # Vector Database (internal network)
       - VECTOR_DB_URL=http://qdrant:6334
       - DEFAULT_COLLECTION=educational_content
       
@@ -86,7 +100,7 @@ services:
       - PROCESSED_DIR=/app/data/processed
       - FAILED_DIR=/app/data/failed
       
-      # OpenAI for embeddings (if needed)
+      # OpenAI for embeddings
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - EMBEDDING_MODEL=text-embedding-3-large
       
@@ -100,6 +114,9 @@ services:
       - ./data/statistics:/app/data/statistics
     networks:
       - backend-network  # Only backend network
+    # Security hardening
+    cap_drop:
+      - ALL
 
   # Caddy Reverse Proxy (ONLY service with external ports)
   caddy:
@@ -121,6 +138,15 @@ services:
       - frontend-network  # Only frontend network
     environment:
       - DOMAIN=leowiki-mcp.stream
+    # Security hardening
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /var/run
 
 networks:
   # Frontend network: Caddy <-> MCP Server
@@ -128,6 +154,9 @@ networks:
     driver: bridge
     driver_opts:
       com.docker.network.bridge.name: mcp-frontend
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
   
   # Backend network: MCP Server/Watchdog <-> Qdrant (NO internet access)
   backend-network:
@@ -135,6 +164,9 @@ networks:
     internal: true  # ← IMPORTANT: No external access!
     driver_opts:
       com.docker.network.bridge.name: mcp-backend
+    ipam:
+      config:
+        - subnet: 172.21.0.0/24
 
 volumes:
   qdrant_data:
