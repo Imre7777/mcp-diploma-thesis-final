@@ -39,6 +39,9 @@ env/
 .env.local
 .env.*.local
 
+# Claude Desktop Config (contains API keys!)
+claude_desktop_config.json
+
 # Testing
 .coverage
 htmlcov/

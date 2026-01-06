@@ -1,0 +1,85 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+docs/
+*.md
+README.md
+
+# Testing
+tests/
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Data (keep structure, ignore content in container)
+data/incoming/*.jsonl
+data/processed/*.jsonl
+data/failed/*.jsonl
+data/backups/*
+
+# Keep example data files
+!data/jsonl/pages.jsonl
+!data/jsonl/media.jsonl
+
+# Logs
+*.log
+logs/
+
+# Temporary
+*.tmp
+*.temp
+tmp/
+temp/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Docker
+docker-compose.override.yml
+docker-compose.*.yml
+Dockerfile.dev
+
+# Backup
+backup/
+
+# Old files
+official-scalekit-mcp-demo/
+
+# Terminals (cursor internal)
+terminals/
+
+# Claude Desktop config
+claude_desktop_config.json
