@@ -13,6 +13,7 @@ embeddings into the Qdrant vector database. It includes:
 import asyncio
 import json
 import logging
+import os
 import shutil
 import time
 import uuid
