@@ -1,0 +1,229 @@
+Subject: MCP Server Ready for Testing - Claude Desktop Setup Instructions
+
+Hi [Colleague Name],
+
+The MCP Educational Server is now live and ready for remote testing! 🎉
+
+================================================================================
+QUICK INFO
+================================================================================
+
+Server URL: https://leowiki-mcp.stream
+Status: ✅ Online & Ready
+Authentication: OAuth 2.1 via Scalekit
+
+================================================================================
+WHAT YOU NEED
+================================================================================
+
+1. Claude Desktop installed (https://claude.ai/download)
+2. Internet connection (no VPN needed)
+3. OAuth credentials (see below)
+
+================================================================================
+STEP 1: TEST CONNECTION (OPTIONAL BUT RECOMMENDED)
+================================================================================
+
+Before setting up Claude Desktop, verify the server is reachable:
+
+# Test health endpoint:
+curl https://leowiki-mcp.stream/health
+
+# Expected response:
+{"status":"healthy","server":"MCP Educational Server","version":"1.0.0"}
+
+# Test OAuth discovery:
+curl https://leowiki-mcp.stream/.well-known/oauth-protected-resource
+
+If you have bash/linux/mac, you can also download and run the test script:
+curl -O https://leowiki-mcp.stream/test-connection.sh
+chmod +x test-connection.sh
+./test-connection.sh
+
+================================================================================
+STEP 2: CONFIGURE CLAUDE DESKTOP
+================================================================================
+
+Find your Claude Desktop config file:
+
+Windows: C:\Users\[YOUR_NAME]\AppData\Roaming\Claude\claude_desktop_config.json
+macOS:   ~/Library/Application Support/Claude/claude_desktop_config.json
+Linux:   ~/.config/Claude/claude_desktop_config.json
+
+--------------------------------------------------------------------------------
+OPTION A: With Automatic OAuth (Recommended)
+--------------------------------------------------------------------------------
+
+Add this to claude_desktop_config.json:
+
+{
+  "mcpServers": {
+    "leowiki-mcp": {
+      "url": "https://leowiki-mcp.stream/mcp",
+      "transport": "http",
+      "auth": {
+        "type": "oauth2",
+        "oauth2": {
+          "authorizationUrl": "https://mcpeduauth.scalekit.dev/authorize",
+          "tokenUrl": "https://mcpeduauth.scalekit.dev/oauth/token",
+          "clientId": "skc_35934031996379566",
+          "clientSecret": "test_sk_JnDlRTWW5RnNdg2TLYCWnuPg2O2cKrDAJHkp8dhFxg5NEG-PaYiYv3OT1X1v_jgz",
+          "scopes": ["mcp:read", "mcp:write"]
+        }
+      }
+    }
+  }
+}
+
+--------------------------------------------------------------------------------
+OPTION B: With Manual Bearer Token (If Option A doesn't work)
+--------------------------------------------------------------------------------
+
+First, get a token:
+
+curl -X POST https://mcpeduauth.scalekit.dev/oauth/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "grant_type=client_credentials" \
+  -d "client_id=skc_35934031996379566" \
+  -d "client_secret=test_sk_JnDlRTWW5RnNdg2TLYCWnuPg2O2cKrDAJHkp8dhFxg5NEG-PaYiYv3OT1X1v_jgz" \
+  -d "scope=mcp:read mcp:write"
+
+Then use the token in config:
+
+{
+  "mcpServers": {
+    "leowiki-mcp": {
+      "url": "https://leowiki-mcp.stream/mcp",
+      "transport": "http",
+      "headers": {
+        "Authorization": "Bearer YOUR_ACCESS_TOKEN_HERE"
+      }
+    }
+  }
+}
+
+Note: Token expires after 1 hour, so you'll need to refresh it.
+
+================================================================================
+STEP 3: RESTART CLAUDE DESKTOP
+================================================================================
+
+1. Close Claude Desktop completely
+   - Windows: Check Task Manager (Ctrl+Shift+Esc)
+   - macOS: Cmd+Q
+   - Linux: pkill -f claude
+
+2. Start Claude Desktop again
+
+3. Look for the 🔌 MCP icon in the bottom-right corner
+   - Should be GREEN = connected ✅
+   - Click it to see "leowiki-mcp" listed
+
+================================================================================
+STEP 4: TEST THE CONNECTION
+================================================================================
+
+In Claude Desktop, try these queries:
+
+Test 1 - List tools:
+"What MCP tools do you have available?"
+
+Expected: Claude lists ping, vector_search, advanced_search tools
+
+Test 2 - Health check:
+"Use the ping tool to check the server"
+
+Expected: Returns {"status": "healthy", ...}
+
+Test 3 - Search:
+"Search for 'HTL Leonding' using the vector_search tool"
+
+Expected: Returns search results (if data is loaded)
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Problem: Can't connect
+Solution: 
+  - Verify server is up: curl https://leowiki-mcp.stream/health
+  - Check your config is valid JSON: https://jsonlint.com
+  - Completely restart Claude Desktop
+
+Problem: Authentication failed
+Solution:
+  - Double-check credentials (no extra spaces)
+  - Try getting a new token manually (Option B above)
+  - Contact me if still failing
+
+Problem: Tools not showing
+Solution:
+  - Wait 10 seconds after starting Claude Desktop
+  - Check Claude Desktop logs:
+    Windows: %APPDATA%\Claude\logs\
+    macOS: ~/Library/Logs/Claude/
+    Linux: ~/.config/Claude/logs/
+
+================================================================================
+WHAT TO TEST
+================================================================================
+
+Please test these scenarios:
+
+✅ Basic functionality:
+  - Connection works
+  - Tools are listed
+  - Health check works
+  - Search returns results
+
+✅ Performance:
+  - Response times (should be < 3 seconds)
+  - Multiple queries in a row
+  - Large result sets
+
+✅ RBAC (if multiple users configured):
+  - Student role sees only student content
+  - Teacher role sees student + teacher content
+
+Please document:
+  - What works well
+  - What doesn't work
+  - Any error messages
+  - Performance observations
+  - Suggestions for improvement
+
+================================================================================
+ADDITIONAL RESOURCES
+================================================================================
+
+API Documentation: https://leowiki-mcp.stream/docs
+Server Status: https://leowiki-mcp.stream/health
+OAuth Discovery: https://leowiki-mcp.stream/.well-known/oauth-protected-resource
+
+Full setup guide attached: QUICK_START_REMOTE_TESTING.md
+
+================================================================================
+SUPPORT
+================================================================================
+
+If you run into any issues:
+
+Email: imre.obermueller@gmail.com
+Include:
+  - Your operating system
+  - Claude Desktop version
+  - Exact error message
+  - What you tried
+
+I'll respond as soon as possible!
+
+================================================================================
+
+Looking forward to your feedback! 🚀
+
+Best regards,
+Imre
+
+P.S. The server is running 24/7 on a Raspberry Pi in Austria with automatic TLS 
+certificate renewal, so it should be very stable. Let me know how it performs 
+from your location!
