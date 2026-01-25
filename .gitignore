@@ -88,3 +88,6 @@ dmypy.json
 # Terminals (cursor internal)
 terminals/
 backup/
+
+# Large embedding files (regenerate with scripts/ingest_embedded_chunks.py)
+embedded_chunks.jsonl
