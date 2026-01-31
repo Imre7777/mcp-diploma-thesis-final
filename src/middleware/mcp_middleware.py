@@ -159,9 +159,9 @@ class RBACEnforcementMiddleware(Middleware):
     """
     Enforce role-based access control at the tool level.
     
-    This middleware checks if users have the required role to execute
-    specific tools. Tools can be restricted to specific roles (admin,
-    teacher, etc.).
+    This middleware:
+    1. FILTERS the tool list (on_list_tools) - users only see tools they can use
+    2. ENFORCES access control (on_call_tool) - prevents unauthorized execution
     
     Tool permissions are defined in TOOL_PERMISSIONS mapping.
     """
@@ -179,7 +179,55 @@ class RBACEnforcementMiddleware(Middleware):
         # Teacher+ tools
         "admin_health_check": {"admin", "teacher"},
         "content_get_document": {"teacher", "admin"},  # If we add detailed document access
+        
+        # Student sees only student tools, teacher sees teacher tools
+        "search_content_teacher": {"admin", "teacher"},
     }
+    
+    async def on_list_tools(self, context: MiddlewareContext, call_next):
+        """
+        Filter tool list based on user role.
+        
+        Students only see student-accessible tools.
+        Teachers see teacher and student tools.
+        Admins see all tools.
+        
+        Args:
+            context: Middleware context
+            call_next: Next middleware/handler
+            
+        Returns:
+            Filtered list of tools based on user role
+        """
+        # Get full tool list
+        all_tools = await call_next(context)
+        
+        # Get user role from context
+        user_role = "student"  # Default
+        if context.fastmcp_context:
+            user_role = context.fastmcp_context.get_state("user_role") or "student"
+        
+        # Filter tools based on role
+        filtered_tools = []
+        for tool in all_tools:
+            tool_name = tool.name
+            required_roles = self.TOOL_PERMISSIONS.get(tool_name, set())
+            
+            # If tool has no restrictions, show to all
+            if not required_roles:
+                filtered_tools.append(tool)
+                continue
+            
+            # If user has required role, show tool
+            if user_role in required_roles:
+                filtered_tools.append(tool)
+        
+        logger.debug(
+            f"Tool list filtered for role '{user_role}': "
+            f"{len(filtered_tools)}/{len(all_tools)} tools visible"
+        )
+        
+        return filtered_tools
     
     async def on_call_tool(self, context: MiddlewareContext, call_next):
         """

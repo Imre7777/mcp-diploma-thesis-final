@@ -20,10 +20,47 @@ from fastmcp.exceptions import ToolError
 from mcp.types import ToolAnnotations
 from qdrant_client.models import Filter, FieldCondition, MatchAny
 
-from src.backends.qdrant import QdrantBackend
+from src.backends import QdrantBackend, create_vector_backend
 from src.config.server_config import ServerConfig
+from src.utils.embeddings import EmbeddingService
 
 logger = logging.getLogger(__name__)
+
+# Global config
+config = ServerConfig()
+
+# Global services (lazy initialized)
+_db: Optional[QdrantBackend] = None
+_embedding_service: Optional[EmbeddingService] = None
+
+
+def _get_services():
+    """
+    Lazy initialization of database and embedding services.
+    
+    This approach is used because FastMCP's lifespan_context is not
+    available on the Context object in the current version.
+    """
+    global _db, _embedding_service
+    
+    if _db is None:
+        logger.info("Initializing search backend (lazy)...")
+        _db = create_vector_backend(
+            name=config.vector_db_backend,
+            url=config.vector_db_url,
+            api_key=config.vector_db_api_key
+        )
+        logger.info(f"✓ Backend initialized: {config.vector_db_backend}")
+    
+    if _embedding_service is None:
+        logger.info("Initializing embedding service (lazy)...")
+        _embedding_service = EmbeddingService(
+            api_key=config.openai_api_key,
+            model=config.embedding_model
+        )
+        logger.info(f"✓ Embedding service initialized: {config.embedding_model}")
+    
+    return _db, _embedding_service
 
 # Access level hierarchies for RBAC
 # Each role can see its own level plus all levels below it
@@ -197,11 +234,9 @@ def register_search_tools(mcp: FastMCP) -> None:
             >>> search_content_student("Wie funktioniert Subnetting?")
             "Subnetting teilt ein Netzwerk in kleinere Subnetze..."
         """
-        from src.server.lifespan import AppContext
-        
         try:
-            # Get app context
-            app: AppContext = ctx.lifespan_context
+            # Get services (lazy initialization)
+            db, embedding_service = _get_services()
             
             # Validate input
             if not query or not query.strip():
@@ -211,47 +246,60 @@ def register_search_tools(mcp: FastMCP) -> None:
             limit = max(1, min(limit, 20))
             
             # Progress reporting: Step 1
-            await ctx.report_progress(0, 4, "Analysiere Suchanfrage...")
-            await ctx.info(f"Suche nach: {query[:50]}{'...' if len(query) > 50 else ''}")
+            if ctx:
+                await ctx.report_progress(0, 4, "Analysiere Suchanfrage...")
+                await ctx.info(f"Suche nach: {query[:50]}{'...' if len(query) > 50 else ''}")
             
             # Generate embedding
-            await ctx.report_progress(1, 4, "Generiere Embedding...")
-            query_embedding = app.embedding_service.embed_query(query)
+            if ctx:
+                await ctx.report_progress(1, 4, "Generiere Embedding...")
+            query_embedding = embedding_service.embed_query(query)
             
             # Build RBAC filter for STUDENT access
-            await ctx.report_progress(2, 4, "Wende Zugriffs-Filter an...")
-            allowed_levels = ["student"]  # Students see only student-level content
+            # Students CANNOT see teacher namespace content
+            if ctx:
+                await ctx.report_progress(2, 4, "Wende Zugriffs-Filter an...")
             
-            from qdrant_client.models import Filter, FieldCondition, MatchAny
-            access_filter = Filter(
-                must=[
-                    FieldCondition(
-                        key="access_level",
-                        match=MatchAny(any=allowed_levels)
-                    )
-                ]
-            ) if app.config.enable_rbac else None
+            # Execute search (get more results for post-filtering)
+            if ctx:
+                await ctx.report_progress(3, 4, "Durchsuche Wissensdatenbank...")
             
-            # Execute search
-            await ctx.report_progress(3, 4, "Durchsuche Wissensdatenbank...")
-            results = app.qdrant.search(
+            # Get extra results because we'll filter some out
+            raw_results = db.search(
                 query_vector=query_embedding,
-                collection=app.config.default_collection,
-                limit=limit,
-                filters=access_filter
+                collection=config.default_collection,
+                limit=limit * 3,  # Get 3x to ensure enough after filtering
+                filters=None  # No Qdrant filter - we filter in Python
             )
             
+            # RBAC POST-FILTER: Remove teacher content for students
+            # Teacher content has "teacher:" in the source URL
+            if config.enable_rbac:
+                results = []
+                for result in raw_results:
+                    source = result.payload.get("source", "") if hasattr(result, 'payload') else ""
+                    # Students cannot see teacher namespace
+                    if "teacher:" not in source:
+                        results.append(result)
+                        if len(results) >= limit:
+                            break
+                logger.info(f"[RBAC] Student filter: {len(raw_results)} → {len(results)} results (removed teacher content)")
+            else:
+                results = raw_results[:limit]
+            
             # Format results
-            await ctx.report_progress(4, 4, "Formatiere Ergebnisse...")
+            if ctx:
+                await ctx.report_progress(4, 4, "Formatiere Ergebnisse...")
             formatted = _format_search_results(results, query)
             
             # Log audit trail
-            user_id = ctx.get_state("user_id") or "anonymous"
+            user_id = ctx.get_state("user_id") if ctx else "anonymous"
             logger.info(
-                f"[SEARCH_STUDENT] user={hash(user_id)}, query='{query[:30]}...', results={len(results)}"
+                f"[SEARCH_STUDENT] user={hash(user_id) if user_id else 'anon'}, query='{query[:30]}...', results={len(results)}"
             )
             
-            await ctx.info(f"✓ {len(results)} Ergebnisse gefunden")
+            if ctx:
+                await ctx.info(f"✓ {len(results)} Ergebnisse gefunden")
             
             return {
                 "content": [{
@@ -352,11 +400,9 @@ def register_search_tools(mcp: FastMCP) -> None:
             >>> search_content_teacher("Prüfungsfragen OOP 3AHIF")
             "Hier sind die Prüfungsfragen für OOP (3AHIF)..."
         """
-        from src.server.lifespan import AppContext
-        
         try:
-            # Get app context
-            app: AppContext = ctx.lifespan_context
+            # Get services (lazy initialization)
+            db, embedding_service = _get_services()
             
             # Validate input
             if not query or not query.strip():
@@ -366,47 +412,44 @@ def register_search_tools(mcp: FastMCP) -> None:
             limit = max(1, min(limit, 20))
             
             # Progress reporting: Step 1
-            await ctx.report_progress(0, 4, "Analysiere Suchanfrage...")
-            await ctx.info(f"Lehrer-Suche: {query[:50]}{'...' if len(query) > 50 else ''}")
+            if ctx:
+                await ctx.report_progress(0, 4, "Analysiere Suchanfrage...")
+                await ctx.info(f"Lehrer-Suche: {query[:50]}{'...' if len(query) > 50 else ''}")
             
             # Generate embedding
-            await ctx.report_progress(1, 4, "Generiere Embedding...")
-            query_embedding = app.embedding_service.embed_query(query)
+            if ctx:
+                await ctx.report_progress(1, 4, "Generiere Embedding...")
+            query_embedding = embedding_service.embed_query(query)
             
-            # Build RBAC filter for TEACHER access
-            await ctx.report_progress(2, 4, "Wende Zugriffs-Filter an...")
-            allowed_levels = ["student", "teacher"]  # Teachers see student + teacher content
+            # TEACHER ACCESS: No filter needed - teachers see everything
+            if ctx:
+                await ctx.report_progress(2, 4, "Vollzugriff (Lehrer)...")
             
-            from qdrant_client.models import Filter, FieldCondition, MatchAny
-            access_filter = Filter(
-                must=[
-                    FieldCondition(
-                        key="access_level",
-                        match=MatchAny(any=allowed_levels)
-                    )
-                ]
-            ) if app.config.enable_rbac else None
-            
-            # Execute search
-            await ctx.report_progress(3, 4, "Durchsuche Wissensdatenbank...")
-            results = app.qdrant.search(
+            # Execute search - NO FILTER for teachers (full access)
+            if ctx:
+                await ctx.report_progress(3, 4, "Durchsuche Wissensdatenbank...")
+            results = db.search(
                 query_vector=query_embedding,
-                collection=app.config.default_collection,
+                collection=config.default_collection,
                 limit=limit,
-                filters=access_filter
+                filters=None  # Teachers see ALL content including teacher namespace
             )
             
+            logger.info(f"[RBAC] Teacher search: full access, {len(results)} results")
+            
             # Format results
-            await ctx.report_progress(4, 4, "Formatiere Ergebnisse...")
+            if ctx:
+                await ctx.report_progress(4, 4, "Formatiere Ergebnisse...")
             formatted = _format_search_results(results, query)
             
             # Log audit trail
-            user_id = ctx.get_state("user_id") or "anonymous"
+            user_id = ctx.get_state("user_id") if ctx else "anonymous"
             logger.info(
-                f"[SEARCH_TEACHER] user={hash(user_id)}, query='{query[:30]}...', results={len(results)}"
+                f"[SEARCH_TEACHER] user={hash(user_id) if user_id else 'anon'}, query='{query[:30]}...', results={len(results)}"
             )
             
-            await ctx.info(f"✓ {len(results)} Ergebnisse gefunden (Lehrer-Zugriff)")
+            if ctx:
+                await ctx.info(f"✓ {len(results)} Ergebnisse gefunden (Lehrer-Zugriff)")
             
             return {
                 "content": [{
@@ -463,23 +506,22 @@ def register_search_tools(mcp: FastMCP) -> None:
         Returns:
             Dictionary with collection statistics
         """
-        from src.server.lifespan import AppContext
-        
         try:
-            app: AppContext = ctx.lifespan_context
+            # Get services (lazy initialization)
+            db, _ = _get_services()
             
-            user_role = ctx.get_state("user_role") or "student"
+            user_role = ctx.get_state("user_role") if ctx else "student"
             logger.info(f"Getting collection stats for role={user_role}")
             
             # Get collection info
-            collection_info = app.qdrant.client.get_collection(app.config.default_collection)
+            collection_info = db.client.get_collection(config.default_collection)
             total_count = collection_info.points_count
             
             # Get access level distribution
             access_distribution = {}
             for level in ["student", "teacher", "admin"]:
-                count = app.qdrant.client.count(
-                    collection_name=app.config.default_collection,
+                count = db.client.count(
+                    collection_name=config.default_collection,
                     count_filter={
                         "must": [
                             {
@@ -492,12 +534,12 @@ def register_search_tools(mcp: FastMCP) -> None:
                 access_distribution[level] = count.count
             
             stats = {
-                "collection": app.config.default_collection,
+                "collection": config.default_collection,
                 "total_documents": total_count,
                 "vector_dimensions": collection_info.config.params.vectors.size,
                 "distance_metric": collection_info.config.params.vectors.distance.name,
                 "access_levels": access_distribution,
-                "rbac_enabled": app.config.enable_rbac,
+                "rbac_enabled": config.enable_rbac,
                 "segments_count": collection_info.segments_count,
                 "optimizer_status": collection_info.optimizer_status.status.name if collection_info.optimizer_status else "unknown",
             }
