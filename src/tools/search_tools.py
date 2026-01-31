@@ -260,31 +260,52 @@ def register_search_tools(mcp: FastMCP) -> None:
             if ctx:
                 await ctx.report_progress(2, 4, "Wende Zugriffs-Filter an...")
             
-            # Execute search (get more results for post-filtering)
+            # Execute search with dynamic loading for RBAC filtering
+            # Students need enough results AFTER teacher content is filtered out
             if ctx:
                 await ctx.report_progress(3, 4, "Durchsuche Wissensdatenbank...")
             
-            # Get extra results because we'll filter some out
-            raw_results = db.search(
-                query_vector=query_embedding,
-                collection=config.default_collection,
-                limit=limit * 3,  # Get 3x to ensure enough after filtering
-                filters=None  # No Qdrant filter - we filter in Python
-            )
-            
-            # RBAC POST-FILTER: Remove teacher content for students
-            # Teacher content has "teacher:" in the source URL
             if config.enable_rbac:
+                # RBAC ENABLED: Dynamically fetch until we have enough student results
+                # This ensures students always get the requested number of results
                 results = []
-                for result in raw_results:
-                    source = result.payload.get("source", "") if hasattr(result, 'payload') else ""
-                    # Students cannot see teacher namespace
-                    if "teacher:" not in source:
-                        results.append(result)
-                        if len(results) >= limit:
-                            break
-                logger.info(f"[RBAC] Student filter: {len(raw_results)} → {len(results)} results (removed teacher content)")
+                fetch_limit = limit * 3  # Start with 3x
+                max_fetch = limit * 10   # Safety limit to prevent infinite loops
+                
+                while len(results) < limit and fetch_limit <= max_fetch:
+                    raw_results = db.search(
+                        query_vector=query_embedding,
+                        collection=config.default_collection,
+                        limit=fetch_limit,
+                        filters=None  # No Qdrant filter - we filter in Python
+                    )
+                    
+                    # Filter out teacher content for students
+                    results = []
+                    for result in raw_results:
+                        source = result.payload.get("source", "") if hasattr(result, 'payload') else ""
+                        # Students cannot see teacher namespace
+                        if "teacher:" not in source:
+                            results.append(result)
+                            if len(results) >= limit:
+                                break
+                    
+                    # If we don't have enough, fetch more
+                    if len(results) < limit:
+                        fetch_limit = fetch_limit * 2  # Double the fetch limit
+                        logger.debug(f"[RBAC] Not enough student results, increasing fetch to {fetch_limit}")
+                
+                # Trim to requested limit
+                results = results[:limit]
+                logger.info(f"[RBAC] Student filter: fetched {fetch_limit}, returned {len(results)} student-accessible results")
             else:
+                # RBAC DISABLED: Simple fetch
+                raw_results = db.search(
+                    query_vector=query_embedding,
+                    collection=config.default_collection,
+                    limit=limit,
+                    filters=None
+                )
                 results = raw_results[:limit]
             
             # Format results
@@ -517,21 +538,46 @@ def register_search_tools(mcp: FastMCP) -> None:
             collection_info = db.client.get_collection(config.default_collection)
             total_count = collection_info.points_count
             
-            # Get access level distribution
-            access_distribution = {}
-            for level in ["student", "teacher", "admin"]:
-                count = db.client.count(
-                    collection_name=config.default_collection,
-                    count_filter={
-                        "must": [
-                            {
-                                "key": "access_level",
-                                "match": {"value": level}
-                            }
-                        ]
-                    }
-                )
-                access_distribution[level] = count.count
+            # Analyze content distribution for RBAC
+            # RBAC Logic: 
+            #   - Schüler see everything WITHOUT "teacher:" in URL
+            #   - Lehrer/Admin see EVERYTHING
+            all_points = db.client.scroll(
+                collection_name=config.default_collection,
+                limit=10000,
+                with_payload=["source"],
+                with_vectors=False
+            )[0]
+            
+            teacher_only_count = 0  # Documents with "teacher:" in URL
+            student_accessible_count = 0  # Documents WITHOUT "teacher:" in URL
+            
+            for point in all_points:
+                source = point.payload.get("source", "")
+                if "teacher:" in source:
+                    teacher_only_count += 1
+                else:
+                    student_accessible_count += 1
+            
+            access_distribution = {
+                "teacher_only": teacher_only_count,
+                "student_accessible": student_accessible_count,
+                "total": len(all_points),
+            }
+            
+            # Get optimizer status safely (API changed in qdrant-client 1.16+)
+            optimizer_status = "unknown"
+            if collection_info.optimizer_status:
+                try:
+                    # Try new API (qdrant-client 1.16+)
+                    if hasattr(collection_info.optimizer_status, 'ok'):
+                        optimizer_status = "ok" if collection_info.optimizer_status.ok else "optimizing"
+                    elif hasattr(collection_info.optimizer_status, 'status'):
+                        optimizer_status = collection_info.optimizer_status.status.name
+                    else:
+                        optimizer_status = str(collection_info.optimizer_status)
+                except Exception:
+                    optimizer_status = "unknown"
             
             stats = {
                 "collection": config.default_collection,
@@ -541,8 +587,13 @@ def register_search_tools(mcp: FastMCP) -> None:
                 "access_levels": access_distribution,
                 "rbac_enabled": config.enable_rbac,
                 "segments_count": collection_info.segments_count,
-                "optimizer_status": collection_info.optimizer_status.status.name if collection_info.optimizer_status else "unknown",
+                "optimizer_status": optimizer_status,
             }
+            
+            # Calculate what each role can see
+            student_sees = access_distribution["student_accessible"]
+            teacher_sees = access_distribution["total"]  # Lehrer sehen ALLES
+            teacher_only = access_distribution["teacher_only"]
             
             return {
                 "content": [{
@@ -554,10 +605,10 @@ Total Documents: {stats['total_documents']}
 Vector Dimensions: {stats['vector_dimensions']}
 Distance Metric: {stats['distance_metric']}
 
-**Access Level Distribution:**
-- Student: {access_distribution.get('student', 0)} documents
-- Teacher: {access_distribution.get('teacher', 0)} documents
-- Admin: {access_distribution.get('admin', 0)} documents
+**RBAC Content Access:**
+- Schüler sehen: {student_sees} Dokumente
+- Lehrer/Admin sehen: {teacher_sees} Dokumente (alle)
+- Nur für Lehrer (teacher: namespace): {teacher_only} Dokumente
 
 **System Status:**
 - RBAC: {'Enabled' if stats['rbac_enabled'] else 'Disabled'}

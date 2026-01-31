@@ -122,19 +122,48 @@ class UserContextMiddleware(Middleware):
                 # We just extract claims (no signature verification needed)
                 claims = jwt.decode(token, options={"verify_signature": False})
                 
+                # Debug: Log JWT claims (DEBUG level for production)
+                logger.debug(f"JWT Claims: {list(claims.keys())}")
+                logger.debug(f"Full claims: {claims}")
+                
                 # Extract standard claims
                 user_id = claims.get("sub")
                 user_email = claims.get("email")
                 
-                # Extract role from custom claim or default to student
-                user_role = claims.get("role", "student")
+                # Extract role - try multiple possible claim names
+                # Scalekit might use different claim names for roles
+                user_role = (
+                    claims.get("role") or
+                    claims.get("roles") or
+                    claims.get("user_role") or
+                    claims.get("custom:role") or
+                    claims.get("https://leowiki.htl-leonding.ac.at/role") or
+                    "student"  # Default fallback
+                )
                 
-                # Extract scopes if present
+                # If role is a list, take the first one
+                if isinstance(user_role, list) and user_role:
+                    user_role = user_role[0]
+                
+                # Check for admin in groups claim (common pattern)
+                groups = claims.get("groups", [])
+                if isinstance(groups, list):
+                    if "admin" in groups or "admins" in groups or "administrator" in groups:
+                        user_role = "admin"
+                    elif "teacher" in groups or "teachers" in groups or "lehrer" in groups:
+                        user_role = "teacher"
+                
+                # Extract scopes if present - also check for role in scopes
                 scope_str = claims.get("scope", "")
                 if scope_str:
                     user_scopes = set(scope_str.split())
+                    # Check if role is in scopes (e.g., "role:admin")
+                    for scope in user_scopes:
+                        if scope.startswith("role:"):
+                            user_role = scope.split(":")[1]
+                            break
                 
-                logger.debug(
+                logger.info(
                     f"User context extracted: id={user_id}, email={user_email}, "
                     f"role={user_role}, scopes={user_scopes}"
                 )

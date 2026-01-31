@@ -239,7 +239,7 @@ class ServerConfig(BaseSettings):
         description="Human-readable server name"
     )
     server_version: str = Field(
-        "1.0.0",
+        "2.0.1",
         description="Server version"
     )
     server_port: int = Field(
