@@ -56,10 +56,12 @@ class ScalekitAuthMiddleware:
             self.scalekit_available = False
         
         # OAuth 2.1 WWW-Authenticate header
+        # Use expected audience as base URL if set, otherwise fallback to localhost
+        base_url = config.scalekit_expected_audience or f"http://localhost:{config.server_port}"
         self.www_authenticate_header = {
             "WWW-Authenticate": (
                 f'Bearer realm="OAuth", '
-                f'resource_metadata="http://localhost:{config.server_port}/.well-known/oauth-protected-resource"'
+                f'resource_metadata="{base_url}/.well-known/oauth-protected-resource"'
             )
         }
     
@@ -174,14 +176,23 @@ class ScalekitAuthMiddleware:
         Returns:
             True if endpoint is public, False otherwise
         """
+        # Normalize path: remove double slashes, handle trailing slashes
+        normalized_path = path.replace("//", "/")
+        
         public_paths = [
             "/.well-known/oauth-protected-resource",
+            "/.well-known/oauth-authorization-server",  # OAuth 2.1 AS metadata
             "/health",
             "/docs",  # FastAPI docs (optional, can be protected)
             "/openapi.json",  # FastAPI OpenAPI spec
+            "/auth/login",      # OAuth login initiation
+            "/callback",        # OAuth callback from ScaleKit (FastMCP style)
+            "/auth/logout",     # Logout endpoint
+            "/register",        # Dynamic Client Registration (if supported)
+            "/favicon.ico",     # Browser favicon request
         ]
         
-        return any(path.startswith(public_path) for public_path in public_paths)
+        return any(normalized_path.startswith(public_path) for public_path in public_paths)
 
 
 def create_scalekit_middleware(config: ServerConfig) -> ScalekitAuthMiddleware:

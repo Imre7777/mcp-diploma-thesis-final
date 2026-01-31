@@ -86,14 +86,14 @@ def create_oauth_router(
         if connection_id:
             auth_params["connection_id"] = connection_id
         
-        # Scalekit authorization endpoint
-        auth_url = f"{scalekit_env_url}/authorize?{urlencode(auth_params)}"
+        # Scalekit authorization endpoint (OAuth 2.1)
+        auth_url = f"{scalekit_env_url}/oauth/authorize?{urlencode(auth_params)}"
         
         logger.info(f"Redirecting to Scalekit login: state={state[:8]}...")
         
         return RedirectResponse(url=auth_url, status_code=302)
     
-    @router.get("/auth/callback")
+    @router.get("/callback")
     async def callback(
         request: Request,
         code: Optional[str] = None,
@@ -139,8 +139,8 @@ def create_oauth_router(
                 detail="Invalid state parameter. Possible CSRF attack."
             )
         
-        # Exchange authorization code for access token
-        token_url = f"{scalekit_env_url}/token"
+        # Exchange authorization code for access token (OAuth 2.1)
+        token_url = f"{scalekit_env_url}/oauth/token"
         token_params = {
             "grant_type": "authorization_code",
             "code": code,

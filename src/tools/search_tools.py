@@ -1,14 +1,23 @@
 """
 Search Tools with RBAC Support
 
-This module provides semantic search tools with role-based access control,
-allowing users to search educational content filtered by their access level.
+This module provides semantic search tools with role-based access control.
+Following security-by-design principles, we provide TWO separate tools:
+
+1. search_content_student - For students (limited access)
+2. search_content_teacher - For teachers (full access)
+
+This prevents parameter manipulation and enforces RBAC at the tool level.
+
+Reference: refactor/leowiki_rbac_tools_implementation.md
 """
 
 import logging
 from typing import List, Dict, Any, Optional
 
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP, Context
+from fastmcp.exceptions import ToolError
+from mcp.types import ToolAnnotations
 from qdrant_client.models import Filter, FieldCondition, MatchAny
 
 from src.backends.qdrant import QdrantBackend
@@ -18,7 +27,6 @@ logger = logging.getLogger(__name__)
 
 # Access level hierarchies for RBAC
 # Each role can see its own level plus all levels below it
-# NOTE: No "public" role - all users must authenticate!
 ROLE_ACCESS_LEVELS = {
     "student": ["student"],
     "teacher": ["student", "teacher"],
@@ -31,13 +39,13 @@ def get_access_filter(user_role: str) -> Filter:
     Create a Qdrant filter for role-based access control.
     
     Args:
-        user_role: User's role (public, student, teacher, admin)
+        user_role: User's role (student, teacher, admin)
         
     Returns:
         Filter: Qdrant filter for access control
     """
     # Get allowed access levels for this role
-    allowed_levels = ROLE_ACCESS_LEVELS.get(user_role, ["public"])
+    allowed_levels = ROLE_ACCESS_LEVELS.get(user_role, ["student"])
     
     # Create filter
     return Filter(
@@ -50,209 +58,428 @@ def get_access_filter(user_role: str) -> Filter:
     )
 
 
-def register_search_tools(
-    mcp: FastMCP,
-    db: QdrantBackend,
-    embedding_service,
-    config: Optional[ServerConfig] = None
-) -> None:
+def _format_search_results(results: list, query: str) -> str:
     """
-    Register search tools with the MCP server.
+    Format search results for user-friendly presentation.
+    
+    Follows UX guidelines from refactor/MCP_Server_Best_Practices_Diplomarbeit.md:
+    - Answer First, Details Second, Metadata Last
+    - No technical details (scores, counts, etc.)
+    - Natural language presentation
     
     Args:
-        mcp: FastMCP server instance
-        db: Qdrant database backend
-        embedding_service: Embedding service for query vectorization
-        config: Server configuration
-    """
-    config = config or ServerConfig()
-    
-    @mcp.tool()
-    async def search_content(
-        query: str,
-        user_role: str = "student",
-        limit: int = 10,
-        namespace: Optional[str] = None,
-        content_type: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
-        """
-        Search educational content with role-based filtering.
+        results: List of search results from Qdrant
+        query: Original search query
         
-        Performs semantic search over educational materials and returns
-        results filtered by the user's access level.
+    Returns:
+        Formatted string for presentation to user
+    """
+    if not results:
+        return f"""Ich konnte leider keine passenden Informationen zu "{query}" finden.
+
+Mögliche Gründe:
+- Die Information ist noch nicht im Wiki dokumentiert
+- Die Suche war zu spezifisch
+- Das Dokument wurde noch nicht indexiert
+
+Kann ich dir bei etwas anderem helfen?"""
+    
+    # Format each result
+    formatted_parts = []
+    for i, result in enumerate(results[:5], 1):  # Limit to top 5
+        title = result.payload.get("title", "Untitled")
+        text = result.payload.get("text", "")
+        
+        # Truncate long text
+        if len(text) > 500:
+            text = text[:500] + "..."
+        
+        # Build result entry
+        entry = f"**{title}**\n\n{text}"
+        
+        # Add source info (minimal, at the end)
+        source = result.payload.get("source", "LeoWiki")
+        entry += f"\n\n(Quelle: {source})"
+        
+        formatted_parts.append(entry)
+    
+    # Join with separators
+    return "\n\n" + "---\n\n".join(formatted_parts)
+
+
+def register_search_tools(mcp: FastMCP) -> None:
+    """
+    Register TWO separate search tools for RBAC security.
+    
+    This function registers:
+    1. search_content_student - Limited access for students
+    2. search_content_teacher - Full access for teachers
+    
+    Security by Design: No parameter manipulation possible.
+    
+    Args:
+        mcp: FastMCP server instance with lifespan context
+    """
+    
+    @mcp.tool(
+        name="search_content_student",
+        description="Search educational content with student-level access",
+        annotations=ToolAnnotations(
+            title="LeoWiki Student Search",
+            readOnlyHint=True,      # No side effects, safe to cache
+            idempotentHint=True,    # Same input = same output
+            openWorldHint=False,    # Results from known dataset
+        ),
+        tags={"search", "read-only", "student"}
+    )
+    async def search_content_student(
+        query: str,
+        limit: int = 10,
+        ctx: Context = None
+    ) -> dict:
+        """
+        Search educational content with STUDENT access level.
+        
+        WICHTIGE INSTRUKTIONEN FÜR CLAUDE:
+        
+        1. PRÄSENTATION:
+           - Präsentiere Ergebnisse natürlich und direkt
+           - NIEMALS technische Details wie Scores, Result-Counts oder Datenbankinfo erwähnen
+           - Fokus auf den INHALT der Antwort, nicht die Mechanik
+        
+        2. STIL:
+           - Kurze, präzise Antworten
+           - Freundlicher aber professioneller Ton
+           - Schülerfreundliche Sprache
+        
+        3. QUELLEN:
+           - Nur am Ende, in Klammern
+           - Format: "(Quelle: [Dokumenttyp])"
+           - NICHT: Lange URLs oder technische Pfade
+        
+        4. FEHLERBEHANDLUNG:
+           - Bei keinen Ergebnissen: Freundlich erklären, Alternativen anbieten
+           - NICHT: "Der Server hat 0 Ergebnisse zurückgegeben"
+           - SONDERN: "Ich konnte leider keine Informationen dazu finden"
+        
+        5. BEISPIELE:
+        
+           SCHLECHT:
+           "Ich habe den Leowiki-Server abgefragt und 3 Ergebnisse mit Scores
+           zwischen 0.4 und 0.6 erhalten. Result 1 (score: 0.45) zeigt..."
+           
+           GUT:
+           "Java ist eine objektorientierte Programmiersprache. 
+           Hier sind die wichtigsten Konzepte für Einsteiger..."
+        
+        Access Level: STUDENT
+        - Public content
+        - Student-level educational materials
+        - Course materials and tutorials
+        
+        NOT Accessible:
+        - Teacher-internal documents
+        - Administrative content
+        - Exam solutions (teacher-only)
         
         Args:
-            query: Search query text
-            user_role: User's role (student, teacher, admin). Default: student
-            limit: Maximum number of results to return. Default: 10
-            namespace: Optional namespace filter (e.g., "course:math")
-            content_type: Optional content type filter (e.g., "KNOWLEDGE", "TUTORIAL")
+            query: Search query in natural language (German or English)
+            limit: Maximum number of results (1-20, default: 10)
+            ctx: MCP context (automatically provided)
             
         Returns:
-            List of search results with title, content, score, and metadata
+            Formatted search results optimized for student presentation
             
-        Example:
-            >>> search_content("How to solve quadratic equations", user_role="student", limit=5)
-            [
-                {
-                    "title": "Quadratic Equations Introduction",
-                    "text": "A quadratic equation is...",
-                    "score": 0.89,
-                    "metadata": {
-                        "namespace": "course:math",
-                        "access_level": "student",
-                        "content_type": "KNOWLEDGE"
-                    }
-                }
-            ]
+        Examples:
+            >>> search_content_student("Was ist OOP?", limit=5)
+            "OOP steht für Objektorientierte Programmierung..."
+            
+            >>> search_content_student("Wie funktioniert Subnetting?")
+            "Subnetting teilt ein Netzwerk in kleinere Subnetze..."
         """
+        from src.server.lifespan import AppContext
+        
         try:
-            logger.info(
-                f"Searching: query='{query}' role={user_role} limit={limit} "
-                f"namespace={namespace} content_type={content_type}"
-            )
+            # Get app context
+            app: AppContext = ctx.lifespan_context
             
-            # Validate user role
-            if user_role not in ROLE_ACCESS_LEVELS:
-                logger.warning(f"Invalid user role '{user_role}', defaulting to 'student'")
-                user_role = "student"
+            # Validate input
+            if not query or not query.strip():
+                raise ToolError("Suchanfrage darf nicht leer sein")
             
-            # Generate embedding for query
-            logger.debug(f"Generating embedding for query: '{query[:50]}...'")
-            query_vector = embedding_service.embed_query(query)
-            logger.debug(f"Embedding generated: {len(query_vector)} dimensions")
+            # Limit bounds
+            limit = max(1, min(limit, 20))
             
-            # Build Qdrant filters
-            query_filter = None
-            filter_conditions = []
+            # Progress reporting: Step 1
+            await ctx.report_progress(0, 4, "Analysiere Suchanfrage...")
+            await ctx.info(f"Suche nach: {query[:50]}{'...' if len(query) > 50 else ''}")
             
-            # Add RBAC filter if enabled
-            if config.enable_rbac:
-                allowed_levels = ROLE_ACCESS_LEVELS[user_role]
-                filter_conditions.append(
+            # Generate embedding
+            await ctx.report_progress(1, 4, "Generiere Embedding...")
+            query_embedding = app.embedding_service.embed_query(query)
+            
+            # Build RBAC filter for STUDENT access
+            await ctx.report_progress(2, 4, "Wende Zugriffs-Filter an...")
+            allowed_levels = ["student"]  # Students see only student-level content
+            
+            from qdrant_client.models import Filter, FieldCondition, MatchAny
+            access_filter = Filter(
+                must=[
                     FieldCondition(
                         key="access_level",
                         match=MatchAny(any=allowed_levels)
                     )
-                )
-                logger.debug(f"RBAC filter: access_level in {allowed_levels}")
+                ]
+            ) if app.config.enable_rbac else None
             
-            # Add optional filters
-            if namespace:
-                filter_conditions.append(
-                    FieldCondition(
-                        key="namespace",
-                        match={"value": namespace}
-                    )
-                )
-                logger.debug(f"Namespace filter: {namespace}")
-            
-            if content_type:
-                filter_conditions.append(
-                    FieldCondition(
-                        key="content_type",
-                        match={"value": content_type}
-                    )
-                )
-                logger.debug(f"Content type filter: {content_type}")
-            
-            # Create filter if we have conditions
-            if filter_conditions:
-                query_filter = Filter(must=filter_conditions)
-            
-            # Perform vector search
-            logger.debug(f"Searching collection '{config.default_collection}' with {len(filter_conditions)} filters")
-            search_results = db.client.query_points(
-                collection_name=config.default_collection,
-                query=query_vector,
+            # Execute search
+            await ctx.report_progress(3, 4, "Durchsuche Wissensdatenbank...")
+            results = app.qdrant.search(
+                query_vector=query_embedding,
+                collection=app.config.default_collection,
                 limit=limit,
-                query_filter=query_filter,
-                with_payload=True,
-                with_vectors=False,
-            ).points
-            
-            logger.info(f"Found {len(search_results)} results")
+                filters=access_filter
+            )
             
             # Format results
-            formatted_results = []
-            for result in search_results:
-                formatted_results.append({
-                    "title": result.payload.get("title", "Untitled"),
-                    "text": result.payload.get("text", "")[:500] + "..." if len(result.payload.get("text", "")) > 500 else result.payload.get("text", ""),
-                    "score": float(result.score),
-                    "metadata": {
-                        "id": result.payload.get("original_id", str(result.id)),
-                        "access_level": result.payload.get("access_level", "unknown"),
-                        "namespace": result.payload.get("namespace", "unknown"),
-                        "content_type": result.payload.get("content_type", "unknown"),
-                        "source": result.payload.get("source", "unknown"),
-                        "author": result.payload.get("author", "unknown"),
-                        "freshness_score": result.payload.get("freshness_score", 0),
-                        "freshness_category": result.payload.get("freshness_category", "unknown"),
-                        "chunk_index": result.payload.get("chunk_index", 0),
-                        "total_chunks": result.payload.get("total_chunks", 1),
-                    }
-                })
+            await ctx.report_progress(4, 4, "Formatiere Ergebnisse...")
+            formatted = _format_search_results(results, query)
             
-            return formatted_results
+            # Log audit trail
+            user_id = ctx.get_state("user_id") or "anonymous"
+            logger.info(
+                f"[SEARCH_STUDENT] user={hash(user_id)}, query='{query[:30]}...', results={len(results)}"
+            )
             
+            await ctx.info(f"✓ {len(results)} Ergebnisse gefunden")
+            
+            return {
+                "content": [{
+                    "type": "text",
+                    "text": formatted
+                }]
+            }
+            
+        except ToolError as e:
+            logger.warning(f"Student search validation error: {e}")
+            return {
+                "content": [{
+                    "type": "text",
+                    "text": f"Fehler: {str(e)}"
+                }],
+                "isError": True
+            }
         except Exception as e:
-            logger.error(f"Search error: {e}", exc_info=True)
-            return [
-                {
-                    "title": "Search Error",
-                    "text": f"An error occurred during search: {str(e)}",
-                    "score": 0.0,
-                    "metadata": {"error": True}
-                }
-            ]
-
-    @mcp.tool()
-    async def get_collection_stats(
-        user_role: str = "admin"
-    ) -> Dict[str, Any]:
+            logger.error(f"Student search error: {e}", exc_info=True)
+            await ctx.error(f"Suchfehler: {type(e).__name__}")
+            return {
+                "content": [{
+                    "type": "text",
+                    "text": "Es ist ein Fehler bei der Suche aufgetreten. Bitte versuche es erneut."
+                }],
+                "isError": True
+            }
+    
+    
+    @mcp.tool(
+        name="search_content_teacher",
+        description="Search educational content with teacher-level access (full access)",
+        annotations=ToolAnnotations(
+            title="LeoWiki Teacher Search",
+            readOnlyHint=True,
+            idempotentHint=True,
+            openWorldHint=False,
+        ),
+        tags={"search", "read-only", "teacher"}
+    )
+    async def search_content_teacher(
+        query: str,
+        limit: int = 10,
+        ctx: Context = None
+    ) -> dict:
+        """
+        Search educational content with TEACHER access level.
+        
+        WICHTIGE INSTRUKTIONEN FÜR CLAUDE:
+        
+        1. PRÄSENTATION:
+           - Präsentiere Ergebnisse natürlich und direkt
+           - NIEMALS technische Details wie Scores, Result-Counts oder Datenbankinfo erwähnen
+           - Fokus auf den INHALT der Antwort, nicht die Mechanik
+        
+        2. STIL:
+           - Präzise und vollständig
+           - Professionelle Sprache
+           - Quellenangaben wichtig für Lehrer
+        
+        3. QUELLEN:
+           - Am Ende, in Klammern
+           - Format: "(Quelle: [Dokumenttyp])"
+           - Vollständigere Info als bei Schülern (Lehrer brauchen Kontext)
+        
+        4. FEHLERBEHANDLUNG:
+           - Bei keinen Ergebnissen: Professionell erklären
+           - Alternativen vorschlagen
+        
+        5. BEISPIELE:
+        
+           SCHLECHT:
+           "Die Suche im Lehrer-Tool ergab 5 Treffer mit hohen Scores..."
+           
+           GUT:
+           "Der No-Blame-Approach ist eine Interventionsmethode bei Mobbing.
+           Hier die Schritte für Klassenvorstände: ..."
+        
+        Access Level: TEACHER
+        - All student content
+        - Teacher-internal documents and resources
+        - Exam materials and solutions
+        - Administrative guidelines
+        - All namespaces
+        
+        Args:
+            query: Search query in natural language (German or English)
+            limit: Maximum number of results (1-20, default: 10)
+            ctx: MCP context (automatically provided)
+            
+        Returns:
+            Formatted search results optimized for teacher presentation
+            
+        Examples:
+            >>> search_content_teacher("No-Blame-Approach Anleitung", limit=5)
+            "Der No-Blame-Approach ist eine bewährte Methode zur Intervention..."
+            
+            >>> search_content_teacher("Prüfungsfragen OOP 3AHIF")
+            "Hier sind die Prüfungsfragen für OOP (3AHIF)..."
+        """
+        from src.server.lifespan import AppContext
+        
+        try:
+            # Get app context
+            app: AppContext = ctx.lifespan_context
+            
+            # Validate input
+            if not query or not query.strip():
+                raise ToolError("Suchanfrage darf nicht leer sein")
+            
+            # Limit bounds
+            limit = max(1, min(limit, 20))
+            
+            # Progress reporting: Step 1
+            await ctx.report_progress(0, 4, "Analysiere Suchanfrage...")
+            await ctx.info(f"Lehrer-Suche: {query[:50]}{'...' if len(query) > 50 else ''}")
+            
+            # Generate embedding
+            await ctx.report_progress(1, 4, "Generiere Embedding...")
+            query_embedding = app.embedding_service.embed_query(query)
+            
+            # Build RBAC filter for TEACHER access
+            await ctx.report_progress(2, 4, "Wende Zugriffs-Filter an...")
+            allowed_levels = ["student", "teacher"]  # Teachers see student + teacher content
+            
+            from qdrant_client.models import Filter, FieldCondition, MatchAny
+            access_filter = Filter(
+                must=[
+                    FieldCondition(
+                        key="access_level",
+                        match=MatchAny(any=allowed_levels)
+                    )
+                ]
+            ) if app.config.enable_rbac else None
+            
+            # Execute search
+            await ctx.report_progress(3, 4, "Durchsuche Wissensdatenbank...")
+            results = app.qdrant.search(
+                query_vector=query_embedding,
+                collection=app.config.default_collection,
+                limit=limit,
+                filters=access_filter
+            )
+            
+            # Format results
+            await ctx.report_progress(4, 4, "Formatiere Ergebnisse...")
+            formatted = _format_search_results(results, query)
+            
+            # Log audit trail
+            user_id = ctx.get_state("user_id") or "anonymous"
+            logger.info(
+                f"[SEARCH_TEACHER] user={hash(user_id)}, query='{query[:30]}...', results={len(results)}"
+            )
+            
+            await ctx.info(f"✓ {len(results)} Ergebnisse gefunden (Lehrer-Zugriff)")
+            
+            return {
+                "content": [{
+                    "type": "text",
+                    "text": formatted
+                }]
+            }
+            
+        except ToolError as e:
+            logger.warning(f"Teacher search validation error: {e}")
+            return {
+                "content": [{
+                    "type": "text",
+                    "text": f"Fehler: {str(e)}"
+                }],
+                "isError": True
+            }
+        except Exception as e:
+            logger.error(f"Teacher search error: {e}", exc_info=True)
+            await ctx.error(f"Suchfehler: {type(e).__name__}")
+            return {
+                "content": [{
+                    "type": "text",
+                    "text": "Es ist ein Fehler bei der Suche aufgetreten. Bitte versuche es erneut."
+                }],
+                "isError": True
+            }
+    
+    
+    @mcp.tool(
+        name="get_collection_stats",
+        description="Get detailed collection statistics (teacher/admin only)",
+        annotations=ToolAnnotations(
+            title="Collection Statistics",
+            readOnlyHint=True,
+        ),
+        tags={"admin", "stats", "monitoring"}
+    )
+    async def get_collection_stats(ctx: Context = None) -> dict:
         """
         Get statistics about the educational content collection.
+        
+        This tool is restricted to teachers and admins via RBACEnforcementMiddleware.
         
         Returns information about:
         - Total number of documents
         - Access level distribution
-        - Content type distribution
-        - Namespace distribution
+        - Collection health
+        - Vector configuration
         
         Args:
-            user_role: User's role (must be 'admin' or 'teacher'). Default: admin
+            ctx: MCP context (automatically provided)
             
         Returns:
             Dictionary with collection statistics
-            
-        Example:
-            >>> get_collection_stats(user_role="admin")
-            {
-                "total_documents": 757,
-                "access_levels": {"public": 757, "student": 0, ...},
-                "collection": "educational_content"
-            }
         """
+        from src.server.lifespan import AppContext
+        
         try:
-            # RBAC check: only admin and teacher can see stats
-            if user_role not in ["admin", "teacher"]:
-                return {
-                    "error": "Access denied",
-                    "message": "Only admin and teacher roles can view collection statistics"
-                }
+            app: AppContext = ctx.lifespan_context
             
+            user_role = ctx.get_state("user_role") or "student"
             logger.info(f"Getting collection stats for role={user_role}")
             
             # Get collection info
-            collection_info = db.client.get_collection(config.default_collection)
+            collection_info = app.qdrant.client.get_collection(app.config.default_collection)
             total_count = collection_info.points_count
             
             # Get access level distribution
             access_distribution = {}
-            for level in ["public", "student", "teacher", "admin"]:
-                count = db.client.count(
-                    collection_name=config.default_collection,
+            for level in ["student", "teacher", "admin"]:
+                count = app.qdrant.client.count(
+                    collection_name=app.config.default_collection,
                     count_filter={
                         "must": [
                             {
@@ -264,20 +491,47 @@ def register_search_tools(
                 )
                 access_distribution[level] = count.count
             
-            return {
-                "collection": config.default_collection,
+            stats = {
+                "collection": app.config.default_collection,
                 "total_documents": total_count,
                 "vector_dimensions": collection_info.config.params.vectors.size,
                 "distance_metric": collection_info.config.params.vectors.distance.name,
                 "access_levels": access_distribution,
-                "rbac_enabled": config.enable_rbac,
+                "rbac_enabled": app.config.enable_rbac,
+                "segments_count": collection_info.segments_count,
+                "optimizer_status": collection_info.optimizer_status.status.name if collection_info.optimizer_status else "unknown",
+            }
+            
+            return {
+                "content": [{
+                    "type": "text",
+                    "text": f"""**Collection Statistics**
+
+Collection: {stats['collection']}
+Total Documents: {stats['total_documents']}
+Vector Dimensions: {stats['vector_dimensions']}
+Distance Metric: {stats['distance_metric']}
+
+**Access Level Distribution:**
+- Student: {access_distribution.get('student', 0)} documents
+- Teacher: {access_distribution.get('teacher', 0)} documents
+- Admin: {access_distribution.get('admin', 0)} documents
+
+**System Status:**
+- RBAC: {'Enabled' if stats['rbac_enabled'] else 'Disabled'}
+- Segments: {stats['segments_count']}
+- Optimizer: {stats['optimizer_status']}"""
+                }]
             }
             
         except Exception as e:
             logger.error(f"Error getting collection stats: {e}", exc_info=True)
             return {
-                "error": str(e),
-                "message": "Failed to retrieve collection statistics"
+                "content": [{
+                    "type": "text",
+                    "text": f"Fehler beim Abrufen der Statistiken: {str(e)}"
+                }],
+                "isError": True
             }
     
-    logger.info("Registered 2 search tools with RBAC support")
+    logger.info("Registered 3 search tools: search_content_student, search_content_teacher, get_collection_stats")

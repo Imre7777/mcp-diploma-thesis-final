@@ -8,22 +8,31 @@ A production-ready Model Context Protocol (MCP) server providing semantic search
 
 ## 🎯 Features
 
+### Core Capabilities
 - ✅ **Semantic Search**: Vector search using OpenAI embeddings (text-embedding-3-large, 3072 dimensions)
-- ✅ **Role-Based Access Control**: 4-tier hierarchy (public, student, teacher, admin)
+- ✅ **Two-Tool RBAC Architecture**: Separate tools for student and teacher access (security by design)
+- ✅ **OAuth 2.1 Authentication**: Full Scalekit integration with JWT validation
 - ✅ **HTTP Streamable Protocol**: FastAPI server with Server-Sent Events (SSE)
 - ✅ **Automated Data Pipeline**: JSONL ingestion with file monitoring (Watchdog)
-- ✅ **Production Ready**: Comprehensive error handling, logging, and monitoring
 - ✅ **Docker Deployment**: Containerized for Raspberry Pi deployment
-- 🔄 **OAuth 2.1 Integration**: Scalekit authentication (Week 2)
+
+### Professional FastMCP Features
+- ✅ **MCP Resources**: 6 resources exposing server capabilities and metadata
+- ✅ **MCP Prompts**: 5 educational prompt templates for structured LLM interactions
+- ✅ **Custom Middleware**: Request logging, user context, RBAC enforcement, audit trails
+- ✅ **Dependency Injection**: Lifespan-based resource management
+- ✅ **Progress Reporting**: Real-time search progress feedback
+- ✅ **Tool Annotations**: Proper hints for LLM optimization (readOnly, idempotent)
 
 ---
 
 ## 📊 Project Status
 
-**Current**: Week 1 Complete (100%) ✅  
-**Branch**: `week-1-foundation`  
+**Current**: Professional Refactoring Complete ✅  
+**Branch**: `feature/professional-mcp-enhancements`  
 **Database**: 757 documents indexed in Qdrant  
-**Tests**: All passing (100% coverage)
+**Tests**: Comprehensive test suite implemented  
+**Architecture**: Production-grade with FastMCP best practices
 
 ---
 
@@ -91,42 +100,103 @@ Server will be available at:
 
 ```
 mcp-diploma-thesis-final/
-├── main.py                     # Server entry point
+├── main.py                     # Server entry point (enhanced with FastMCP features)
 ├── requirements.txt            # Python dependencies
 ├── README.md                   # This file
 │
 ├── src/                        # Source code
-│   ├── config/                 # Configuration management
+│   ├── auth/                   # OAuth 2.1 authentication
 │   ├── backends/               # Vector database backends (Qdrant)
+│   ├── config/                 # Configuration management
 │   ├── interfaces/             # Abstract interfaces
+│   ├── middleware/             # Authentication & FastMCP middleware
+│   │   ├── scalekit_auth.py   # Scalekit OAuth 2.1 validation
+│   │   └── mcp_middleware.py  # 🆕 FastMCP custom middleware
 │   ├── pipeline/               # Data ingestion pipeline
-│   ├── server/                 # HTTP server implementation
-│   ├── tools/                  # MCP tools with RBAC
+│   ├── server/                 # Server components
+│   │   ├── http_server.py     # HTTP server
+│   │   ├── oauth_metadata.py  # OAuth discovery
+│   │   └── lifespan.py        # 🆕 Dependency injection
+│   ├── tools/                  # MCP tools with two-tool RBAC
+│   │   └── search_tools.py    # 🔄 search_content_student, search_content_teacher
+│   ├── resources/              # 🆕 MCP Resources (6 total)
+│   │   ├── metadata.py        # Static resources
+│   │   └── content.py         # Dynamic resources
+│   ├── prompts/                # 🆕 MCP Prompts (5 total)
+│   │   └── educational.py     # Educational templates
 │   └── utils/                  # Utilities (embeddings, etc.)
 │
-├── tests/                      # Test suite
+├── tests/                      # Comprehensive test suite
 │   ├── test_server.py          # Server tests
 │   ├── test_ingestion.py       # Pipeline tests
-│   └── test_search_live.py     # Search tests
+│   ├── test_search_live.py     # Search tests
+│   ├── test_mcp_tools.py       # 🆕 FastMCP tool tests
+│   ├── test_mcp_resources.py   # 🆕 Resource tests
+│   ├── test_rbac_tools.py      # 🆕 Two-tool RBAC tests
+│   └── test_mcp_prompts.py     # 🆕 Prompt tests
+│
+├── refactor/                   # 🆕 Refactoring documentation
+│   ├── FastMCP_SDK_Reference3.md
+│   ├── LeoWiki_MCP_Enhancement_Plan.md
+│   ├── leowiki_rbac_tools_implementation.md
+│   └── MCP_Server_Best_Practices_Diplomarbeit.md
 │
 ├── scripts/                    # Utility scripts
 │   └── ingest_full_data.py     # Full data ingestion
 │
 ├── data/                       # Data directory
-│   ├── jsonl/                  # Source JSONL files
-│   ├── incoming/               # Pipeline input
-│   ├── processed/              # Successfully processed
-│   └── failed/                 # Failed files
-│
-├── docs/                       # Documentation
-│   ├── QUICK_START.md          # Getting started guide
-│   ├── WEEK1_COMPLETION_SUMMARY.md
-│   ├── SEMANTIC_SEARCH_COMPLETE.md
-│   ├── SCALEKIT_INTEGRATION_PLAN.md
 │   └── ...
 │
-└── backup/                     # Original server backup
+└── docs/                       # Extensive documentation
+    ├── API.md                  # 🆕 Complete API documentation
+    ├── QUICK_START.md
+    └── ...
 ```
+
+🆕 = New in professional refactoring  
+🔄 = Updated/refactored
+
+---
+
+## 🔌 MCP Capabilities
+
+### Tools (3 total)
+
+| Tool | Description | Access Level | Annotations |
+|------|-------------|--------------|-------------|
+| `search_content_student` | Semantic search with student access | All users | readOnly, idempotent |
+| `search_content_teacher` | Semantic search with teacher access | Teacher+ | readOnly, idempotent |
+| `get_collection_stats` | Database statistics | Teacher+, Admin | readOnly |
+
+**Security by Design:** Two separate tools prevent parameter manipulation for RBAC bypass.
+
+### Resources (6 total)
+
+| URI | Description | Type |
+|-----|-------------|------|
+| `leowiki://categories` | Available content categories | Static |
+| `leowiki://access-levels` | RBAC documentation | Static |
+| `leowiki://search-hints` | Search tips and best practices | Static |
+| `leowiki://stats` | Live collection statistics | Dynamic |
+| `leowiki://topic/{topic_id}` | Detailed topic information | Template |
+| `leowiki://recent/{count}` | Recently updated content | Template |
+
+### Prompts (5 total)
+
+| Prompt | Description | Use Case |
+|--------|-------------|----------|
+| `explain_topic` | Structured topic explanation | Generate pedagogically sound explanations |
+| `create_quiz` | Quiz question generation | Create assessment materials |
+| `compare_concepts` | Concept comparison | Help students understand differences |
+| `summarize_search` | Summarize search results | Synthesize multiple results |
+| `learning_path` | Learning roadmap generation | Plan learning journeys |
+
+### Middleware (4 components)
+
+1. **RequestLoggingMiddleware** - Correlation IDs and timing
+2. **UserContextMiddleware** - JWT claims → MCP context
+3. **RBACEnforcementMiddleware** - Tool-level access control
+4. **AuditLoggingMiddleware** - DSGVO-compliant audit trails
 
 ---
 
@@ -324,6 +394,33 @@ Educational project - HTL Leonding Diploma Thesis
 
 ---
 
-**Status**: 🟢 Production Ready  
-**Version**: 1.0.0 (Week 1 Complete)  
-**Last Updated**: 2026-01-05
+## 📖 Complete Documentation
+
+- **[API Documentation](docs/API.md)** - Complete API reference with all tools, resources, and prompts
+- [Quick Start Guide](docs/QUICK_START.md) - Getting started
+- [Architecture Plan](docs/ARCHITECTURE_PLAN.md) - System design
+- [Deployment Guide](docs/DEPLOYMENT_GUIDE.md) - Production deployment
+
+### Refactoring Documentation
+
+- [FastMCP SDK Reference](refactor/FastMCP_SDK_Reference3.md) - FastMCP features guide
+- [Enhancement Plan](refactor/LeoWiki_MCP_Enhancement_Plan.md) - Detailed enhancement roadmap
+- [RBAC Implementation](refactor/leowiki_rbac_tools_implementation.md) - Two-tool RBAC design
+- [Best Practices](refactor/MCP_Server_Best_Practices_Diplomarbeit.md) - Comprehensive best practices
+
+---
+
+## 🎯 What Makes This Server Professional
+
+1. **Security by Design**: Two separate tools (not parameter-based RBAC)
+2. **FastMCP Best Practices**: Resources, prompts, middleware, lifespan
+3. **User Experience First**: No technical jargon in responses
+4. **DSGVO Compliant**: Audit logging, pseudonymization, access control
+5. **Production Ready**: Error masking, health monitoring, structured logging
+6. **Diploma Thesis Grade**: Demonstrates advanced MCP patterns and professional architecture
+
+---
+
+**Status**: 🟢 Production Ready (Professional Refactoring Complete)  
+**Version**: 2.0.0  
+**Last Updated**: 2026-01-31

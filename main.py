@@ -47,9 +47,8 @@ from starlette.middleware.cors import CORSMiddleware
 from src.config.server_config import ServerConfig
 from src.middleware.scalekit_auth import create_scalekit_middleware
 from src.server.oauth_metadata import get_oauth_protected_resource_metadata, validate_metadata_configuration
+from src.auth.oauth_flow import create_oauth_router
 from src.backends import create_vector_backend
-from src.utils.embeddings import EmbeddingService
-from src.tools.search_tools import get_access_filter
 
 
 # ============================================================================
@@ -77,106 +76,122 @@ logger.info("=" * 80)
 
 
 # ============================================================================
-# FastMCP Server Setup
+# FastMCP Server Setup with Professional Configuration
 # ============================================================================
+from src.server.lifespan import app_lifespan
+
 mcp = FastMCP(
     name=config.server_name,
-    stateless_http=True  # Required for HTTP transport
-)
-
-logger.info("FastMCP server initialized")
-
-
-# ============================================================================
-# MCP Tools - Educational Content Search
-# ============================================================================
-@mcp.tool(
-    name="search_content",
-    description="Search educational content with semantic search and RBAC filtering"
-)
-async def search_content(
-    query: str,
-    limit: int = 10,
-    access_level: str = "student",
-    ctx: Context | None = None
-) -> dict:
-    """
-    Search educational content using semantic search.
     
-    Args:
-        query: Search query text
-        limit: Maximum number of results (default: 10)
-        access_level: User's access level for RBAC filtering (student/teacher/admin)
-        ctx: MCP context (contains authentication info)
-        
-    Returns:
-        Search results with content, metadata, and relevance scores
-    """
-    try:
-        logger.info(f"Search request: query='{query}', limit={limit}, access_level={access_level}")
-        
-        # Initialize backend and embedding service if not already done
-        if not hasattr(search_content, '_initialized'):
-            logger.info("Initializing search backend...")
-            search_content._db = create_vector_backend(
-                name=config.vector_db_backend,
-                url=config.vector_db_url,
-                api_key=config.vector_db_api_key
-            )
-            search_content._embedding_service = EmbeddingService(
-                api_key=config.openai_api_key,
-                model=config.embedding_model
-            )
-            search_content._initialized = True
-            logger.info("Search backend initialized successfully")
-        
-        # Generate query embedding
-        query_embedding = search_content._embedding_service.embed_query(query)
-        
-        # Create RBAC filter
-        access_filter = get_access_filter(access_level) if config.enable_rbac else None
-        
-        # Perform search (synchronous call - Qdrant client is sync)
-        results = search_content._db.search(
-            query_vector=query_embedding,
-            collection=config.default_collection,
-            limit=limit,
-            filters=access_filter
-        )
-        
-        logger.info(f"Search completed: {len(results)} results found")
-        
-        # Format results
-        formatted_results = "\n\n".join([
-            f"**Result {i+1}** (score: {r.score:.3f})\n{r.payload.get('text', 'No text available')}\n" +
-            f"Source: {r.payload.get('source', 'N/A')}"
-            for i, r in enumerate(results)
-        ])
-        
-        return {
-            "content": [{
-                "type": "text",
-                "text": f"Found {len(results)} results for '{query}'\n\n{formatted_results}" if results else f"No results found for '{query}'"
-            }]
-        }
-        
-    except Exception as e:
-        logger.error(f"Search error: {e}", exc_info=True)
-        return {
-            "content": [{
-                "type": "text",
-                "text": f"Error performing search: {str(e)}"
-            }],
-            "isError": True
-        }
+    # Instructions help LLMs understand how to use the server
+    instructions="""
+    LeoWiki MCP Server - HTL Leonding Educational Content Search
+    
+    This server provides semantic search access to HTL Leonding's educational wiki.
+    
+    CAPABILITIES:
+    - Semantic search across educational materials
+    - Role-based content filtering (student/teacher/admin)
+    - Access to course materials, tutorials, and documentation
+    
+    AVAILABLE TOOLS:
+    - search_content_student: Search with student-level access
+    - search_content_teacher: Search with teacher-level access (includes exam materials)
+    - get_collection_stats: Database statistics (teacher/admin only)
+    
+    RESOURCES:
+    - leowiki://categories: Available content categories
+    - leowiki://access-levels: RBAC documentation
+    - leowiki://search-hints: Search tips and best practices
+    - leowiki://stats: Live collection statistics
+    - leowiki://topic/{id}: Detailed topic information
+    - leowiki://recent/{count}: Recently updated content
+    
+    PROMPTS:
+    - explain_topic: Generate structured explanations
+    - create_quiz: Generate quiz questions
+    - compare_concepts: Compare related concepts
+    - summarize_search: Summarize search results
+    - learning_path: Create learning roadmaps
+    
+    LANGUAGE: Content is primarily in German.
+    AUTHENTICATION: OAuth 2.1 via Scalekit (required)
+    """,
+    
+    # Transport configuration
+    stateless_http=True,  # Required for HTTP transport
+    json_response=False,  # Keep SSE for progress reporting
+    
+    # Security (CRITICAL for production)
+    mask_error_details=True,  # Hide internal errors from clients
+    
+    # Behavior
+    on_duplicate_tools="error",  # Catch registration errors early
+    
+    # Dependency injection
+    lifespan=app_lifespan,
+)
+
+logger.info("FastMCP server initialized with professional configuration")
 
 
+# ============================================================================
+# Register Custom Middleware (runs before tools)
+# ============================================================================
+from src.middleware.mcp_middleware import (
+    RequestLoggingMiddleware,
+    UserContextMiddleware,
+    RBACEnforcementMiddleware,
+    AuditLoggingMiddleware
+)
+
+mcp.add_middleware(RequestLoggingMiddleware())
+mcp.add_middleware(UserContextMiddleware())
+mcp.add_middleware(RBACEnforcementMiddleware())
+mcp.add_middleware(AuditLoggingMiddleware())
+
+logger.info("Registered 4 FastMCP middleware components")
+
+
+# ============================================================================
+# Register MCP Tools
+# ============================================================================
+from src.tools.search_tools import register_search_tools
+
+register_search_tools(mcp)
+
+
+# ============================================================================
+# Register MCP Resources
+# ============================================================================
+from src.resources.metadata import register_metadata_resources
+from src.resources.content import register_content_resources
+
+register_metadata_resources(mcp)
+register_content_resources(mcp)
+
+
+# ============================================================================
+# Register MCP Prompts
+# ============================================================================
+from src.prompts.educational import register_educational_prompts
+
+register_educational_prompts(mcp)
+
+
+# ============================================================================
+# Health Check Tool
+# ============================================================================
 @mcp.tool(
     name="health_check",
     description="Check server health and connectivity"
 )
-async def health_check(ctx: Context | None = None) -> dict:
-    """Check server health status."""
+async def health_check(ctx: Context = None) -> dict:
+    """
+    Check server health status.
+    
+    Returns basic server information and status.
+    """
     return {
         "content": [{
             "type": "text",
@@ -185,14 +200,15 @@ async def health_check(ctx: Context | None = None) -> dict:
     }
 
 
-logger.info(f"Registered {len(mcp._tool_manager._tools)} MCP tools")
+logger.info(f"Registered {len(mcp._tool_manager._tools)} MCP tools total")
+logger.info("Resources and prompts registered successfully")
 
 
 # ============================================================================
-# Create MCP ASGI App (MCP protocol - path relative to mount point)
+# Create MCP ASGI App (MCP protocol - handles /mcp path directly)
 # ============================================================================
-mcp_app = mcp.http_app(path="/")  # "/" relative to mount point
-logger.info("MCP ASGI app created (path=/ relative to mount)")
+mcp_app = mcp.http_app(path="/mcp")  # Handle /mcp path directly at root mount
+logger.info("MCP ASGI app created (path=/mcp at root mount)")
 
 
 # ============================================================================
@@ -228,16 +244,41 @@ if config.http_enable_cors:
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["*"],
-        expose_headers=["WWW-Authenticate"],  # Important for OAuth 2.1
+        expose_headers=["WWW-Authenticate", "Content-Type", "Authorization", "Mcp-Session-Id"],  # Required for MCP + OAuth 2.1
         max_age=86400,
     )
     logger.info("CORS middleware enabled")
 
 
 # ============================================================================
+# OAuth Authentication Router (Login, Callback, Logout)
+# ============================================================================
+if config.enable_auth:
+    import os
+    
+    # Determine callback URL based on environment
+    callback_url = os.getenv(
+        "OAUTH_CALLBACK_URL",
+        f"http://localhost:{config.server_port}/auth/callback"
+    )
+    
+    oauth_router = create_oauth_router(
+        scalekit_env_url=config.scalekit_env_url,
+        client_id=config.scalekit_client_id,
+        client_secret=config.scalekit_client_secret,
+        redirect_uri=callback_url,
+        frontend_callback_url=None,  # JSON response for API clients
+    )
+    app.include_router(oauth_router)
+    logger.info(f"OAuth router registered: /auth/login, /callback, /auth/logout")
+    logger.info(f"OAuth callback URL: {callback_url}")
+
+
+# ============================================================================
 # Public Endpoints (OAuth Discovery + Health)
 # ============================================================================
 @app.get("/.well-known/oauth-protected-resource")
+@app.get("/.well-known/oauth-protected-resource/mcp")
 async def oauth_discovery():
     """
     OAuth 2.1 Protected Resource metadata endpoint.
@@ -249,8 +290,52 @@ async def oauth_discovery():
     - Resource identifier
     
     This is essential for Claude Desktop and other OAuth clients.
+    Also responds to /mcp suffix for clients that request path-specific metadata.
     """
     return await get_oauth_protected_resource_metadata(config)
+
+
+@app.get("/.well-known/oauth-authorization-server")
+async def oauth_authorization_server_metadata():
+    """
+    Redirect to ScaleKit's OIDC Discovery metadata.
+    
+    Claude.ai and other OAuth clients look for this endpoint to discover
+    the authorization server configuration. ScaleKit uses OIDC standard
+    (/.well-known/openid-configuration) instead of OAuth standard.
+    """
+    from fastapi.responses import RedirectResponse
+    
+    if config.scalekit_env_url:
+        # Redirect to ScaleKit's OIDC configuration (ScaleKit uses OIDC standard)
+        scalekit_metadata_url = f"{config.scalekit_env_url}/.well-known/openid-configuration"
+        logger.info(f"Redirecting to ScaleKit OIDC metadata: {scalekit_metadata_url}")
+        return RedirectResponse(url=scalekit_metadata_url, status_code=302)
+    else:
+        return Response(
+            content='{"error": "not_configured", "error_description": "Authorization server not configured"}',
+            media_type="application/json",
+            status_code=503
+        )
+
+
+@app.post("/register")
+@app.get("/register")
+async def dynamic_client_registration():
+    """
+    Dynamic Client Registration endpoint.
+    
+    This is an OAuth 2.0 feature for dynamic client registration.
+    We don't support this directly - clients should be pre-registered in ScaleKit.
+    
+    Returns a proper OAuth error response.
+    """
+    logger.info("Dynamic Client Registration attempted - not supported")
+    return Response(
+        content='{"error": "registration_not_supported", "error_description": "Dynamic client registration is not supported. Please use pre-registered clients via ScaleKit."}',
+        media_type="application/json",
+        status_code=400
+    )
 
 
 @app.get("/health")
@@ -271,10 +356,10 @@ logger.info("Public endpoints registered: /.well-known/oauth-protected-resource,
 
 
 # ============================================================================
-# Mount MCP at "/mcp" (for HTTP-Streamable production mode)
+# Mount MCP at root to handle /mcp path directly (avoids 307 redirect issues)
 # ============================================================================
-app.mount("/mcp", mcp_app)
-logger.info("MCP app mounted at /mcp (MCP protocol endpoints for HTTP clients)")
+app.mount("/", mcp_app)
+logger.info("MCP app mounted at root (handles /mcp path directly, avoids redirect)")
 
 
 # ============================================================================

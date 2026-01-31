@@ -91,3 +91,6 @@ backup/
 
 # Large embedding files (regenerate with scripts/ingest_embedded_chunks.py)
 embedded_chunks.jsonl
+
+# ScaleKit Credentials (NEVER commit!)
+SCALEKIT_MCP_CREDENTIALS*.md
