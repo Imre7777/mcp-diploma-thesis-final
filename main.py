@@ -41,6 +41,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from fastmcp import FastMCP, Context
+from fastmcp.utilities.types import Image
+from mcp.types import Icon
 from fastapi import FastAPI, Response
 from starlette.middleware.cors import CORSMiddleware
 
@@ -80,48 +82,59 @@ logger.info("=" * 80)
 # ============================================================================
 from src.server.lifespan import app_lifespan
 
+# Load server icon from static folder
+server_icon = None
+logo_path = Path(__file__).parent / "static" / "logo.png"
+if logo_path.exists():
+    try:
+        img = Image(path=str(logo_path))
+        server_icon = Icon(src=img.to_data_uri(), mimeType="image/png", sizes=["128x128"])
+        logger.info(f"Server icon loaded from {logo_path}")
+    except Exception as e:
+        logger.warning(f"Could not load server icon: {e}")
+
 mcp = FastMCP(
     name=config.server_name,
+    
+    # Server branding
+    version=config.server_version,
+    website_url="https://leowiki.htl-leonding.ac.at",
+    icons=[server_icon] if server_icon else None,
     
     # Instructions help LLMs understand how to use the server
     instructions="""
     LeoWiki MCP Server - HTL Leonding Educational Content Search
     
-    This server provides semantic search access to HTL Leonding's educational wiki.
+    Du bist ein Assistent für Schüler und Lehrer der HTL Leonding.
+    Antworte auf Deutsch, freundlich und hilfreich.
     
-    CAPABILITIES:
-    - Semantic search across educational materials
-    - Role-based content filtering (student/teacher/admin)
-    - Access to course materials, tutorials, and documentation
+    TOOLS:
+    - search_content_student: Suche für Schüler (eingeschränkter Zugriff)
+    - search_content_teacher: Suche für Lehrer (voller Zugriff inkl. Prüfungsmaterial)
+    - get_collection_stats: Statistiken (nur Admin)
+    - health_check: Server-Status prüfen
     
-    AVAILABLE TOOLS:
-    - search_content_student: Search with student-level access
-    - search_content_teacher: Search with teacher-level access (includes exam materials)
-    - get_collection_stats: Database statistics (teacher/admin only)
-    - list_resources / read_resource: Access server resources via tools
-    - list_prompts / get_prompt: Access prompt templates via tools
+    RESOURCES (6):
+    - leowiki://categories: Inhaltskategorien
+    - leowiki://access-levels: RBAC-Dokumentation
+    - leowiki://search-hints: Tipps für effektive Suche
+    - leowiki://system-prompt: Verhaltensrichtlinien
+    - leowiki://stats: Live-Statistiken
+    - leowiki://recent/{count}: Kürzlich aktualisierte Inhalte
     
-    RESOURCES (also accessible via list_resources/read_resource tools):
-    - leowiki://categories: Available content categories
-    - leowiki://access-levels: RBAC documentation
-    - leowiki://search-hints: Search tips and best practices
-    - leowiki://stats: Live collection statistics
-    - leowiki://topic/{id}: Detailed topic information
-    - leowiki://recent/{count}: Recently updated content
+    PROMPTS (2):
+    - explain_topic: Strukturierte Themen-Erklärung generieren
+    - summarize_search: Suchergebnisse zusammenfassen
     
-    PROMPTS (also accessible via list_prompts/get_prompt tools):
-    - explain_topic: Generate structured explanations
-    - create_quiz: Generate quiz questions
-    - compare_concepts: Compare related concepts
-    - summarize_search: Summarize search results
-    - learning_path: Create learning roadmaps
-    
-    LANGUAGE: Content is primarily in German.
-    AUTHENTICATION: OAuth 2.1 via Scalekit (required)
+    SPRACHE: Deutsch
+    AUTH: OAuth 2.1 via Scalekit
     """,
     
     # Security (CRITICAL for production) - FastMCP 3.0
     mask_error_details=True,  # Hide internal errors from clients
+    
+    # Input validation - better error messages for invalid inputs
+    strict_input_validation=True,
     
     # Behavior (FastMCP 3.0: renamed from on_duplicate_tools)
     on_duplicate="error",  # Catch registration errors early
