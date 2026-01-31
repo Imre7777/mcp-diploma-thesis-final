@@ -1,0 +1,38 @@
+# MCP Educational Server - Watchdog Service Dockerfile
+# Separate image for file watching service (no HTTP server)
+# Optimized for Raspberry Pi (ARM64) deployment
+
+FROM python:3.13-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first (for layer caching)
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY src/ ./src/
+
+# Create data directories
+RUN mkdir -p data/incoming data/processed data/failed
+
+# Set Python to run in unbuffered mode (better for Docker logs)
+ENV PYTHONUNBUFFERED=1
+
+# Health check for watchdog service
+# Verifies the Python watchdog process is running
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD pgrep -f "python -m src.pipeline.watchdog_service" > /dev/null || exit 1
+
+# Run watchdog service
+CMD ["python", "-m", "src.pipeline.watchdog_service"]

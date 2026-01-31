@@ -2,8 +2,6 @@
 # Domain: https://leowiki-mcp.stream
 # Raspberry Pi Deployment
 
-version: '3.8'
-
 services:
   # Qdrant Vector Database (Backend only - NO external ports)
   qdrant:
@@ -74,10 +72,11 @@ services:
 
   # Watchdog Service (Automatic JSONL Processing - Backend only)
   watchdog:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.watchdog
     container_name: mcp-watchdog
     restart: unless-stopped
-    command: python -m src.pipeline.watchdog_service
     depends_on:
       qdrant:
         condition: service_started
