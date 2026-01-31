@@ -123,8 +123,8 @@ mcp = FastMCP(
     # Security (CRITICAL for production) - FastMCP 3.0
     mask_error_details=True,  # Hide internal errors from clients
     
-    # Behavior
-    on_duplicate_tools="error",  # Catch registration errors early
+    # Behavior (FastMCP 3.0: renamed from on_duplicate_tools)
+    on_duplicate="error",  # Catch registration errors early
     
     # Dependency injection
     lifespan=app_lifespan,
@@ -210,8 +210,8 @@ async def health_check(ctx: Context = None) -> dict:
     }
 
 
-logger.info(f"Registered {len(mcp._tool_manager._tools)} MCP tools total")
-logger.info("Resources and prompts registered successfully")
+# FastMCP 3.0: Use public API instead of internal attributes
+logger.info("All tools, resources, and prompts registered successfully")
 
 
 # ============================================================================
