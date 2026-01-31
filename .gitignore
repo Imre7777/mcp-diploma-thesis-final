@@ -34,10 +34,12 @@ env/
 *~
 .DS_Store
 
-# Environment variables
+# Environment variables (NEVER commit secrets!)
 .env
 .env.local
 .env.*.local
+.env.backup
+*.env
 
 # Claude Desktop Config (contains API keys!)
 claude_desktop_config.json
@@ -52,17 +54,22 @@ htmlcov/
 *.log
 logs/
 *.log.*
+mcp-server-*.log
 
-# Data (keep structure, ignore content)
-data/incoming/*.jsonl
-data/processed/*.jsonl
-data/failed/*.jsonl
-data/backups/*
+# Data directories - ALL content ignored (regenerate via watchdog/ingestion)
+data/incoming/
+data/processed/
+data/failed/
+data/backups/
+data/jsonl/
+data/statistics/
 
-# Keep example files
-!data/jsonl/pages.jsonl
-!data/jsonl/media.jsonl
-!data/statistics/embedding_statistics.json
+# Keep directory structure with .gitkeep files
+!data/incoming/.gitkeep
+!data/processed/.gitkeep
+!data/failed/.gitkeep
+!data/jsonl/.gitkeep
+!data/statistics/.gitkeep
 
 # Docker
 docker-compose.override.yml
