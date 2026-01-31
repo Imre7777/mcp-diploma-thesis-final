@@ -92,7 +92,7 @@ def register_content_resources(mcp: FastMCP):
         from src.server.lifespan import AppContext
         
         app: AppContext = ctx.lifespan_context
-        user_role = ctx.get_state("user_role") or "student"
+        user_role = await ctx.get_state("user_role") or "student"
         
         try:
             # Search for the specific topic using scroll
@@ -184,7 +184,7 @@ def register_content_resources(mcp: FastMCP):
         from src.server.lifespan import AppContext
         
         app: AppContext = ctx.lifespan_context
-        user_role = ctx.get_state("user_role") or "student"
+        user_role = await ctx.get_state("user_role") or "student"
         
         try:
             # Parse and limit count

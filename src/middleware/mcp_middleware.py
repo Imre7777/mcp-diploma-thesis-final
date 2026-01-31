@@ -51,7 +51,7 @@ class RequestLoggingMiddleware(Middleware):
         
         # Store request ID in FastMCP context for access in tools
         if context.fastmcp_context:
-            context.fastmcp_context.set_state("request_id", request_id)
+            await context.fastmcp_context.set_state("request_id", request_id)
         
         # Log request start
         logger.info(f"[{request_id}] → {context.method}")
@@ -173,12 +173,12 @@ class UserContextMiddleware(Middleware):
                 logger.warning(f"Failed to extract JWT claims: {e}")
                 logger.debug("Using default user context (student role)")
         
-        # Populate FastMCP context state
+        # Populate FastMCP context state (FastMCP 3.0: async methods)
         if context.fastmcp_context:
-            context.fastmcp_context.set_state("user_id", user_id)
-            context.fastmcp_context.set_state("user_email", user_email)
-            context.fastmcp_context.set_state("user_role", user_role)
-            context.fastmcp_context.set_state("user_scopes", user_scopes)
+            await context.fastmcp_context.set_state("user_id", user_id)
+            await context.fastmcp_context.set_state("user_email", user_email)
+            await context.fastmcp_context.set_state("user_role", user_role)
+            await context.fastmcp_context.set_state("user_scopes", user_scopes)
         
         # Proceed to next handler
         return await call_next(context)
@@ -231,10 +231,10 @@ class RBACEnforcementMiddleware(Middleware):
         # Get full tool list
         all_tools = await call_next(context)
         
-        # Get user role from context
+        # Get user role from context (FastMCP 3.0: async methods)
         user_role = "student"  # Default
         if context.fastmcp_context:
-            user_role = context.fastmcp_context.get_state("user_role") or "student"
+            user_role = await context.fastmcp_context.get_state("user_role") or "student"
         
         # Filter tools based on role
         filtered_tools = []
@@ -275,9 +275,9 @@ class RBACEnforcementMiddleware(Middleware):
         tool_name = context.message.name
         required_roles = self.TOOL_PERMISSIONS.get(tool_name, set())
         
-        # If tool has role requirements, check them
+        # If tool has role requirements, check them (FastMCP 3.0: async methods)
         if required_roles:
-            user_role = context.fastmcp_context.get_state("user_role") or "guest"
+            user_role = await context.fastmcp_context.get_state("user_role") or "guest"
             
             if user_role not in required_roles:
                 logger.warning(
@@ -321,10 +321,10 @@ class AuditLoggingMiddleware(Middleware):
         """
         tool_name = context.message.name
         
-        # Extract user information
-        user_id = context.fastmcp_context.get_state("user_id") or "anonymous"
-        user_role = context.fastmcp_context.get_state("user_role") or "unknown"
-        request_id = context.fastmcp_context.get_state("request_id") or "unknown"
+        # Extract user information (FastMCP 3.0: async methods)
+        user_id = await context.fastmcp_context.get_state("user_id") or "anonymous"
+        user_role = await context.fastmcp_context.get_state("user_role") or "unknown"
+        request_id = await context.fastmcp_context.get_state("request_id") or "unknown"
         
         # Hash user ID for privacy (DSGVO pseudonymization)
         user_id_hash = hash(user_id) if user_id != "anonymous" else "anonymous"

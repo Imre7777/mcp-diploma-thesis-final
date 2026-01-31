@@ -98,8 +98,10 @@ mcp = FastMCP(
     - search_content_student: Search with student-level access
     - search_content_teacher: Search with teacher-level access (includes exam materials)
     - get_collection_stats: Database statistics (teacher/admin only)
+    - list_resources / read_resource: Access server resources via tools
+    - list_prompts / get_prompt: Access prompt templates via tools
     
-    RESOURCES:
+    RESOURCES (also accessible via list_resources/read_resource tools):
     - leowiki://categories: Available content categories
     - leowiki://access-levels: RBAC documentation
     - leowiki://search-hints: Search tips and best practices
@@ -107,7 +109,7 @@ mcp = FastMCP(
     - leowiki://topic/{id}: Detailed topic information
     - leowiki://recent/{count}: Recently updated content
     
-    PROMPTS:
+    PROMPTS (also accessible via list_prompts/get_prompt tools):
     - explain_topic: Generate structured explanations
     - create_quiz: Generate quiz questions
     - compare_concepts: Compare related concepts
@@ -118,11 +120,7 @@ mcp = FastMCP(
     AUTHENTICATION: OAuth 2.1 via Scalekit (required)
     """,
     
-    # Transport configuration
-    stateless_http=True,  # Required for HTTP transport
-    json_response=False,  # Keep SSE for progress reporting
-    
-    # Security (CRITICAL for production)
+    # Security (CRITICAL for production) - FastMCP 3.0
     mask_error_details=True,  # Hide internal errors from clients
     
     # Behavior
@@ -177,6 +175,18 @@ register_content_resources(mcp)
 from src.prompts.educational import register_educational_prompts
 
 register_educational_prompts(mcp)
+
+
+# ============================================================================
+# FastMCP 3.0 Transforms - Expose Resources/Prompts as Tools
+# This allows Claude Desktop to access resources and prompts via tool calls
+# ============================================================================
+from fastmcp.server.transforms import ResourcesAsTools, PromptsAsTools
+
+mcp.add_transform(ResourcesAsTools(mcp))
+mcp.add_transform(PromptsAsTools(mcp))
+
+logger.info("Added ResourcesAsTools and PromptsAsTools transforms (FastMCP 3.0)")
 
 
 # ============================================================================

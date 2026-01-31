@@ -313,8 +313,8 @@ def register_search_tools(mcp: FastMCP) -> None:
                 await ctx.report_progress(4, 4, "Formatiere Ergebnisse...")
             formatted = _format_search_results(results, query)
             
-            # Log audit trail
-            user_id = ctx.get_state("user_id") if ctx else "anonymous"
+            # Log audit trail (FastMCP 3.0: async ctx methods)
+            user_id = await ctx.get_state("user_id") if ctx else "anonymous"
             logger.info(
                 f"[SEARCH_STUDENT] user={hash(user_id) if user_id else 'anon'}, query='{query[:30]}...', results={len(results)}"
             )
@@ -463,8 +463,8 @@ def register_search_tools(mcp: FastMCP) -> None:
                 await ctx.report_progress(4, 4, "Formatiere Ergebnisse...")
             formatted = _format_search_results(results, query)
             
-            # Log audit trail
-            user_id = ctx.get_state("user_id") if ctx else "anonymous"
+            # Log audit trail (FastMCP 3.0: async ctx methods)
+            user_id = await ctx.get_state("user_id") if ctx else "anonymous"
             logger.info(
                 f"[SEARCH_TEACHER] user={hash(user_id) if user_id else 'anon'}, query='{query[:30]}...', results={len(results)}"
             )
@@ -531,7 +531,7 @@ def register_search_tools(mcp: FastMCP) -> None:
             # Get services (lazy initialization)
             db, _ = _get_services()
             
-            user_role = ctx.get_state("user_role") if ctx else "student"
+            user_role = await ctx.get_state("user_role") if ctx else "student"
             logger.info(f"Getting collection stats for role={user_role}")
             
             # Get collection info
