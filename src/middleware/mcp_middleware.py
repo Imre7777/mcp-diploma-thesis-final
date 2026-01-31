@@ -198,10 +198,13 @@ class RBACEnforcementMiddleware(Middleware):
     # Define which tools require which roles
     # Tools not listed here are accessible to all authenticated users
     # 
-    # RBAC Rules:
-    # - Schüler: search_content_student, health_check
-    # - Lehrer: search_content_teacher, health_check
-    # - Admin: alles (beide search, stats, health, alle resources/prompts)
+    # RBAC Rules (see leowiki_resources_architecture.md):
+    # - Schüler: search_content_student, health_check, prompts
+    # - Lehrer: search_content_teacher, health_check, prompts
+    # - Admin: alles (beide search, stats, health, resources, prompts)
+    #
+    # WICHTIG: Resources sind Backend für Claude, nicht für End-User!
+    # Nur Admins brauchen direkten Zugriff für Debugging/Monitoring.
     TOOL_PERMISSIONS = {
         # Student tools - only students and admins can use
         "search_content_student": {"student", "admin"},
@@ -212,9 +215,13 @@ class RBACEnforcementMiddleware(Middleware):
         # Admin-only tools
         "get_collection_stats": {"admin"},
         
+        # Resources - ADMIN ONLY (Security: verhindert Prompt Injection,
+        # versteckt Systemarchitektur, KISS Prinzip)
+        "list_resources": {"admin"},
+        "read_resource": {"admin"},
+        
         # health_check is NOT listed = available to all roles
-        # Resources/Prompts transform tools (list_resources, read_resource, 
-        # list_prompts, get_prompt) are NOT listed = available to all roles
+        # Prompts (list_prompts, get_prompt) are NOT listed = available to all roles
     }
     
     async def on_list_tools(self, context: MiddlewareContext, call_next):
