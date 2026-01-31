@@ -13,6 +13,7 @@ Reference: refactor/leowiki_rbac_tools_implementation.md
 """
 
 import logging
+import threading
 from typing import List, Dict, Any, Optional
 
 from fastmcp import FastMCP, Context
@@ -29,36 +30,47 @@ logger = logging.getLogger(__name__)
 # Global config
 config = ServerConfig()
 
-# Global services (lazy initialized)
+# Global services (lazy initialized, thread-safe)
 _db: Optional[QdrantBackend] = None
 _embedding_service: Optional[EmbeddingService] = None
+_init_lock = threading.Lock()
 
 
 def _get_services():
     """
-    Lazy initialization of database and embedding services.
+    Thread-safe lazy initialization of database and embedding services.
     
-    This approach is used because FastMCP's lifespan_context is not
-    available on the Context object in the current version.
+    Uses double-checked locking pattern to ensure:
+    1. Only one initialization happens even with concurrent requests
+    2. Minimal locking overhead after initialization
+    
+    This is important when multiple students/teachers use the server simultaneously.
     """
     global _db, _embedding_service
     
-    if _db is None:
-        logger.info("Initializing search backend (lazy)...")
-        _db = create_vector_backend(
-            name=config.vector_db_backend,
-            url=config.vector_db_url,
-            api_key=config.vector_db_api_key
-        )
-        logger.info(f"✓ Backend initialized: {config.vector_db_backend}")
+    # Fast path: already initialized (no lock needed)
+    if _db is not None and _embedding_service is not None:
+        return _db, _embedding_service
     
-    if _embedding_service is None:
-        logger.info("Initializing embedding service (lazy)...")
-        _embedding_service = EmbeddingService(
-            api_key=config.openai_api_key,
-            model=config.embedding_model
-        )
-        logger.info(f"✓ Embedding service initialized: {config.embedding_model}")
+    # Slow path: need to initialize (with lock for thread safety)
+    with _init_lock:
+        # Double-check after acquiring lock
+        if _db is None:
+            logger.info("Initializing search backend (lazy, thread-safe)...")
+            _db = create_vector_backend(
+                name=config.vector_db_backend,
+                url=config.vector_db_url,
+                api_key=config.vector_db_api_key
+            )
+            logger.info(f"✓ Backend initialized: {config.vector_db_backend}")
+        
+        if _embedding_service is None:
+            logger.info("Initializing embedding service (lazy, thread-safe)...")
+            _embedding_service = EmbeddingService(
+                api_key=config.openai_api_key,
+                model=config.embedding_model
+            )
+            logger.info(f"✓ Embedding service initialized: {config.embedding_model}")
     
     return _db, _embedding_service
 
