@@ -339,8 +339,9 @@ def register_search_tools(mcp: FastMCP) -> None:
                 "isError": True
             }
         except Exception as e:
+            # Log full error for debugging (server-side only)
             logger.error(f"Student search error: {e}", exc_info=True)
-            await ctx.error(f"Suchfehler: {type(e).__name__}")
+            # Return generic message - NO implementation details to users!
             return {
                 "content": [{
                     "type": "text",
@@ -489,8 +490,9 @@ def register_search_tools(mcp: FastMCP) -> None:
                 "isError": True
             }
         except Exception as e:
+            # Log full error for debugging (server-side only)
             logger.error(f"Teacher search error: {e}", exc_info=True)
-            await ctx.error(f"Suchfehler: {type(e).__name__}")
+            # Return generic message - NO implementation details to users!
             return {
                 "content": [{
                     "type": "text",
