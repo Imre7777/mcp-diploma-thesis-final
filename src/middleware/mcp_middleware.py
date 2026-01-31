@@ -197,20 +197,24 @@ class RBACEnforcementMiddleware(Middleware):
     
     # Define which tools require which roles
     # Tools not listed here are accessible to all authenticated users
+    # 
+    # RBAC Rules:
+    # - Schüler: search_content_student, health_check
+    # - Lehrer: search_content_teacher, health_check
+    # - Admin: alles (beide search, stats, health, alle resources/prompts)
     TOOL_PERMISSIONS = {
+        # Student tools - only students and admins can use
+        "search_content_student": {"student", "admin"},
+        
+        # Teacher tools - only teachers and admins can use
+        "search_content_teacher": {"teacher", "admin"},
+        
         # Admin-only tools
-        "get_collection_stats": {"admin", "teacher"},
-        "reindex_document": {"admin"},
-        "delete_content": {"admin"},
-        "manage_users": {"admin"},
-        "bulk_operation": {"admin"},
+        "get_collection_stats": {"admin"},
         
-        # Teacher+ tools
-        "admin_health_check": {"admin", "teacher"},
-        "content_get_document": {"teacher", "admin"},  # If we add detailed document access
-        
-        # Student sees only student tools, teacher sees teacher tools
-        "search_content_teacher": {"admin", "teacher"},
+        # health_check is NOT listed = available to all roles
+        # Resources/Prompts transform tools (list_resources, read_resource, 
+        # list_prompts, get_prompt) are NOT listed = available to all roles
     }
     
     async def on_list_tools(self, context: MiddlewareContext, call_next):

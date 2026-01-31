@@ -45,6 +45,19 @@ def register_content_resources(mcp: FastMCP):
                 app.config.default_collection
             )
             
+            # Get optimizer status safely (API changed in qdrant-client 1.16+)
+            optimizer_status = "unknown"
+            if collection_info.optimizer_status:
+                try:
+                    if hasattr(collection_info.optimizer_status, 'ok'):
+                        optimizer_status = "ok" if collection_info.optimizer_status.ok else "optimizing"
+                    elif hasattr(collection_info.optimizer_status, 'status'):
+                        optimizer_status = collection_info.optimizer_status.status.name
+                    else:
+                        optimizer_status = str(collection_info.optimizer_status)
+                except Exception:
+                    optimizer_status = "unknown"
+            
             stats = {
                 "collection": app.config.default_collection,
                 "total_documents": collection_info.points_count,
@@ -52,7 +65,7 @@ def register_content_resources(mcp: FastMCP):
                 "distance_metric": collection_info.config.params.vectors.distance.name,
                 "status": "healthy",
                 "last_checked": datetime.now().isoformat(),
-                "optimizer_status": collection_info.optimizer_status.status.name if collection_info.optimizer_status else "unknown",
+                "optimizer_status": optimizer_status,
                 "segments_count": collection_info.segments_count,
             }
             
@@ -65,102 +78,6 @@ def register_content_resources(mcp: FastMCP):
             }
         
         return json.dumps(stats, indent=2)
-    
-    
-    @mcp.resource(
-        uri="leowiki://topic/{topic_id}",
-        name="Topic Details",
-        description="Detailed information about a specific topic",
-        mime_type="application/json",
-        tags={"content", "dynamic", "detailed"}
-    )
-    async def get_topic(topic_id: str, ctx: Context) -> str:
-        """
-        Retrieve detailed content for a specific topic.
-        
-        Example URIs:
-        - leowiki://topic/sew-java-oop
-        - leowiki://topic/nwt-subnetting-basics
-        
-        Args:
-            topic_id: Unique topic identifier
-            ctx: MCP context with user information
-            
-        Returns:
-            JSON with topic details or error message
-        """
-        from src.server.lifespan import AppContext
-        
-        app: AppContext = ctx.lifespan_context
-        user_role = await ctx.get_state("user_role") or "student"
-        
-        try:
-            # Search for the specific topic using scroll
-            # Note: In production, you'd have a proper topic_id field
-            # For now, search by ID in the collection
-            results = app.qdrant.client.scroll(
-                collection_name=app.config.default_collection,
-                scroll_filter={
-                    "must": [
-                        {"key": "original_id", "match": {"value": topic_id}}
-                    ]
-                },
-                limit=1,
-                with_payload=True
-            )
-            
-            if not results[0]:
-                return json.dumps({
-                    "error": "Topic not found",
-                    "topic_id": topic_id,
-                    "message": "No topic found with this ID"
-                }, indent=2)
-            
-            topic = results[0][0]
-            topic_level = topic.payload.get("access_level", "student")
-            
-            # Check access level
-            allowed_levels = {
-                "student": ["student"],
-                "teacher": ["student", "teacher"],
-                "admin": ["student", "teacher", "admin"]
-            }
-            
-            user_allowed = allowed_levels.get(user_role, ["student"])
-            
-            if topic_level not in user_allowed:
-                return json.dumps({
-                    "error": "Access denied",
-                    "topic_id": topic_id,
-                    "required_level": topic_level,
-                    "your_level": user_role,
-                    "message": f"This topic requires {topic_level} access level"
-                }, indent=2)
-            
-            # Return topic details
-            return json.dumps({
-                "id": topic_id,
-                "title": topic.payload.get("title", "Untitled"),
-                "content": topic.payload.get("text", "No content available"),
-                "access_level": topic_level,
-                "namespace": topic.payload.get("namespace", "unknown"),
-                "content_type": topic.payload.get("content_type", "unknown"),
-                "metadata": {
-                    "author": topic.payload.get("author", "unknown"),
-                    "source": topic.payload.get("source", "unknown"),
-                    "freshness_score": topic.payload.get("freshness_score", 0),
-                    "chunk_index": topic.payload.get("chunk_index", 0),
-                    "total_chunks": topic.payload.get("total_chunks", 1),
-                }
-            }, ensure_ascii=False, indent=2)
-            
-        except Exception as e:
-            logger.error(f"Error retrieving topic {topic_id}: {e}")
-            return json.dumps({
-                "error": "Retrieval failed",
-                "topic_id": topic_id,
-                "message": str(e)
-            }, indent=2)
     
     
     @mcp.resource(
@@ -242,4 +159,4 @@ def register_content_resources(mcp: FastMCP):
                 "message": str(e)
             }, indent=2)
     
-    logger.info("Registered 3 dynamic content resources: stats, topic/{id}, recent/{count}")
+    logger.info("Registered 2 dynamic content resources: stats, recent/{count}")
