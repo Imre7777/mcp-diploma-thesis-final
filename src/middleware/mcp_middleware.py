@@ -200,20 +200,23 @@ class RBACEnforcementMiddleware(Middleware):
     # 
     # RBAC Rules (see leowiki_resources_architecture.md):
     # - Schüler: search_content_student, health_check, prompts
-    # - Lehrer: search_content_teacher, health_check, prompts
+    # - Lehrer: search_content_student + search_content_teacher, health_check, prompts
     # - Admin: alles (beide search, stats, health, resources, prompts)
+    #
+    # Lehrer können BEIDE Suchen nutzen um die Unterschiede zu sehen!
     #
     # WICHTIG: Resources sind Backend für Claude, nicht für End-User!
     # Nur Admins brauchen direkten Zugriff für Debugging/Monitoring.
     TOOL_PERMISSIONS = {
-        # Student tools - only students and admins can use
-        "search_content_student": {"student", "admin"},
+        # Student tools - students, teachers (to compare), and admins
+        "search_content_student": {"student", "teacher", "admin"},
         
         # Teacher tools - only teachers and admins can use
         "search_content_teacher": {"teacher", "admin"},
         
         # Admin-only tools
         "get_collection_stats": {"admin"},
+        "get_query_statistics": {"admin"},  # Query-Logging Statistiken
         
         # Resources - ADMIN ONLY (Security: verhindert Prompt Injection,
         # versteckt Systemarchitektur, KISS Prinzip)

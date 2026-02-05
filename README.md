@@ -19,12 +19,13 @@ A production-ready Model Context Protocol (MCP) server providing semantic search
 - **HTTP Streamable** - FastAPI server with Server-Sent Events (SSE)
 - **Auto Ingestion** - Watchdog service monitors for new JSONL files and updates Qdrant
 
-### FastMCP Professional Features
-- **7 MCP Resources** - Metadata and dynamic content exposure
-- **5 MCP Prompts** - Educational templates for structured LLM interactions
+### FastMCP 3.0 Professional Features
+- **6 MCP Resources** - Metadata and dynamic content exposure (Admin only)
+- **2 MCP Prompts** - Educational templates for structured LLM interactions
 - **4 Custom Middleware** - Request logging, user context, RBAC enforcement, audit trails
 - **Progress Reporting** - Real-time search progress feedback
 - **Tool Annotations** - Hints for LLM optimization (readOnly, idempotent)
+- **Query Logging** - Persistent logging for educational analytics (JSONL)
 
 ---
 
@@ -48,10 +49,10 @@ A production-ready Model Context Protocol (MCP) server providing semantic search
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                      mcp-server                                  │
-│    • FastMCP Protocol                                           │
+│    • FastMCP 3.0 Protocol                                       │
 │    • OAuth 2.1 (Scalekit)                                       │
-│    • 4 Tools, 7 Resources, 5 Prompts                            │
-│    • 4 Middleware Components                                    │
+│    • 5 Tools, 6 Resources, 2 Prompts                            │
+│    • 4 Middleware Components + Query Logging                    │
 └──────────────────────────┬──────────────────────────────────────┘
                            │ Port 6333 (HTTP, intern)
                            ▼
@@ -75,18 +76,19 @@ A production-ready Model Context Protocol (MCP) server providing semantic search
 
 ## MCP Capabilities
 
-### Tools (4)
+### Tools (5)
 
 | Tool | Description | Access |
 |------|-------------|--------|
-| `search_content_student` | Semantic search (student content only) | All users |
-| `search_content_teacher` | Semantic search (full access) | Teacher+ |
-| `get_collection_stats` | Database statistics | Teacher+, Admin |
+| `search_content_student` | Semantic search (student content only) | Student, Teacher, Admin |
+| `search_content_teacher` | Semantic search (full access) | Teacher, Admin |
+| `get_collection_stats` | Database statistics | Admin only |
+| `get_query_statistics` | Query logging analytics | Admin only |
 | `health_check` | Server status | All users |
 
-**Security by Design:** Two separate search tools prevent RBAC bypass via parameter manipulation.
+**Security by Design:** Two separate search tools prevent RBAC bypass via parameter manipulation. Teachers can use both search tools to compare results.
 
-### Resources (7)
+### Resources (6) - Admin Only
 
 | URI | Description | Type |
 |-----|-------------|------|
@@ -95,18 +97,16 @@ A production-ready Model Context Protocol (MCP) server providing semantic search
 | `leowiki://search-hints` | Search tips and best practices | Static |
 | `leowiki://system-prompt` | Claude behavioral guidelines | Static |
 | `leowiki://stats` | Live collection statistics | Dynamic |
-| `leowiki://topic/{id}` | Detailed topic information | Template |
 | `leowiki://recent/{count}` | Recently updated content | Template |
 
-### Prompts (5)
+**Note:** Resources are hidden from students and teachers for security reasons (prevents prompt injection, hides system architecture).
+
+### Prompts (2) - All Roles
 
 | Prompt | Description |
 |--------|-------------|
 | `explain_topic` | Structured topic explanation (pedagogical) |
-| `create_quiz` | Quiz question generation |
-| `compare_concepts` | Side-by-side concept comparison |
 | `summarize_search` | Search result synthesis |
-| `learning_path` | Learning roadmap generation |
 
 ### Middleware (4)
 
@@ -177,25 +177,27 @@ mcp-diploma-thesis-final/
 │   │   ├── jsonl_ingestion.py  # JSONL processing
 │   │   └── watchdog_service.py # File monitoring
 │   ├── prompts/
-│   │   └── educational.py      # 5 prompt templates
+│   │   └── educational.py      # 2 prompt templates
 │   ├── resources/
 │   │   ├── metadata.py         # 4 static resources
-│   │   └── content.py          # 3 dynamic resources
+│   │   └── content.py          # 2 dynamic resources
 │   ├── server/
 │   │   ├── lifespan.py         # Dependency injection
 │   │   └── oauth_metadata.py   # OAuth discovery
 │   ├── tools/
-│   │   └── search_tools.py     # 3 search tools
+│   │   └── search_tools.py     # 5 tools (search, stats, health)
 │   └── utils/
-│       └── embeddings.py       # OpenAI embedding service
+│       ├── embeddings.py       # OpenAI embedding service
+│       └── query_logger.py     # Persistent query logging (JSONL)
 │
 ├── data/
 │   ├── incoming/               # Drop JSONL files here
 │   ├── processed/              # Successfully processed
-│   └── failed/                 # Failed ingestions
+│   ├── failed/                 # Failed ingestions
+│   └── statistics/             # Query logs for analytics
 │
 ├── docs/                       # Documentation
-├── refactor/                   # Enhancement plans & references
+│   └── refactor/               # Enhancement plans & references
 └── tests/                      # Test suite
 ```
 
@@ -329,5 +331,5 @@ Educational project - HTL Leonding Diploma Thesis
 ---
 
 **Status**: Production Ready  
-**Version**: 2.0.1  
-**Last Updated**: 2026-01-31
+**Version**: 2.1.0  
+**Last Updated**: 2026-02-05
