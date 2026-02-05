@@ -45,6 +45,9 @@ from fastmcp.utilities.types import Image
 from mcp.types import Icon
 from fastapi import FastAPI, Response
 from starlette.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from src.config.server_config import ServerConfig
 from src.middleware.scalekit_auth import create_scalekit_middleware
@@ -272,6 +275,18 @@ if config.http_enable_cors:
         max_age=86400,
     )
     logger.info("CORS middleware enabled")
+
+
+# ============================================================================
+# Rate Limiting (Protection against abuse)
+# ============================================================================
+if config.enable_rate_limiting:
+    limiter = Limiter(key_func=get_remote_address, default_limits=[f"{config.max_requests_per_minute}/minute"])
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    logger.info(f"Rate limiting enabled: {config.max_requests_per_minute} requests/minute per IP")
+else:
+    logger.warning("⚠️  Rate limiting DISABLED")
 
 
 # ============================================================================
