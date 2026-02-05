@@ -34,15 +34,15 @@ A production-ready Model Context Protocol (MCP) server providing semantic search
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        INTERNET                                  │
-│                 https://leowiki-mcp.stream                       │
+│                        INTERNET                                 │
+│                 https://leowiki-mcp.stream                      │
 └──────────────────────────┬──────────────────────────────────────┘
                            │ Port 443 (HTTPS)
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                      mcp-caddy                                   │
+│                      mcp-caddy                                  │
 │    • TLS Terminierung (Let's Encrypt)                           │
-│    • Reverse Proxy                                               │
+│    • Reverse Proxy                                              │
 │    • SSE Support (flush_interval -1)                            │
 │    • Security Headers (HSTS, XSS, etc.)                         │
 └──────────────────────────┬──────────────────────────────────────┘
@@ -58,17 +58,17 @@ A production-ready Model Context Protocol (MCP) server providing semantic search
                            │ Port 6333 (HTTP, intern)
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                      mcp-qdrant                                  │
-│    • Vector Database                                             │
-│    • 757+ Documents indexed                                      │
-│    • Cosine Similarity Search                                    │
+│                      mcp-qdrant                                 │
+│    • Vector Database                                            │
+│    • 757+ Documents indexed                                     │
+│    • Cosine Similarity Search                                   │
 └─────────────────────────────────────────────────────────────────┘
                            ▲
                            │
 ┌─────────────────────────────────────────────────────────────────┐
-│                      mcp-watchdog                                │
+│                      mcp-watchdog                               │
 │    • Monitors data/incoming/ for JSONL files                    │
-│    • Auto-ingests new content                                    │
+│    • Auto-ingests new content                                   │
 │    • CLEAR_COLLECTION_BEFORE_INGEST=true                        │
 └─────────────────────────────────────────────────────────────────┘
 ```
