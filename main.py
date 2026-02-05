@@ -265,31 +265,23 @@ else:
 # ============================================================================
 # CORS Middleware (Must be after auth middleware)
 # ============================================================================
-# Security: Restrict CORS to known origins only
-ALLOWED_ORIGINS = [
-    "https://claude.ai",
-    "https://leowiki-mcp.stream",
-    "https://leowiki.htl-leonding.ac.at",
-    "http://localhost:3000",      # Local dev
-    "http://localhost:8000",      # Local server
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:8000",
-]
-
+# MCP servers need to accept requests from various clients:
+# - Claude Desktop, ChatGPT Desktop, Mistral (no CORS - direct HTTP)
+# - claude.ai, chatgpt.com, etc. (browser-based - CORS applies)
+# 
+# Security note: Authentication (OAuth 2.1) is the primary security layer,
+# not CORS. CORS only prevents unauthorized browser scripts, not direct access.
 if config.http_enable_cors:
-    # Use configured origins or fall back to secure defaults
-    origins = ALLOWED_ORIGINS if config.http_cors_origins == "*" else config.http_cors_origins.split(",")
-    
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=origins,
+        allow_origins=["*"],  # Allow all origins - auth is handled by OAuth
         allow_credentials=True,
-        allow_methods=["GET", "POST", "OPTIONS"],  # Reduced to necessary methods only
-        allow_headers=["Authorization", "Content-Type", "Mcp-Session-Id"],  # Explicit headers
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "Mcp-Session-Id"],
         expose_headers=["WWW-Authenticate", "Content-Type", "Authorization", "Mcp-Session-Id"],
         max_age=86400,
     )
-    logger.info(f"CORS middleware enabled for {len(origins)} origins")
+    logger.info("CORS middleware enabled (all origins - OAuth provides security)")
 
 
 # ============================================================================
