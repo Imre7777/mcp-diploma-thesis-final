@@ -39,6 +39,7 @@ jobs:
           ENABLE_AUTH: "false"
           ENABLE_RBAC: "false"
           VECTOR_DB_URL: "http://localhost:6333"
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
   docker-build:
     runs-on: ubuntu-latest
