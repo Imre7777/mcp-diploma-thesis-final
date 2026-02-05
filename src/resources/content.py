@@ -73,7 +73,7 @@ def register_content_resources(mcp: FastMCP):
             logger.error(f"Failed to get collection stats: {e}")
             stats = {
                 "status": "error",
-                "error": str(e),
+                "message": "Statistiken konnten nicht abgerufen werden",
                 "last_checked": datetime.now().isoformat()
             }
         
@@ -156,7 +156,7 @@ def register_content_resources(mcp: FastMCP):
             logger.error(f"Error retrieving recent items: {e}")
             return json.dumps({
                 "error": "Retrieval failed",
-                "message": str(e)
+                "message": "Kürzliche Einträge konnten nicht abgerufen werden"
             }, indent=2)
     
     logger.info("Registered 2 dynamic content resources: stats, recent/{count}")

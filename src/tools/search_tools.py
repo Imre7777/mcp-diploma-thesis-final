@@ -669,11 +669,13 @@ Distance Metric: {stats['distance_metric']}
             }
             
         except Exception as e:
+            # Log full error for debugging (server-side only)
             logger.error(f"Error getting collection stats: {e}", exc_info=True)
+            # Return generic message - NO implementation details to users!
             return {
                 "content": [{
                     "type": "text",
-                    "text": f"Fehler beim Abrufen der Statistiken: {str(e)}"
+                    "text": "Fehler beim Abrufen der Statistiken. Bitte versuche es später erneut."
                 }],
                 "isError": True
             }

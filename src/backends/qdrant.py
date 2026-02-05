@@ -104,16 +104,15 @@ class QdrantBackend(VectorDatabase):
             return {
                 "status": "healthy",
                 "backend": "qdrant",
-                "url": self.url,
                 "collections_count": len(cols.collections),
             }
         except Exception as e:
+            # Log full error server-side, return generic message
             logger.error(f"Qdrant health check failed: {e}")
             return {
                 "status": "unhealthy",
                 "backend": "qdrant",
-                "url": self.url,
-                "error": str(e)
+                "message": "Datenbank vorübergehend nicht erreichbar"
             }
 
     def list_collections(self) -> list[str]:

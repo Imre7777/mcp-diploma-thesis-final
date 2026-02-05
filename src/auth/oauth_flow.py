@@ -198,7 +198,7 @@ def create_oauth_router(
             logger.error(f"HTTP error during token exchange: {e}")
             raise HTTPException(
                 status_code=502,
-                detail=f"Failed to connect to Scalekit: {str(e)}"
+                detail="Authentifizierungsdienst vorübergehend nicht erreichbar. Bitte versuche es später erneut."
             )
     
     @router.get("/auth/logout")

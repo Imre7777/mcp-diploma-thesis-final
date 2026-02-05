@@ -138,7 +138,7 @@ class QueryLogger:
             }
         except Exception as e:
             logger.error(f"Failed to read query statistics: {e}")
-            return {"error": str(e)}
+            return {"error": "Statistiken konnten nicht gelesen werden"}
 
 
 # Global singleton instance
