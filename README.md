@@ -49,7 +49,7 @@ A production-ready Model Context Protocol (MCP) server providing semantic search
                            │ Port 8000 (HTTP, intern)
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                      mcp-server                                  │
+│                      mcp-server                                 │
 │    • FastMCP 3.0 Protocol                                       │
 │    • OAuth 2.1 (Scalekit)                                       │
 │    • 5 Tools, 6 Resources, 2 Prompts                            │
