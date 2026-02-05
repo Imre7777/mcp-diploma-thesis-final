@@ -263,25 +263,34 @@ else:
 
 
 # ============================================================================
-# CORS Middleware (Must be after auth middleware)
+# CORS Middleware (DISABLED - kept for future use)
 # ============================================================================
-# MCP servers need to accept requests from various clients:
-# - Claude Desktop, ChatGPT Desktop, Mistral (no CORS - direct HTTP)
-# - claude.ai, chatgpt.com, etc. (browser-based - CORS applies)
-# 
-# Security note: Authentication (OAuth 2.1) is the primary security layer,
-# not CORS. CORS only prevents unauthorized browser scripts, not direct access.
-if config.http_enable_cors:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],  # Allow all origins - auth is handled by OAuth
-        allow_credentials=True,
-        allow_methods=["GET", "POST", "OPTIONS"],
-        allow_headers=["Authorization", "Content-Type", "Mcp-Session-Id"],
-        expose_headers=["WWW-Authenticate", "Content-Type", "Authorization", "Mcp-Session-Id"],
-        max_age=86400,
-    )
-    logger.info("CORS middleware enabled (all origins - OAuth provides security)")
+# Security: Restrict CORS to known origins only
+# Note: Desktop apps (Claude, ChatGPT, Mistral) bypass CORS - this only affects browsers
+# To enable: set HTTP_ENABLE_CORS=true in .env
+ALLOWED_ORIGINS = [
+    "https://claude.ai",
+    "https://leowiki-mcp.stream",
+    "https://leowiki.htl-leonding.ac.at",
+    "http://localhost:3000",      # Local dev
+    "http://localhost:8000",      # Local server
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8000",
+]
+
+# CORS currently DISABLED for maximum compatibility
+# if config.http_enable_cors:
+#     app.add_middleware(
+#         CORSMiddleware,
+#         allow_origins=ALLOWED_ORIGINS,
+#         allow_credentials=True,
+#         allow_methods=["GET", "POST", "OPTIONS"],
+#         allow_headers=["Authorization", "Content-Type", "Mcp-Session-Id"],
+#         expose_headers=["WWW-Authenticate", "Content-Type", "Authorization", "Mcp-Session-Id"],
+#         max_age=86400,
+#     )
+#     logger.info(f"CORS middleware enabled for {len(ALLOWED_ORIGINS)} origins")
+logger.info("CORS middleware DISABLED (all origins allowed)")
 
 
 # ============================================================================
