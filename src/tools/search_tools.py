@@ -24,6 +24,7 @@ from qdrant_client.models import Filter, FieldCondition, MatchAny
 from src.backends import QdrantBackend, create_vector_backend
 from src.config.server_config import ServerConfig
 from src.utils.embeddings import EmbeddingService
+from src.utils.query_logger import get_query_logger
 
 logger = logging.getLogger(__name__)
 
@@ -327,9 +328,27 @@ def register_search_tools(mcp: FastMCP) -> None:
             
             # Log audit trail (FastMCP 3.0: async ctx methods)
             user_id = await ctx.get_state("user_id") if ctx else "anonymous"
+            user_role = await ctx.get_state("user_role") if ctx else "student"
+            request_id = await ctx.get_state("request_id") if ctx else None
+            
             logger.info(
                 f"[SEARCH_STUDENT] user={hash(user_id) if user_id else 'anon'}, query='{query[:30]}...', results={len(results)}"
             )
+            
+            # Persist query for statistics (educational analytics)
+            try:
+                query_logger = get_query_logger()
+                query_logger.log_query(
+                    query=query,
+                    response=formatted,
+                    user_role=user_role,
+                    tool_name="search_content_student",
+                    result_count=len(results),
+                    user_id_hash=str(hash(user_id)) if user_id else None,
+                    request_id=request_id
+                )
+            except Exception as log_err:
+                logger.warning(f"Failed to persist query log: {log_err}")
             
             if ctx:
                 await ctx.info(f"✓ {len(results)} Ergebnisse gefunden")
@@ -478,9 +497,27 @@ def register_search_tools(mcp: FastMCP) -> None:
             
             # Log audit trail (FastMCP 3.0: async ctx methods)
             user_id = await ctx.get_state("user_id") if ctx else "anonymous"
+            user_role = await ctx.get_state("user_role") if ctx else "teacher"
+            request_id = await ctx.get_state("request_id") if ctx else None
+            
             logger.info(
                 f"[SEARCH_TEACHER] user={hash(user_id) if user_id else 'anon'}, query='{query[:30]}...', results={len(results)}"
             )
+            
+            # Persist query for statistics (educational analytics)
+            try:
+                query_logger = get_query_logger()
+                query_logger.log_query(
+                    query=query,
+                    response=formatted,
+                    user_role=user_role,
+                    tool_name="search_content_teacher",
+                    result_count=len(results),
+                    user_id_hash=str(hash(user_id)) if user_id else None,
+                    request_id=request_id
+                )
+            except Exception as log_err:
+                logger.warning(f"Failed to persist query log: {log_err}")
             
             if ctx:
                 await ctx.info(f"✓ {len(results)} Ergebnisse gefunden (Lehrer-Zugriff)")
@@ -641,4 +678,67 @@ Distance Metric: {stats['distance_metric']}
                 "isError": True
             }
     
-    logger.info("Registered 3 search tools: search_content_student, search_content_teacher, get_collection_stats")
+    @mcp.tool(
+        name="get_query_statistics",
+        description="Statistiken über Benutzeranfragen abrufen (nur Admin). Zeigt wie viele Anfragen von welcher Rolle gestellt wurden.",
+        annotations=ToolAnnotations(
+            title="Query-Statistiken",
+            readOnlyHint=True,
+            openWorldHint=False
+        )
+    )
+    async def get_query_statistics(ctx: Context) -> dict:
+        """
+        Get statistics about user queries for educational analytics.
+        
+        RBAC: admin only
+        
+        Returns:
+            Query statistics including count by role, tool usage, etc.
+        """
+        try:
+            query_logger = get_query_logger()
+            stats = query_logger.get_statistics()
+            
+            if stats.get("total_queries", 0) == 0:
+                return {
+                    "content": [{
+                        "type": "text",
+                        "text": "**Query-Statistiken**\n\nNoch keine Anfragen protokolliert."
+                    }]
+                }
+            
+            by_role = stats.get("by_role", {})
+            by_tool = stats.get("by_tool", {})
+            
+            role_breakdown = "\n".join([f"- {role}: {count}" for role, count in by_role.items()])
+            tool_breakdown = "\n".join([f"- {tool}: {count}" for tool, count in by_tool.items()])
+            
+            return {
+                "content": [{
+                    "type": "text",
+                    "text": f"""**Query-Statistiken (Educational Analytics)**
+
+**Gesamtanzahl Anfragen:** {stats['total_queries']}
+
+**Nach Benutzer-Rolle:**
+{role_breakdown}
+
+**Nach Tool:**
+{tool_breakdown}
+
+*Log-Datei: {stats.get('log_file', 'N/A')}*"""
+                }]
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting query statistics: {e}", exc_info=True)
+            return {
+                "content": [{
+                    "type": "text",
+                    "text": "Fehler beim Abrufen der Query-Statistiken."
+                }],
+                "isError": True
+            }
+    
+    logger.info("Registered 4 search tools: search_content_student, search_content_teacher, get_collection_stats, get_query_statistics")

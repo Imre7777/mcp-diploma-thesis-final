@@ -214,6 +214,7 @@ class RBACEnforcementMiddleware(Middleware):
         
         # Admin-only tools
         "get_collection_stats": {"admin"},
+        "get_query_statistics": {"admin"},  # Query-Logging Statistiken
         
         # Resources - ADMIN ONLY (Security: verhindert Prompt Injection,
         # versteckt Systemarchitektur, KISS Prinzip)

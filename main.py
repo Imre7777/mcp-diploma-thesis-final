@@ -111,7 +111,8 @@ mcp = FastMCP(
     TOOLS:
     - search_content_student: Suche für Schüler (eingeschränkter Zugriff)
     - search_content_teacher: Suche für Lehrer (voller Zugriff inkl. Prüfungsmaterial)
-    - get_collection_stats: Statistiken (nur Admin)
+    - get_collection_stats: Collection-Statistiken (nur Admin)
+    - get_query_statistics: Anfrage-Statistiken für Analytics (nur Admin)
     - health_check: Server-Status prüfen
     
     RESOURCES (6):
