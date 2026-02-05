@@ -73,6 +73,32 @@ def create_test_server():
         """Health check tool."""
         return {"content": [{"type": "text", "text": "Status: Healthy ✓"}]}
     
+    # -------------------------------------------------------------------------
+    # Resources (for admin only in production)
+    # -------------------------------------------------------------------------
+    @mcp.resource("leowiki://categories")
+    async def get_categories() -> str:
+        """Get available categories."""
+        return '["Programmierung", "Datenbanken", "Netzwerke", "Betriebssysteme"]'
+    
+    @mcp.resource("leowiki://stats")
+    async def get_stats() -> str:
+        """Get collection statistics."""
+        return '{"total_documents": 3417, "student_accessible": 2449, "teacher_only": 968}'
+    
+    # -------------------------------------------------------------------------
+    # Prompts
+    # -------------------------------------------------------------------------
+    @mcp.prompt(name="explain_topic")
+    async def explain_topic(topic: str, difficulty: str = "medium") -> str:
+        """Generate explanation prompt."""
+        return f"Erkläre {topic} auf {difficulty} Niveau für HTL-Schüler."
+    
+    @mcp.prompt(name="summarize_search")
+    async def summarize_search(query: str) -> str:
+        """Generate search summary prompt."""
+        return f"Fasse die Suchergebnisse für '{query}' zusammen."
+    
     return mcp
 
 
@@ -270,6 +296,92 @@ class TestErrorHandling:
         assert "Exception" not in error_msg or "ToolError" in error_msg
         assert "Traceback" not in error_msg
         assert "line" not in error_msg.lower() or "leer" in error_msg.lower()
+
+
+# ============================================================================
+# Resource Tests
+# ============================================================================
+class TestResources:
+    """Test resource functionality."""
+    
+    @pytest.mark.asyncio
+    async def test_resources_are_registered(self, client):
+        """Test that resources are properly registered."""
+        resources = await client.list_resources()
+        resource_uris = {str(r.uri) for r in resources}
+        
+        assert "leowiki://categories" in resource_uris
+        assert "leowiki://stats" in resource_uris
+    
+    @pytest.mark.asyncio
+    async def test_categories_resource_returns_json(self, client):
+        """Test that categories resource returns valid JSON."""
+        import json
+        result = await client.read_resource("leowiki://categories")
+        
+        # Result is a list of content items
+        content = result[0].text if hasattr(result[0], 'text') else str(result[0])
+        data = json.loads(content)
+        assert isinstance(data, list)
+        assert len(data) > 0
+    
+    @pytest.mark.asyncio
+    async def test_stats_resource_returns_counts(self, client):
+        """Test that stats resource returns document counts."""
+        import json
+        result = await client.read_resource("leowiki://stats")
+        
+        # Result is a list of content items
+        content = result[0].text if hasattr(result[0], 'text') else str(result[0])
+        data = json.loads(content)
+        assert "total_documents" in data
+        assert "student_accessible" in data
+        assert data["total_documents"] > 0
+
+
+# ============================================================================
+# Prompt Tests
+# ============================================================================
+class TestPrompts:
+    """Test prompt functionality."""
+    
+    @pytest.mark.asyncio
+    async def test_prompts_are_registered(self, client):
+        """Test that prompts are properly registered."""
+        prompts = await client.list_prompts()
+        prompt_names = {p.name for p in prompts}
+        
+        assert "explain_topic" in prompt_names
+        assert "summarize_search" in prompt_names
+    
+    @pytest.mark.asyncio
+    async def test_explain_topic_prompt(self, client):
+        """Test explain_topic prompt generation."""
+        result = await client.get_prompt("explain_topic", {"topic": "Java"})
+        
+        # Should contain the topic
+        text = result.messages[0].content.text
+        assert "Java" in text
+    
+    @pytest.mark.asyncio
+    async def test_explain_topic_with_difficulty(self, client):
+        """Test explain_topic with custom difficulty."""
+        result = await client.get_prompt(
+            "explain_topic", 
+            {"topic": "Polymorphismus", "difficulty": "advanced"}
+        )
+        
+        text = result.messages[0].content.text
+        assert "Polymorphismus" in text
+        assert "advanced" in text
+    
+    @pytest.mark.asyncio
+    async def test_summarize_search_prompt(self, client):
+        """Test summarize_search prompt generation."""
+        result = await client.get_prompt("summarize_search", {"query": "Datenbanken"})
+        
+        text = result.messages[0].content.text
+        assert "Datenbanken" in text
 
 
 # ============================================================================
