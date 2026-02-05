@@ -4,6 +4,7 @@
 
 A production-ready Model Context Protocol (MCP) server providing semantic search over educational materials with hierarchical role-based access control (RBAC). Deployed on Raspberry Pi with Docker.
 
+[![CI](https://github.com/Imre7777/mcp-diploma-thesis-final/actions/workflows/ci.yml/badge.svg)](https://github.com/Imre7777/mcp-diploma-thesis-final/actions/workflows/ci.yml)
 [![Live](https://img.shields.io/badge/Live-leowiki--mcp.stream-blue)](https://leowiki-mcp.stream)
 [![MCP](https://img.shields.io/badge/Protocol-MCP%202.0-green)](https://modelcontextprotocol.io)
 [![Python](https://img.shields.io/badge/Python-3.11+-yellow)](https://python.org)
