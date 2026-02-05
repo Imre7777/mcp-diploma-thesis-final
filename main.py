@@ -43,8 +43,9 @@ sys.path.insert(0, str(Path(__file__).parent))
 from fastmcp import FastMCP, Context
 from fastmcp.utilities.types import Image
 from mcp.types import Icon
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, Request
 from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
@@ -264,17 +265,54 @@ else:
 # ============================================================================
 # CORS Middleware (Must be after auth middleware)
 # ============================================================================
+# Security: Restrict CORS to known origins only
+ALLOWED_ORIGINS = [
+    "https://claude.ai",
+    "https://leowiki-mcp.stream",
+    "https://leowiki.htl-leonding.ac.at",
+    "http://localhost:3000",      # Local dev
+    "http://localhost:8000",      # Local server
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8000",
+]
+
 if config.http_enable_cors:
+    # Use configured origins or fall back to secure defaults
+    origins = ALLOWED_ORIGINS if config.http_cors_origins == "*" else config.http_cors_origins.split(",")
+    
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"] if config.http_cors_origins == "*" else config.http_cors_origins.split(","),
+        allow_origins=origins,
         allow_credentials=True,
-        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["*"],
-        expose_headers=["WWW-Authenticate", "Content-Type", "Authorization", "Mcp-Session-Id"],  # Required for MCP + OAuth 2.1
+        allow_methods=["GET", "POST", "OPTIONS"],  # Reduced to necessary methods only
+        allow_headers=["Authorization", "Content-Type", "Mcp-Session-Id"],  # Explicit headers
+        expose_headers=["WWW-Authenticate", "Content-Type", "Authorization", "Mcp-Session-Id"],
         max_age=86400,
     )
-    logger.info("CORS middleware enabled")
+    logger.info(f"CORS middleware enabled for {len(origins)} origins")
+
+
+# ============================================================================
+# Request Size Limit (DoS Protection)
+# ============================================================================
+MAX_REQUEST_SIZE = 1 * 1024 * 1024  # 1 MB max request size
+
+class RequestSizeLimitMiddleware(BaseHTTPMiddleware):
+    """Reject requests larger than MAX_REQUEST_SIZE to prevent DoS attacks."""
+    
+    async def dispatch(self, request: Request, call_next):
+        content_length = request.headers.get("content-length")
+        if content_length and int(content_length) > MAX_REQUEST_SIZE:
+            logger.warning(f"Request too large: {content_length} bytes from {request.client.host}")
+            return Response(
+                content='{"error": "request_too_large", "error_description": "Request body exceeds 1MB limit"}',
+                media_type="application/json",
+                status_code=413
+            )
+        return await call_next(request)
+
+app.add_middleware(RequestSizeLimitMiddleware)
+logger.info(f"Request size limit: {MAX_REQUEST_SIZE // 1024}KB")
 
 
 # ============================================================================
