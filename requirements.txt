@@ -4,8 +4,7 @@
 # ============================================================================
 
 # Core MCP Protocol
-mcp>=1.26.0
-fastmcp>=3.0.0b1  # FastMCP 3.0 with Resources/Prompts as Tools transforms
+fastmcp>=3.0.0  # FastMCP 3.0 with Resources/Prompts as Tools transforms
 
 # Web Framework & Server
 fastapi>=0.100.0

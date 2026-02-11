@@ -16,7 +16,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.13'
           cache: 'pip'
       
       - name: Install dependencies
@@ -32,9 +32,16 @@ jobs:
         run: |
           mypy src/ --ignore-missing-imports || true
       
-      - name: Run tests
+      - name: Run deterministic tests (FastMCP 3.0)
         run: |
-          pytest tests/ -v --tb=short || true
+          pytest tests/test_tools_deterministic.py -v --tb=short
+        env:
+          ENABLE_AUTH: "false"
+          ENABLE_RBAC: "false"
+      
+      - name: Run remaining tests
+        run: |
+          pytest tests/ -v --tb=short --ignore=tests/test_tools_deterministic.py || true
         env:
           ENABLE_AUTH: "false"
           ENABLE_RBAC: "false"
