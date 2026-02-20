@@ -4,9 +4,9 @@
 
 Die Golden Query Tests sind ein standardisiertes Testverfahren zur Evaluierung der semantischen Suchqualität des LeoWiki MCP Servers. Sie simulieren typische Anfragen von HTL-Schülern und Lehrern und messen, wie gut das System relevante Inhalte findet.
 
-**Testdatum:** 2026-02-19  
+**Testdatum:** 2026-02-20  
 **Collection:** educational_content  
-**Dokumente:** 3,417 (indexed)  
+**Dokumente:** 6,002 (indexed)  
 **Embedding Model:** OpenAI text-embedding-3-large (3072 Dimensionen)  
 **Vector DB:** Qdrant  
 
@@ -252,36 +252,36 @@ Die Golden Query Tests sind ein standardisiertes Testverfahren zur Evaluierung d
 
 | GQ ID | Name | Score | Keywords Hit | Keywords Miss | Relevanz |
 |-------|------|-------|--------------|---------------|----------|
-| GQ01 | DA Format (Word?) | 0.573 | Diplomarbeit, Format, Word | - | 5 |
-| GQ02 | Matura Klausurtag | 0.711 | Klausur, Einlass | Matura | 4 |
-| GQ03 | Office365 Mail | 0.594 | Office365, Mail, Account | - | 5 |
-| GQ04 | Exkursion organisieren | 0.586 | Exkursion, Genehmigung | organisieren, Leitfaden | 3 |
-| GQ05 | Exkursion Antrag | 0.705 | Exkursion, Antrag, Formular | Download | 4 |
-| GQ06 | DA kein Thema | 0.537 | Diplomarbeit, Thema, Betreuung | Koordinator | 4 |
+| GQ01 | DA Format (Word?) | 0.564 | Diplomarbeit, Format, Word | - | 5 |
+| GQ02 | Matura Klausurtag | 0.634 | Matura, Klausur, Einlass | - | 5 |
+| GQ03 | Office365 Mail | 0.596 | Office365, Mail, Account | - | 5 |
+| GQ04 | Exkursion organisieren | 0.597 | Exkursion, Genehmigung | organisieren, Leitfaden | 3 |
+| GQ05 | Exkursion Antrag | 0.707 | Exkursion, Antrag, Formular | Download | 4 |
+| GQ06 | DA kein Thema | 0.544 | Diplomarbeit, Thema, Betreuung | Koordinator | 4 |
 | GQ07 | Company Thesis Day | 0.540 | Company Thesis Day, Diplomarbeit, Firmen | - | 5 |
-| GQ08 | Dresscode Präsentation | 0.676 | Diplomarbeit, Präsentation, Kleidung | Dresscode | 4 |
+| GQ08 | Dresscode Präsentation | 0.680 | Diplomarbeit, Präsentation, Kleidung | Dresscode | 4 |
 
 ### Statistiken
 
 | Metrik | Wert |
 |--------|------|
-| **Durchschnittlicher Score** | 0.615 |
-| **Höchster Score** | 0.711 (GQ02 - Matura Klausurtag) |
-| **Niedrigster Score** | 0.537 (GQ06 - DA kein Thema) |
-| **Durchschnittliche Relevanz** | 4.25 / 5 |
-| **Tests mit Relevanz 5** | 4 (50%) |
-| **Tests mit Relevanz 4** | 3 (37.5%) |
+| **Durchschnittlicher Score** | 0.608 |
+| **Höchster Score** | 0.707 (GQ05 - Exkursion Antrag) |
+| **Niedrigster Score** | 0.540 (GQ07 - Company Thesis Day) |
+| **Durchschnittliche Relevanz** | 4.38 / 5 |
+| **Tests mit Relevanz 5** | 5 (62.5%) |
+| **Tests mit Relevanz 4** | 2 (25%) |
 | **Tests mit Relevanz 3** | 1 (12.5%) |
-| **Gesamt Keyword Hit Rate** | 79% (23/29) |
+| **Gesamt Keyword Hit Rate** | 83% (24/29) |
 
 ### Score-Verteilung
 
 ```
 Score Range     | Count | Queries
 ----------------|-------|---------------------------
-0.70 - 0.80     | 2     | GQ02, GQ05
-0.60 - 0.70     | 2     | GQ03, GQ08
-0.50 - 0.60     | 4     | GQ01, GQ04, GQ06, GQ07
+0.70 - 0.80     | 1     | GQ05
+0.60 - 0.70     | 3     | GQ02, GQ08, GQ04
+0.50 - 0.60     | 4     | GQ01, GQ03, GQ06, GQ07
 ```
 
 ---
@@ -399,7 +399,8 @@ Die vollständigen Ergebnisse werden in `data/statistics/golden_query_results.js
 
 | Datum | Version | Änderung |
 |-------|---------|----------|
-| 2026-02-19 | 1.0 | Initial Golden Query Test Run |
+| 2026-02-20 | 1.1 | Re-run with new data (6,002 docs), improved keyword coverage |
+| 2026-02-19 | 1.0 | Initial Golden Query Test Run (3,417 docs) |
 
 ---
 
