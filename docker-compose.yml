@@ -66,6 +66,7 @@ services:
       - ./data/failed:/app/data/failed
       - ./data/jsonl:/app/data/jsonl:ro
       - ./data/statistics:/app/data/statistics
+      - ./data/logs:/app/data/logs
     networks:
       - frontend-network  # For Caddy
       - backend-network   # For Qdrant

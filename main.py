@@ -35,6 +35,7 @@ Date: January 2026
 import sys
 import asyncio
 import logging
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 # Add src to path
@@ -62,11 +63,37 @@ from src.backends import create_vector_backend
 # ============================================================================
 config = ServerConfig()
 
-# Setup logger
-logging.basicConfig(
-    level=getattr(logging, config.log_level.upper(), logging.INFO),
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+# ============================================================================
+# Logging Setup (Console + Persistent File)
+# ============================================================================
+LOG_DIR = Path(__file__).parent / "data" / "logs"
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+LOG_FILE = LOG_DIR / "server.log"
+
+log_level = getattr(logging, config.log_level.upper(), logging.INFO)
+log_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# Root logger configuration
+root_logger = logging.getLogger()
+root_logger.setLevel(log_level)
+
+# Console handler (always)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(log_level)
+console_handler.setFormatter(log_format)
+root_logger.addHandler(console_handler)
+
+# File handler with rotation (10MB max, keep 5 backups)
+file_handler = RotatingFileHandler(
+    LOG_FILE,
+    maxBytes=10 * 1024 * 1024,  # 10 MB
+    backupCount=5,
+    encoding='utf-8'
 )
+file_handler.setLevel(log_level)
+file_handler.setFormatter(log_format)
+root_logger.addHandler(file_handler)
+
 logger = logging.getLogger(__name__)
 
 logger.info("=" * 80)
@@ -78,6 +105,7 @@ logger.info(f"Transport: {config.transport}")
 logger.info(f"Port: {config.server_port}")
 logger.info(f"Authentication: {'Enabled (Scalekit OAuth 2.1)' if config.enable_auth else 'Disabled'}")
 logger.info(f"RBAC: {'Enabled' if config.enable_rbac else 'Disabled'}")
+logger.info(f"Log File: {LOG_FILE} (rotating, max 10MB x 5)")
 logger.info("=" * 80)
 
 
