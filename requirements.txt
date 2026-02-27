@@ -4,7 +4,7 @@
 # ============================================================================
 
 # Core MCP Protocol
-fastmcp>=3.0.0b2  # FastMCP 3.0 beta - latest pre-release with Resources/Prompts as Tools
+fastmcp==3.0.1  # Pinned to 3.0.1 - 3.0.2 breaks auth header access in middleware
 
 # Web Framework & Server
 fastapi>=0.100.0
