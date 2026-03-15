@@ -20,7 +20,7 @@ A production-ready Model Context Protocol (MCP) server providing semantic search
 - **HTTP Streamable** - FastAPI server with Server-Sent Events (SSE)
 - **Auto Ingestion** - Watchdog service monitors for new JSONL files and updates Qdrant
 
-### FastMCP 3.0 Professional Features
+### FastMCP 3.0.1 Professional Features
 - **6 MCP Resources** - Metadata and dynamic content exposure (Admin only)
 - **2 MCP Prompts** - Educational templates for structured LLM interactions
 - **4 Custom Middleware** - Request logging, user context, RBAC enforcement, audit trails
@@ -50,7 +50,7 @@ A production-ready Model Context Protocol (MCP) server providing semantic search
                            ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                      mcp-server                                 │
-│    • FastMCP 3.0 Protocol                                       │
+│    • FastMCP 3.0.1 Protocol                                     │
 │    • OAuth 2.1 (Scalekit)                                       │
 │    • 5 Tools, 6 Resources, 2 Prompts                            │
 │    • 4 Middleware Components + Query Logging                    │
@@ -60,7 +60,7 @@ A production-ready Model Context Protocol (MCP) server providing semantic search
 ┌─────────────────────────────────────────────────────────────────┐
 │                      mcp-qdrant                                 │
 │    • Vector Database                                            │
-│    • 757+ Documents indexed                                     │
+│    • 6,000+ Documents indexed                                   │
 │    • Cosine Similarity Search                                   │
 └─────────────────────────────────────────────────────────────────┘
                            ▲
@@ -332,5 +332,5 @@ Educational project - HTL Leonding Diploma Thesis
 ---
 
 **Status**: Production Ready  
-**Version**: 2.1.0  
-**Last Updated**: 2026-02-05
+**Version**: 2.0.1  
+**Last Updated**: 2026-02-27
