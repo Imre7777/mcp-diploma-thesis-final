@@ -1,0 +1,1158 @@
+{
+  "metadata": {
+    "created_at": "2026-02-17T12:00:00",
+    "version": "1.0",
+    "description": "78 diverse Ground-Truth Q&A Paare fuer Embedding-Modell-Evaluation der LeoWiki RAG Pipeline. Erstellt durch zeilenweises Lesen jeder Quelldatei mit Claude Opus 4.6.",
+    "source": "LeoWiki DokuWiki Inhalte (HTL Leonding) - preprocessed_at_20260216_192955",
+    "author": "Jan Ritt (verifiziert durch Claude Opus 4.6)",
+    "verification_method": "Jede Quelldatei einzeln gelesen und Antwort gegen Originaltext verifiziert",
+    "coverage": {
+      "namespaces": [
+        "start",
+        "class",
+        "it",
+        "org",
+        "exams",
+        "departm",
+        "teacher",
+        "competitions",
+        "werkstaette",
+        "software",
+        "special",
+        "archive",
+        "wocheninfo"
+      ],
+      "document_types": [
+        "wiki_page",
+        "pdf",
+        "docx",
+        "xlsx",
+        "pptx"
+      ],
+      "perspectives": [
+        "student",
+        "teacher",
+        "admin"
+      ],
+      "difficulty_distribution": {
+        "easy": 17,
+        "medium": 33,
+        "hard": 15
+      }
+    }
+  },
+  "qa_pairs": [
+    {
+      "id": "notebook-01",
+      "question": "Wie viel RAM sollte ein Notebook fuer die Informatik mindestens haben?",
+      "ground_truth": "Das Notebook sollte mindestens 8 GB RAM haben.",
+      "source_file": "class_notebooks-inf-it.md",
+      "context_keywords": [
+        "8 gb",
+        "ram",
+        "mindestspezifikation",
+        "notebook"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "notebook-02",
+      "question": "Welcher Prozessor wird fuer Notebooks in der Informatik mindestens empfohlen?",
+      "ground_truth": "Ein Intel i5 Quad-Core oder vergleichbar wird als Mindestspezifikation empfohlen.",
+      "source_file": "class_notebooks-inf-it.md",
+      "context_keywords": [
+        "i5",
+        "quad-core",
+        "prozessor",
+        "mindestspezifikation"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "notebook-03",
+      "question": "Warum empfiehlt die HTL Leonding Erstklasslern ein gebrauchtes Notebook?",
+      "ground_truth": "Die Schule empfiehlt ein gebrauchtes Marken-Notebook, weil ab dem 3. Jahrgang gesteigerte Anforderungen eine andere Hardware noetig machen koennten. Ausserdem kann der finanzielle Aufwand bei runderneuerten Geraeten in Grenzen gehalten werden (ab ca 300 Euro).",
+      "source_file": "class_notebooks-inf-it.md",
+      "context_keywords": [
+        "gebraucht",
+        "refurbed",
+        "3. jahrgang",
+        "300 euro"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "brand-01",
+      "question": "Welche Notrufnummer muss bei einem Brand in der HTL Leonding gewaehlt werden?",
+      "ground_truth": "Die Feuerwehr muss unter der Telefonnummer 122 benachrichtigt werden.",
+      "source_file": "org_brandschutz.md",
+      "context_keywords": [
+        "122",
+        "feuerwehr",
+        "brand",
+        "notruf"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "brand-02",
+      "question": "Wo sind die Sammelplaetze bei einem Feueralarm in der HTL Leonding?",
+      "ground_truth": "Alle ersten Klassen sammeln sich bei den Fahrradstaendern, alle anderen Klassen bei den Asphaltbahnen.",
+      "source_file": "org_brandschutz.md",
+      "context_keywords": [
+        "fahrradstaender",
+        "asphaltbahnen",
+        "sammelplatz",
+        "erste klassen"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "brand-03",
+      "question": "Was sollen Schueler tun, wenn sie bei einem Brand das Klassenzimmer nicht verlassen koennen?",
+      "ground_truth": "Wenn es nicht moeglich ist, das Klassenzimmer zu verlassen, sollen die Schueler nicht in Panik geraten, im Klassenzimmer bleiben, sich an den Fenstern bemerkbar machen und auf weitere Anweisungen warten.",
+      "source_file": "org_brandschutz.md",
+      "context_keywords": [
+        "panik",
+        "klassenzimmer",
+        "fenster",
+        "anweisungen"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "docker-01",
+      "question": "Welche IP-Adressbereiche werden im Schulnetz der HTL Leonding verwendet und kollidieren mit Docker?",
+      "ground_truth": "Im Schulnetz werden unter anderem die Bereiche 10.191.x.x/16, 172.17.x.x/16 und 172.18.x.x/16 verwendet. Diese kollidieren mit Docker-Netzwerken und verursachen Probleme beim Zugriff auf Schulinfrastruktur wie den NVS Proxmox-Server.",
+      "source_file": "class_networkconfig.md",
+      "context_keywords": [
+        "10.191",
+        "172.17",
+        "172.18",
+        "proxmox",
+        "docker"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "docker-02",
+      "question": "Wie kann man die Docker-Netzwerkkonfiguration anpassen, damit der Proxmox-Server erreichbar bleibt?",
+      "ground_truth": "Man kann die /etc/docker/daemon.json anpassen und das docker0 Netzwerk umkonfigurieren. Die Konfiguration sollte bip auf 10.228.1.1/24 setzen und den default-address-pool auf base 10.229.0.0/16 mit size 24. Dies funktioniert fuer bip nach einem Restart, fuer die Adresspools nur beim Neuanlegen eines Docker-Netzwerkes.",
+      "source_file": "class_networkconfig.md",
+      "context_keywords": [
+        "daemon.json",
+        "bip",
+        "10.228",
+        "10.229",
+        "address-pool"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "dsgvo-01",
+      "question": "Wie muessen Festplatten mit rotierenden Scheiben datenschutzkonform entsorgt werden?",
+      "ground_truth": "Bei Festplatten mit rotierenden Scheiben koennen 3 x 10mm Loecher in den Datentraeger gebohrt werden. Wichtig ist, dass die Magnetscheibe durchgebohrt wird.",
+      "source_file": "it_dsgvo.md",
+      "context_keywords": [
+        "3",
+        "10mm",
+        "loecher",
+        "magnetscheibe",
+        "bohren"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "dsgvo-02",
+      "question": "Wer hat die Vorgehensweise zur Datentraegervernichtung an der HTL Leonding freigegeben?",
+      "ground_truth": "Die Vorgehensweise wurde vom Datenschutzbeauftragten der Bildungsdirektion Oberoesterreich, Edmund Hauswirth, am 20.10.22 freigegeben.",
+      "source_file": "it_dsgvo.md",
+      "context_keywords": [
+        "hauswirth",
+        "bildungsdirektion",
+        "oberoesterreich",
+        "freigegeben"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "dsgvo-03",
+      "question": "Wie werden SSDs und USB-Sticks datenschutzkonform vernichtet?",
+      "ground_truth": "Bei SSDs und USB-Sticks werden die Chips mit dem Heissluftfoen ausgeloetet und mit dem Hammer zerstoert.",
+      "source_file": "it_dsgvo.md",
+      "context_keywords": [
+        "ssd",
+        "usb",
+        "heissluftfoen",
+        "hammer",
+        "chips"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "liskov-01",
+      "question": "Wie kann man im EDV-Raum Liskov den eigenen Laptop mit dem Big Screen verbinden?",
+      "ground_truth": "Der eigene Laptop kann ueber HDMI (zusaetzlicher Screen) und USB (Big Screen als Touch Screen) verbunden werden. Wenn man den Big Screen als Touch Screen fuer den eigenen Computer verwenden will, muss man auch das USB-Kabel anschliessen.",
+      "source_file": "it_liskov.md",
+      "context_keywords": [
+        "hdmi",
+        "usb",
+        "laptop",
+        "big screen",
+        "touch"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "liskov-02",
+      "question": "Wie kann man im Raum Liskov zwischen Tafel und Praesentation umschalten?",
+      "ground_truth": "Man kann ueber das Hauptmenue den Input Selector waehlen und dann zwischen verschiedenen Eingaengen umschalten: iiWare waehlt den Screen selbst (die Tafel), HDMI 2 waehlt den eigenen Laptop, und DP (Display Port) waehlt den Stand-PC.",
+      "source_file": "it_liskov.md",
+      "context_keywords": [
+        "iiware",
+        "hdmi 2",
+        "display port",
+        "input selector",
+        "umschalten"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "m365-01",
+      "question": "Auf wie vielen Geraeten duerfen Schueler Microsoft 365 installieren?",
+      "ground_truth": "Schueler haben Zugriff auf Office 365 A3 Education und duerfen die Desktop-Version der Office-Anwendungen (Word, Excel, Powerpoint, Access, Outlook, Teams) auf bis zu 5 Geraeten installieren.",
+      "source_file": "it_microsoft365.md",
+      "context_keywords": [
+        "5 geraete",
+        "a3 education",
+        "word",
+        "excel",
+        "desktop"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "m365-02",
+      "question": "Was sollte man bei der Aktivierung von Microsoft 365 bezueglich der Geraeteverwaltung beachten?",
+      "ground_truth": "Man sollte die Option fuer die Geraetefernverwaltung deaktivieren, da sie haeufig Loginprobleme verursacht. Stattdessen soll man den Link verwenden, um sich nur in der Anwendung anzumelden.",
+      "source_file": "it_microsoft365.md",
+      "context_keywords": [
+        "fernverwaltung",
+        "deaktivieren",
+        "loginprobleme",
+        "anwendung"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "trips-01",
+      "question": "Was hat die Kulturwoche Istrien 2023/24 pro Schueler gekostet?",
+      "ground_truth": "Die Kosten betrugen 411 Euro ohne Reiseversicherung bzw. 450 Euro mit Reiseversicherung.",
+      "source_file": "org_school_trips.md",
+      "context_keywords": [
+        "411",
+        "450",
+        "reiseversicherung",
+        "istrien"
+      ],
+      "difficulty": "medium",
+      "sources": [
+        "org:school:trips"
+      ]
+    },
+    {
+      "id": "trips-02",
+      "question": "Welche Klassen haben an der Kulturwoche Istrien 2023/24 teilgenommen?",
+      "ground_truth": "An der Kulturwoche Istrien haben die Klassen 4AHBG, 4AHEL, 4BHIF und 4BHITM teilgenommen.",
+      "source_file": "org_school_trips.md",
+      "context_keywords": [
+        "4ahbg",
+        "4ahel",
+        "4bhif",
+        "4bhitm",
+        "istrien"
+      ],
+      "difficulty": "easy",
+      "sources": [
+        "org:school:trips"
+      ]
+    },
+    {
+      "id": "social-01",
+      "question": "Wie kann man einen Artikel auf der HTL-Leonding-Homepage veroeffentlichen lassen?",
+      "ground_truth": "Man schickt eine kurze Mail an redaktion@htl-leonding.ac.at mit einer kurzen Ueberschrift, dem Text des Artikels, einem Bild fuer das Titelfoto (Querformat, Verhaeltnis 3:2) und optional weiteren Bildern. Die Beitraege der Homepage werden grundsaetzlich auch immer in den passenden sozialen Medien veroeffentlicht.",
+      "source_file": "org_websocialmediared.md",
+      "context_keywords": [
+        "redaktion",
+        "htl-leonding.ac.at",
+        "querformat",
+        "3:2",
+        "homepage"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "social-02",
+      "question": "Welche Informationen sind fuer eine Social-Media-Veroeffentlichung der HTL Leonding noetig?",
+      "ground_truth": "Man braucht mindestens 1 Bild (ideal mindestens 2 Fotos, davon 1 Hochformat und 1 Querformat), ca. 2-3 Saetze worum es geht, und unbedingt die Angabe welche Klassen beteiligt sind, da es den Schuelern wichtig ist, korrekt repraesentiert zu werden.",
+      "source_file": "org_websocialmediared.md",
+      "context_keywords": [
+        "bild",
+        "hochformat",
+        "querformat",
+        "klassen",
+        "social media"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "stoerung-01",
+      "question": "Wofuer ist der Medienkusto an der HTL Leonding NICHT zustaendig?",
+      "ground_truth": "Der Medienkusto ist nicht zustaendig fuer die Reinigung von Geraeten (Smart Boards), nicht Ansprechpartner fuer Batterien (Fernbedienung), und nicht zustaendig fuer Themen wie Internet, Dongle, Netzwerk, Konnektivitaetsprobleme und PC.",
+      "source_file": "org_stoerungsmeldung.md",
+      "context_keywords": [
+        "reinigung",
+        "batterien",
+        "internet",
+        "netzwerk",
+        "nicht zustaendig"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "stoerung-02",
+      "question": "Wie erstellt man eine Stoerungsmeldung an der HTL Leonding?",
+      "ground_truth": "Man oeffnet WebUntis, geht zu Unterricht, dann Aufgaben, und legt ein Ticket an. Achtung: Alle Tickets werden auf der WebUntis-Startseite angezeigt. Das System ist noch in der Testphase, daher soll man noch persoenlich mit dem Schulwartpersonal sprechen.",
+      "source_file": "org_stoerungsmeldung.md",
+      "context_keywords": [
+        "webuntis",
+        "ticket",
+        "aufgaben",
+        "testphase",
+        "schulwart"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "pa-01",
+      "question": "Wann ist die Deadline fuer die Project-Award-Einreichung 2026?",
+      "ground_truth": "Die Deadline der Einreichung ist der 20. Maerz 2026.",
+      "source_file": "competitions_project-award.md",
+      "context_keywords": [
+        "20. maerz",
+        "2026",
+        "deadline",
+        "einreichung"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "pa-02",
+      "question": "Wie lange darf eine Praesentation beim Project Award Main Event dauern?",
+      "ground_truth": "Pro Praesentation stehen mindestens 6 bis maximal 8 Minuten fuer die Praesentation und 2 Minuten fuer die Diskussion zur Verfuegung. Zusaetzlich gibt es 3 Minuten fuer Auf- und Abbau, waehrenddessen das Vorstellungsvideo gezeigt wird.",
+      "source_file": "competitions_project-award.md",
+      "context_keywords": [
+        "6 minuten",
+        "8 minuten",
+        "diskussion",
+        "2 minuten",
+        "auf- und abbau"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "pa-03",
+      "question": "Welche Preise werden beim Project Award Main Event vergeben?",
+      "ground_truth": "Es gibt drei Preise: Best of Project (Reise nach Luxemburg zur International Science Expo), Best of Innovation (300 Euro) und Best of Business (300 Euro).",
+      "source_file": "competitions_project-award.md",
+      "context_keywords": [
+        "best of project",
+        "luxemburg",
+        "innovation",
+        "business",
+        "300 euro"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "pa-04",
+      "question": "In welcher Sprache muss die Praesentation beim Project Award seit 2025 gehalten werden?",
+      "ground_truth": "Seit 2025 muss die Praesentation beim Project Award auf Englisch sein.",
+      "source_file": "competitions_project-award.md",
+      "context_keywords": [
+        "englisch",
+        "2025",
+        "praesentation",
+        "sprache"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "pa-05",
+      "question": "Was muss bei der Project-Award-Einreichung als Video eingereicht werden?",
+      "ground_truth": "Ein kurzes Vorstellungsvideo von ca. 60 Sekunden mit dem Namen des Projekts, den Namen der Teammitglieder inklusive Zustaendigkeit. Es darf auf Englisch oder Deutsch sein. Es muss in Querformat und FullHD sein und darf nur lizenzfreie Musik enthalten. Videos die nicht den Anforderungen entsprechen werden zurueckgeworfen.",
+      "source_file": "competitions_project-award.md",
+      "context_keywords": [
+        "60 sekunden",
+        "querformat",
+        "fullhd",
+        "lizenzfrei",
+        "video"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "comp-01",
+      "question": "Welchen Platz hat Jakob Schaumberger bei den EuroSkills 2025 erreicht?",
+      "ground_truth": "Jakob Schaumberger hat den vierten Platz erreicht und wurde mit dem Medallion for Excellence in der Kategorie Elektronik ausgezeichnet.",
+      "source_file": "competitions_2526.md",
+      "context_keywords": [
+        "schaumberger",
+        "vierter platz",
+        "medallion for excellence",
+        "elektronik"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "comp-02",
+      "question": "Welche Projekte wurden fuer Jugend Innovativ 2026 von der HTL Leonding eingereicht?",
+      "ground_truth": "Es wurden drei Projekte eingereicht: Sportsfreund (von Manuel Gross, Michael Oswald, Christoph Stadlmair, Valentin Harrer, alle 4CHIF), Bords-Teamer (von Leonard Breuer, Alexander Schluesselberger, beide 2AHITM), und Innovative Antriebsloesungen fuer die Realisierung eines inversen Pendels (von Hendrik Sock, Ivo Zhelev, beide 5AHEL).",
+      "source_file": "competitions_2526.md",
+      "context_keywords": [
+        "sportsfreund",
+        "bords-teamer",
+        "pendel",
+        "jugend innovativ"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "csi-01",
+      "question": "Welche Ressourcen stehen fuer Computer Science International (CSI) zur Verfuegung?",
+      "ground_truth": "Fuer CSI gibt es einen Test of Translation Tools for Teaching, ein Dictionary for General Words and Phrases in School, ein Dictionary Workshop and Tools, ein Dictionary Network Hardware, und ein Early Warning (Fruehwarnung) PDF-Formular.",
+      "source_file": "departm_csi.md",
+      "context_keywords": [
+        "translation tools",
+        "dictionary",
+        "workshop",
+        "network hardware",
+        "early warning"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "trans-01",
+      "question": "Welches Uebersetzungstool wurde 2023 als bestes fuer Android-Nutzung im Unterricht bewertet?",
+      "ground_truth": "Google Translate wurde als bestes Tool bewertet, weil es Live-Uebersetzung ueber die Handykamera unterstuetzt. Andere Apps wie DeepL, Microsoft Translate, Cam Translator und Alles Sprachen Uebersetzer erfordern ein Foto und starten dann erst die Uebersetzung. Google Translate hat auch die beste Performance und Usability.",
+      "source_file": "departm_translationtools.md",
+      "context_keywords": [
+        "google translate",
+        "live",
+        "kamera",
+        "deepl",
+        "android"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "medizint-01",
+      "question": "Welche Fachtheorie-Gegenstaende gibt es in der Biomedizin- und Gesundheitstechnik?",
+      "ground_truth": "Die Fachtheorie umfasst Biologie, Medizin und Gesundheitswesen (BMG), Biomedizinische Signalverarbeitung (BSV), Medizinische Geraetetechnik (MGT), und Medizin- und Gesundheitsinformatik (MINF). Dazu kommt der Fachpraktische Unterricht.",
+      "source_file": "departm_medizint.md",
+      "context_keywords": [
+        "bmg",
+        "bsv",
+        "mgt",
+        "minf",
+        "fachpraxis"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "schummeln-01",
+      "question": "Was passiert laut Schulrecht, wenn ein Schueler beim Schummeln erwischt wird?",
+      "ground_truth": "Gemaess Paragraph 18 Abs 4 SchUG sind vorgetaeuschte Leistungen nicht zu beurteilen. Die Lehrkraft hat die unerlaubten Hilfsmittel unverzueglich abzunehmen. Wenn die Hilfsmittel noch nicht eingesetzt wurden, ist die Leistungsfeststellung fortzusetzen. Wurden die Hilfsmittel jedoch schon eingesetzt, ist die gesamte Leistung als vorgetaeuscht anzusehen und es tritt die Rechtsfolge der Nichtbeurteilung ein.",
+      "source_file": "teacher_lawandorder_schummeln.md",
+      "context_keywords": [
+        "paragraph 18",
+        "schug",
+        "vorgetaeuscht",
+        "nichtbeurteilung",
+        "hilfsmittel"
+      ],
+      "difficulty": "hard",
+      "sources": [
+        "teacher:lawandorder:schummeln"
+      ]
+    },
+    {
+      "id": "maker-01",
+      "question": "Warum sollen bei der Maker Week keine 3D-Drucke eingeplant werden?",
+      "ground_truth": "3D-Drucke sollen nicht eingeplant werden, weil die Dauer des Drucks in der Regel zu lang ist und kein Spielraum fuer Fehldrucke bzw. Probleme beim Drucken besteht. Es geht nur, falls Schueler zu Hause einen Drucker haben.",
+      "source_file": "teacher_makerweek.md",
+      "context_keywords": [
+        "3d-druck",
+        "dauer",
+        "fehldrucke",
+        "zu hause"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "maker-02",
+      "question": "Wie wird die Verpflegung waehrend der Maker Week organisiert?",
+      "ground_truth": "Eine Moeglichkeit ist: 2 Mal Selbstversorgung, 1 Mal Pizza bestellen, 1 Mal Taifun Restaurant, und 1 Mal Grillen (in Abstimmung mit der Werkstatt). Beim Taifun sollte man nicht zu grosse Gruppen auf einmal schicken. Beim Grillen muessen Schueler Teller, Besteck, Sossen, Brot und Zuspeisen selbst mitnehmen.",
+      "source_file": "teacher_makerweek.md",
+      "context_keywords": [
+        "selbstversorgung",
+        "pizza",
+        "taifun",
+        "grillen",
+        "verpflegung"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "maker-03",
+      "question": "Wie viele Schueler sollen pro Maker-Week-Projekt zusammenarbeiten?",
+      "ground_truth": "Jedes Projekt sollte von 3 bis 4 Schuelern bearbeitet werden, wobei jeder Schueler sein eigenes Produkt macht (3-4 Kopien im Projekt). Die Schueler koennen sich so gegenseitig unterstuetzen, da sonst ein zu hoher Supportaufwand von Lehrern erforderlich waere. Einzelprojekte sollten die absolute Ausnahme sein.",
+      "source_file": "teacher_makerweek.md",
+      "context_keywords": [
+        "3 bis 4",
+        "kopien",
+        "unterstuetzen",
+        "einzelprojekte"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "oracle-01",
+      "question": "Wie lauten die Verbindungsdaten fuer die Oracle-Datenbank auf dem Zeus-Server?",
+      "ground_truth": "Server: zeus.htl-leonding.ac.at, Port: 1521, Servicename: leopdb. Die Datenbank ist Oracle 21c und APEX laeuft in Version 24.2.",
+      "source_file": "teacher_oracle19.md",
+      "context_keywords": [
+        "zeus",
+        "1521",
+        "leopdb",
+        "oracle 21c",
+        "apex 24.2"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "oracle-02",
+      "question": "Was ist das bekannte Problem mit dem DB-Manager auf dem Zeus-Server?",
+      "ground_truth": "Das Session-Handling ist noch nicht sauber geloest, da sich Sessions bei Aktivitaet nicht automatisch verlaengern. Das Session-Timeout erfolgt aktuell nach 30 Minuten.",
+      "source_file": "teacher_oracle19.md",
+      "context_keywords": [
+        "session",
+        "timeout",
+        "30 minuten",
+        "db-manager"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "infra-01",
+      "question": "Wie ist die E-Mail-Adresse fuer Lehrer an der HTL Leonding aufgebaut?",
+      "ground_truth": "Die E-Mail-Adresse ist nach dem Schema v.nachname@htl-leonding.ac.at aufgebaut, wobei v den ersten Buchstaben des ersten Vornamens bezeichnet. Umlaute werden aufgeloest (z.B. ae statt ae).",
+      "source_file": "teacher_neulehrerinnenhandbuch_infrastructure.md",
+      "context_keywords": [
+        "v.nachname",
+        "htl-leonding.ac.at",
+        "umlaute",
+        "aufgeloest"
+      ],
+      "difficulty": "medium",
+      "sources": [
+        "teacher:neulehrerinnenhandbuch:infrastructure"
+      ]
+    },
+    {
+      "id": "infra-02",
+      "question": "Wie lautet die E-Mail-Adresse fuer Schueler an der HTL Leonding?",
+      "ground_truth": "Die E-Mail-Adresse ist nach dem Schema v.nachname@students.htl-leonding.ac.at aufgebaut, wobei v der erste Buchstabe des Vornamens und nachname der Nachname ist. Umlaute werden aufgeloest. Manchmal wird die Adresse durch eine Nummer ergaenzt, wenn die Konvention nicht mehr eindeutig ist.",
+      "source_file": "teacher_neulehrerinnenhandbuch_infrastructure.md",
+      "context_keywords": [
+        "students.htl-leonding.ac.at",
+        "v.nachname",
+        "nummer",
+        "eindeutig"
+      ],
+      "difficulty": "medium",
+      "sources": [
+        "teacher:neulehrerinnenhandbuch:infrastructure"
+      ]
+    },
+    {
+      "id": "infra-03",
+      "question": "Welche WLAN-Netze gibt es an der HTL Leonding und wann verwendet man welches?",
+      "ground_truth": "Es gibt htlleonding-ubi-wpa und htlleonding-ng-wpa Access-Points. In Klassen mit runden Ubiquiti-Accesspoints ist htlleonding-ubi-wpa zu empfehlen, in Klassen mit rechteckigen HP-Accesspoints (teilweise hinter der Overhead-Projektionswand versteckt) ist htlleonding-ng-wpa empfehlenswerter. Die Anmeldung erfolgt mit dem System-Account via WPA2-Enterprise (802.1x EAP).",
+      "source_file": "teacher_neulehrerinnenhandbuch_infrastructure.md",
+      "context_keywords": [
+        "ubi-wpa",
+        "ng-wpa",
+        "ubiquiti",
+        "hp",
+        "wpa2-enterprise"
+      ],
+      "difficulty": "hard",
+      "sources": [
+        "teacher:neulehrerinnenhandbuch:infrastructure"
+      ]
+    },
+    {
+      "id": "infra-04",
+      "question": "Was ist Teaman und wofuer wird es verwendet?",
+      "ground_truth": "Teaman (Teacher Manager) ist ein System, mit dem bei Tests, Pruefungen oder Mitarbeitskontrollen am Computer in den Computerlabors eine sichere Arbeitsumgebung bereitgestellt werden kann. Es kann den Internetzugang fuer die Computer sperren und die Schueler arbeiten waehrend dieser Zeit auf einem abgesicherten Account. Erreichbar unter https://edufs.edu.htl-leonding.ac.at/teaman/.",
+      "source_file": "teacher_neulehrerinnenhandbuch_infrastructure.md",
+      "context_keywords": [
+        "teaman",
+        "teacher manager",
+        "internet",
+        "sperren",
+        "testset"
+      ],
+      "difficulty": "hard",
+      "sources": [
+        "teacher:neulehrerinnenhandbuch:infrastructure"
+      ]
+    },
+    {
+      "id": "fehlst-01",
+      "question": "Haben Schueler der 5. Klassen noch Verhaltensnoten?",
+      "ground_truth": "5. Klassen haben keine Verhaltensnoten mehr, aber im Sokrates sind trotzdem die Fehlstunden einzutragen, auch wenn sie nicht angedruckt werden, sondern nur in der Notenuebersicht angezeigt werden.",
+      "source_file": "teacher_fehlstunden.md",
+      "context_keywords": [
+        "5. klassen",
+        "verhaltensnoten",
+        "sokrates",
+        "fehlstunden"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "schilf-01",
+      "question": "Worum ging es bei der SCHILF zu POSE-2 im Schuljahr 2024/25?",
+      "ground_truth": "Es ging um die Ausgestaltung der Lehrplan-Kompetenz Einfache User Interfaces in POSE-OO Jahrgang 2. Die Agenda umfasste Blazor WebUI (vorgestellt von Markus Haslinger, mit Uebersicht ueber Blazor-Architekturvarianten und Blazor client-side) und Desktop UI (vorgestellt von Peter Frey, mit Migration WPF auf Avalonia).",
+      "source_file": "teacher_schilfs.md",
+      "context_keywords": [
+        "pose-2",
+        "blazor",
+        "avalonia",
+        "haslinger",
+        "frey"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "mail-01",
+      "question": "Wo koennen bestehende Schueler nach der Mail-Migration ihre alten E-Mails abrufen?",
+      "ground_truth": "Die alten E-Mails sind noch ueber den alten Schuelermailserver abrufbar unter dem Webmail https://studentsmx.htl-leonding.ac.at mit Login ueber den Schul-PC-Account. Die alten Mails sollten in einer PST-Datei gesichert werden, um sie spaeter auf den Office 365 Mailserver uebersiedeln zu koennen.",
+      "source_file": "special_studentmailmigration.md",
+      "context_keywords": [
+        "studentsmx",
+        "pst-datei",
+        "alter server",
+        "webmail",
+        "sichern"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "mail-02",
+      "question": "Ab wann kommen neue E-Mails an die students.htl-leonding.ac.at-Adresse auf dem neuen Office365-Account an?",
+      "ground_truth": "Neue Mails an die @students.htl-leonding.ac.at-Mailadresse nach dem 10. September 2023 (ungefaehr 00:00) sollten am Office365-Account ankommen. Der Webmail-Zugang ist ueber https://outlook.com/HTBLALeonding.onmicrosoft.com erreichbar.",
+      "source_file": "special_studentmailmigration.md",
+      "context_keywords": [
+        "10. september 2023",
+        "office365",
+        "outlook.com",
+        "htblaleonding"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "fest-01",
+      "question": "Wie lange vor der Feststellungspruefung muss der Termin bekannt gegeben werden?",
+      "ground_truth": "Der Termin muss nachweislich mindestens 2 Wochen vorher bekanntgegeben werden. Dafuer gibt es ein Formular im Sekretariat, welches vom Schulleiter unterschrieben werden muss.",
+      "source_file": "exams_feststellungspruefungen.md",
+      "context_keywords": [
+        "2 wochen",
+        "nachweislich",
+        "formular",
+        "sekretariat"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "fest-02",
+      "question": "Warum ist von einer Feststellungspruefung zum Semester dringend abzuraten?",
+      "ground_truth": "Von einer Feststellungspruefung zum Semester ist dringend abzuraten, weil nur eine Feststellungspruefung pro Schuljahr rechtlich zulaessig ist. Fuer die Vergabe eines Nicht beurteilt zur Schulnachricht (Semesterzeugnis) ist keine Feststellungspruefung notwendig.",
+      "source_file": "exams_feststellungspruefungen.md",
+      "context_keywords": [
+        "eine pro schuljahr",
+        "semester",
+        "nicht beurteilt",
+        "abzuraten"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "abend-01",
+      "question": "Was ist das Fachtheorie-Fach bei der Matura in der Abendschule?",
+      "ground_truth": "Das Fachtheorie-Fach bei der schriftlichen Matura im Haupttermin ist POS (Programmierung). Die Aufgabenstellung wird durch die Programmierlehrer erstellt.",
+      "source_file": "exams_matura-abendschule.md",
+      "context_keywords": [
+        "pos",
+        "fachtheorie",
+        "programmierung",
+        "haupttermin"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "abend-02",
+      "question": "Welche Schwerpunktfaecher gibt es bei der muendlichen Matura in der Abendschule?",
+      "ground_truth": "Die Schwerpunktfaecher sind: DBI-DSAI, SYP, NSCS, WMC oder BWM/MEDT. Das Schwerpunktfach wird im Oktober des letzten Schuljahrs zugeteilt. Das Wahlfach kann aus derselben Liste (plus WR) gewaehlt werden, darf aber nicht der Schwerpunktgegenstand sein.",
+      "source_file": "exams_matura-abendschule.md",
+      "context_keywords": [
+        "dbi-dsai",
+        "syp",
+        "nscs",
+        "wmc",
+        "bwm",
+        "schwerpunkt"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "abend-03",
+      "question": "Welche Voraussetzung muss ein Studierender der Abendschule fuer den Matura-Haupttermin erfuellen?",
+      "ground_truth": "Zum Maturahaupttermin darf der Studierende nur dann antreten, wenn er alle Module der Abendschule/Kolleg positiv absolviert hat. Man kann nicht alle Maturapruefungen in Form der vorgezogenen Matura absolvieren - mindestens eine Pruefung muss im Rahmen des Maturahaupttermins abgelegt werden.",
+      "source_file": "exams_matura-abendschule.md",
+      "context_keywords": [
+        "alle module",
+        "positiv",
+        "haupttermin",
+        "vorgezogene matura"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "aufstieg-01",
+      "question": "Wann ist eine Aufstiegsklausel (Aufsteigen mit einem Nicht genuegend) moeglich?",
+      "ground_truth": "Eine Klausel ist moeglich, wenn zwei Bedingungen erfuellt sind: Der Schueler darf nicht im Jahreszeugnis des vorhergegangenen Schuljahres in demselben Pflichtgegenstand die Note Nicht genuegend erhalten haben, und der betreffende Pflichtgegenstand muss in einer hoeheren Schulstufe lehrplanmaessig vorgesehen sein.",
+      "source_file": "teacher_lawandorder_aufstiegsklausel.md",
+      "context_keywords": [
+        "paragraph 25",
+        "vorjahr",
+        "nicht genuegend",
+        "lehrplanmaessig"
+      ],
+      "difficulty": "hard",
+      "sources": [
+        "teacher:lawandorder:aufstiegsklausel"
+      ]
+    },
+    {
+      "id": "aufstieg-02",
+      "question": "Wann steigt ein Schueler automatisch auf, ohne dass eine Abstimmung in der Klassenkonferenz noetig ist?",
+      "ground_truth": "Gemaess Paragraph 25 Absatz 1 steigen Schueler automatisch auf, wenn sie eine Schulstufe wiederholen UND im Wiederholungszeugnis in genau einem Pflichtgegenstand ein Nicht genuegend aufweisen UND dieser Gegenstand vor der Wiederholung der Schulstufe zumindest mit Befriedigend beurteilt wurde.",
+      "source_file": "teacher_lawandorder_aufstiegsklausel.md",
+      "context_keywords": [
+        "wiederholen",
+        "befriedigend",
+        "automatisch",
+        "paragraph 25"
+      ],
+      "difficulty": "hard",
+      "sources": [
+        "teacher:lawandorder:aufstiegsklausel"
+      ]
+    },
+    {
+      "id": "medt-01",
+      "question": "Welche drei Vertiefungen koennen Schueler der Medientechnik im 4. und 5. Jahrgang waehlen?",
+      "ground_truth": "Die drei Vertiefungen sind: Web- und App-Entwicklung, Virtuelle Welten und Spieleentwicklung, und Mediendesign und Medienproduktion.",
+      "source_file": "class_medt_spezialisierung.md",
+      "context_keywords": [
+        "web",
+        "app",
+        "virtuelle welten",
+        "spieleentwicklung",
+        "mediendesign"
+      ],
+      "difficulty": "easy",
+      "sources": [
+        "class:medt:spezialisierung"
+      ]
+    },
+    {
+      "id": "medt-02",
+      "question": "Wann wechselt der 5. Jahrgang Medientechnik vom Wintersemester-Modus in den Vertiefungsmodus?",
+      "ground_truth": "Da das Schuljahr fuer die 5. Jahrgaenge mit Ende April abgeschlossen sein muss, wird der Wechsel vom Wintersemester-Modus in den Sommersemester-Modus bereits mit 15. Dezember durchgefuehrt.",
+      "source_file": "class_medt_spezialisierung.md",
+      "context_keywords": [
+        "15. dezember",
+        "5. jahrgang",
+        "april",
+        "sommersemester"
+      ],
+      "difficulty": "hard",
+      "sources": [
+        "class:medt:spezialisierung"
+      ]
+    },
+    {
+      "id": "medt-03",
+      "question": "Kann man die Spezialisierung in der Medientechnik beim Aufstieg vom 4. in den 5. Jahrgang aendern?",
+      "ground_truth": "Nein, die gewaehlte Spezialisierung gilt fuer den 4. als auch fuer den 5. Jahrgang. Die Spezialisierung kann beim Aufstieg vom 4. in den 5. Jahrgang nicht mehr geaendert werden.",
+      "source_file": "class_medt_spezialisierung.md",
+      "context_keywords": [
+        "nicht aendern",
+        "4. jahrgang",
+        "5. jahrgang",
+        "spezialisierung"
+      ],
+      "difficulty": "medium",
+      "sources": [
+        "class:medt:spezialisierung"
+      ]
+    },
+    {
+      "id": "3d-01",
+      "question": "Welches Druckvolumen hat der Creality K1C 3D-Drucker?",
+      "ground_truth": "Das Druckvolumen betraegt 220 x 220 x 250 mm.",
+      "source_file": "werkstaette_crealityk1.md",
+      "context_keywords": [
+        "220",
+        "250",
+        "druckvolumen",
+        "k1c"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "3d-02",
+      "question": "Was ist ein Blob-Problem beim Creality K1C und wie wird es behoben?",
+      "ground_truth": "Ein Blob entsteht, wenn sich Kohlefasern in der Duese verklumpen und es dadurch zu einer ungleichmaessigen Extrusion kommt. Der Blob muss mit einem Heissluftfoen vorsichtig entfernt werden, dann muss die Duese gereinigt werden. Anschliessend muessen alle Steckverbindungen beim Druckkopf geprueft werden.",
+      "source_file": "werkstaette_crealityk1.md",
+      "context_keywords": [
+        "blob",
+        "kohlefaser",
+        "duese",
+        "heissluftfoen",
+        "extrusion"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "3d-03",
+      "question": "Welche Filamente unterstuetzt der Creality K1C?",
+      "ground_truth": "Der K1C unterstuetzt PLA, ABS, PETG, TPU und kohlefaserverstaerkte Materialien.",
+      "source_file": "werkstaette_crealityk1.md",
+      "context_keywords": [
+        "pla",
+        "abs",
+        "petg",
+        "tpu",
+        "kohlefaser"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "mat-01",
+      "question": "Welches 3D-Druck-Material ist am besten fuer Aussenanwendungen geeignet?",
+      "ground_truth": "ASA (Acrylnitril-Styrol-Acrylat) ist am besten fuer Aussenanwendungen geeignet, da es eine sehr hohe UV- und Witterungsbestaendigkeit hat (besser als ABS), schlagzaeh und waermeformbestaendig ist.",
+      "source_file": "werkstaette_materialeigenschaften.md",
+      "context_keywords": [
+        "asa",
+        "uv",
+        "witterung",
+        "aussen",
+        "besser als abs"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "mat-02",
+      "question": "Bis zu welcher Temperatur ist PLA waermeformbestaendig?",
+      "ground_truth": "PLA hat eine geringe Waermeformbestaendigkeit von nur etwa 55 bis 65 Grad Celsius.",
+      "source_file": "werkstaette_materialeigenschaften.md",
+      "context_keywords": [
+        "pla",
+        "55",
+        "65",
+        "waermeformbestaendigkeit"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "luft-01",
+      "question": "Was misst das LuftCheck-Geraet und welcher Mikrocontroller steuert es?",
+      "ground_truth": "Das LuftCheck-Geraet misst CO2, Temperatur, Luftdruck und Luftfeuchtigkeit am Aufstellungsort. Es wird von einem ESP32 gesteuert, wodurch neben der Ausgabe ueber RGB-LEDs und LCD-Screen auch die Ausgabe auf Webseiten moeglich ist.",
+      "source_file": "werkstaette_luftcheck.md",
+      "context_keywords": [
+        "co2",
+        "temperatur",
+        "luftdruck",
+        "esp32",
+        "luftfeuchtigkeit"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "luft-02",
+      "question": "Welche Fertigungsschritte lernen die Schueler beim Bau des LuftCheck?",
+      "ground_truth": "Die Schueler lernen: Platine Belichten, Entwickeln, Aetzen, Bohren und Entschichten. Dann das Bestuecken der SMD-Bauteile und der bedrahteten Bauelemente. Aufspielen einer Software auf einen Controller. Und den Zusammenbau des Gehaeuses, das mit dem Laser zugeschnitten wurde.",
+      "source_file": "werkstaette_luftcheck.md",
+      "context_keywords": [
+        "belichten",
+        "entwickeln",
+        "aetzen",
+        "smd",
+        "laser",
+        "gehaeuse"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "reflow-01",
+      "question": "Welche Parameter hat der SPIDE Reflow Loetofen fuer kleine Bauteile?",
+      "ground_truth": "Fuer kleine Bauteile wird ein Preheat von 185 Grad fuer 180 Sekunden und ein Reflow von 245 Grad fuer 55-60 Sekunden verwendet.",
+      "source_file": "werkstaette_elektronik.md",
+      "context_keywords": [
+        "185",
+        "245",
+        "180 sekunden",
+        "55-60",
+        "reflow"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "bugs-01",
+      "question": "Wie loest man das Let's Encrypt Zertifikatsproblem fuer SMTP-Verbindungen?",
+      "ground_truth": "Man muss das aktuelle Intermediate Zertifikat von https://letsencrypt.org/certificates/ herunterladen, konkret https://letsencrypt.org/certs/lets-encrypt-r3.pem, und es als .crt unter /usr/local/share/ca-certificates/lets-encrypt-r3.crt speichern (mit anderer Endung). Dann muss man update-ca-certificates ausfuehren.",
+      "source_file": "software_knownbugs.md",
+      "context_keywords": [
+        "lets-encrypt-r3",
+        "pem",
+        "crt",
+        "update-ca-certificates",
+        "smtp"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "lizenz-01",
+      "question": "Wo finden Schueler lizenzfreie Fotos fuer Schulprojekte?",
+      "ground_truth": "Lizenzfreie Fotos gibt es bei pexels (https://www.pexels.com/de-de/) und pixabay (https://pixabay.com/de/). Fuer Grafiken bietet flaticon eine umfangreiche Sammlung (https://www.flaticon.com/).",
+      "source_file": "class_lizenzfreiemedien.md",
+      "context_keywords": [
+        "pexels",
+        "pixabay",
+        "flaticon",
+        "lizenzfrei",
+        "fotos"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "lizenz-02",
+      "question": "Wo gibt es lizenzfreie Musikdateien fuer Schulprojekte an der HTL Leonding?",
+      "ground_truth": "Es gibt eine Sammlung von ca. 180 Musik-Files auf dem Medien-Server unter 10.191.18.15/data/Audio. Ausserdem gibt es bei https://pixabay.com/de/music/ Musik, wobei man auf die Rechte bei jedem Download achten muss.",
+      "source_file": "class_lizenzfreiemedien.md",
+      "context_keywords": [
+        "180",
+        "medien-server",
+        "10.191.18.15",
+        "pixabay",
+        "musik"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "stundenabr-01",
+      "question": "Wie ruft man die Stundenabrechnung im WebUntis auf?",
+      "ground_truth": "Im WebUntis unter Mein Unterricht, rechts im Kalender das gewuenschte Monat auswaehlen, einen beliebigen Tag im Kalender markieren. Wenn die Abrechnung erledigt ist, ist die Datei MDL mit dem gewaehlten Monat (Button unterhalb der Liste) mit Daten gefuellt.",
+      "source_file": "teacher_stundenabrechnung.md",
+      "context_keywords": [
+        "webuntis",
+        "mein unterricht",
+        "kalender",
+        "mdl",
+        "monat"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "pitch-01",
+      "question": "Wie laeuft der DA Proposal Pitch Day ab?",
+      "ground_truth": "Der Pitch Day findet in der Aula statt. DA-Betreuer kommen mit ihren DA-Teams in die Aula. Jedes Team pitcht seinen DA-Antrag. Es gibt keine Folien, der DA-Antrag ist auf dem Screen. Es gibt ein klares Zeitkorsett: 3 Minuten Pitch und 2 Minuten Diskussion. Publikum sind AV, 3. Jahrgaenge und weitere Lehrer.",
+      "source_file": "exams_da-inf-it_da-proposal-pitch-day.md",
+      "context_keywords": [
+        "aula",
+        "3 minuten",
+        "2 minuten",
+        "keine folien",
+        "pitch"
+      ],
+      "difficulty": "medium",
+      "sources": [
+        "exams:da-inf-it:da-proposal-pitch-day"
+      ]
+    },
+    {
+      "id": "dathesis-01",
+      "question": "Welche ausgezeichneten Diplomarbeiten werden auf der LeoWiki-Seite als Vorbilder aufgelistet?",
+      "ground_truth": "Folgende Diplomarbeiten sind aufgelistet: Schloemmer/Stransky - Analyzing the Stock Market Using Machine Learning; Klinglmayr/Medweschek/Rumpelsberger - CrowdFit; Leithenmayr/Deicker - Customer setup Performance check; Leimgruber/Moser - James ein plattformunabhaengiges Suchsystem; Urbanides/Hiebl - KeMon KEBA Network Monitor; Chen/Lammer - Marco Finding points of interest via augmented reality; Stadler/Woegerbauer - Three-Dimensional Object Reconstruction from Multiple Images.",
+      "source_file": "exams_da-inf-it_high-quality-theses.md",
+      "context_keywords": [
+        "crowdfit",
+        "james",
+        "kemon",
+        "marco",
+        "stock market",
+        "ausgezeichnet"
+      ],
+      "difficulty": "hard",
+      "sources": [
+        "exams:da-inf-it:high-quality-theses"
+      ]
+    },
+    {
+      "id": "termine-01",
+      "question": "Wann war der Maturaball im Schuljahr 2024/2025?",
+      "ground_truth": "Der Maturaball fand am 07.03.2025 um 20:00 Uhr im Palais Kaufmaennischer Verein statt.",
+      "source_file": "archive_org_termine-2025.md",
+      "context_keywords": [
+        "07.03.2025",
+        "maturaball",
+        "palais",
+        "kaufmaennischer verein"
+      ],
+      "difficulty": "easy",
+      "sources": [
+        "archive:org:termine-2025"
+      ]
+    },
+    {
+      "id": "termine-02",
+      "question": "Wann war der Tag der offenen Tuer im Schuljahr 2024/2025?",
+      "ground_truth": "Es gab einen Abend der offenen Tuer am 23.01.2025 von 17:00 bis 20:00 Uhr und einen Tag der offenen Tuer am 24.01.2025 von 11:00 bis 17:00 Uhr.",
+      "source_file": "archive_org_termine-2025.md",
+      "context_keywords": [
+        "23.01.2025",
+        "24.01.2025",
+        "offene tuer",
+        "17:00"
+      ],
+      "difficulty": "medium",
+      "sources": [
+        "archive:org:termine-2025"
+      ]
+    },
+    {
+      "id": "minf-01",
+      "question": "Was aendert sich bei MINF ab dem Schuljahr 2025/26?",
+      "ground_truth": "MINF soll klarer auf Medizin- und Gesundheitsinformatik spezialisiert sein. Aufgaben und Unterricht sollen mehr im Kontext von Medizin- und Gesundheitstechnik stehen. Wenn moeglich sollen zusaetzliche Themen aus der Medizin- und Gesundheitstechnik eingebaut werden. FST und MINF werden inhaltlich getrennt mit getrennter Koordination: FST durch Markus Lueftner und MINF durch Robert Raschhofer.",
+      "source_file": "departm_minf_minf_25_26_neu.pdf.md",
+      "context_keywords": [
+        "medizin",
+        "gesundheitsinformatik",
+        "fst",
+        "trennung",
+        "raschhofer"
+      ],
+      "difficulty": "medium",
+      "sources": [
+        "departm:minf:minf_25_26_neu.pdf"
+      ]
+    },
+    {
+      "id": "beurt-01",
+      "question": "Welche Kriterien werden bei der Beurteilung einer Diplomarbeit in der Informatik bewertet?",
+      "ground_truth": "Die Diplomarbeit wird nach fuenf Kriterien bewertet: Fachkompetenz, Methodenkompetenz, Selbstkompetenz, Sprachkompetenz und Dokumentation. Jedes Kriterium kann als weit darueber hinausgehend erfuellt, zur Gaenze erfuellt, ueberwiegend erfuellt oder ueberwiegend nicht erfuellt bewertet werden.",
+      "source_file": "exams_beurteilungsbogen_template_it.docx.md",
+      "context_keywords": [
+        "fachkompetenz",
+        "methodenkompetenz",
+        "selbstkompetenz",
+        "sprachkompetenz",
+        "dokumentation"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "beurt-02",
+      "question": "Welche Kriterien werden bei der Praesentation und Diskussion der Diplomarbeit bewertet?",
+      "ground_truth": "Es werden fuenf Kriterien bewertet: ob der Kandidat die Diplomarbeit im vorgegebenen Zeitrahmen darstellen kann, ob die inhaltlich-fachliche Auseinandersetzung in der erforderlichen Tiefe gegeben ist, ob der Kandidat Standpunkte ueberzeugend argumentieren kann, ob die Arbeit in Standardsprache klar strukturiert und verstaendlich dargestellt wird, und ob der Kandidat mit zeitgemaessen Praesentationsmitteln umgehen kann.",
+      "source_file": "exams_beurteilungsbogen_template_it.docx.md",
+      "context_keywords": [
+        "zeitrahmen",
+        "argumentieren",
+        "standardsprache",
+        "praesentationsmittel"
+      ],
+      "difficulty": "hard"
+    },
+    {
+      "id": "align-01",
+      "question": "Wer ist Kustodiat fuer POSE an der HTL Leonding?",
+      "ground_truth": "Birgit Schroeder ist seit dem Schuljahr 2023/24 Kustodiat fuer POSE.",
+      "source_file": "teacher_teaching-alignments.md",
+      "context_keywords": [
+        "birgit schroeder",
+        "kustodiat",
+        "pose",
+        "2023/24"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "start-01",
+      "question": "Welche Abteilungen werden auf der Hauptseite des LeoWiki unter Study Program Specific Topics aufgelistet?",
+      "ground_truth": "Unter Study Program Specific Topics sind aufgelistet: Biomedizin und Gesundheitstechnik, Elektronik und Technische Informatik, Fachschule fuer Elektronik und Automatisierung, Werkstaette, Status der Informatik/Medientechniksaele, und Computer Science International.",
+      "source_file": "start.md",
+      "context_keywords": [
+        "biomedizin",
+        "elektronik",
+        "fachschule",
+        "werkstaette",
+        "csi"
+      ],
+      "difficulty": "easy"
+    },
+    {
+      "id": "wlan-01",
+      "question": "Wie kann man unter Windows 11 pruefen, mit welchem WLAN Access Point man verbunden ist?",
+      "ground_truth": "Man kann auf der Kommandozeile den Befehl netsh wlan show interfaces ausfuehren, der die BSSID des verbundenen Access Points anzeigt. Um alle APs in der Umgebung zu sehen, verwendet man netsh wlan show networks mode=bssid.",
+      "source_file": "it_bugs.md",
+      "context_keywords": [
+        "netsh",
+        "wlan",
+        "show interfaces",
+        "bssid",
+        "windows"
+      ],
+      "difficulty": "medium"
+    },
+    {
+      "id": "drucker-01",
+      "question": "Wie kann man den Konica Minolta Drucker unter Linux einbinden?",
+      "ground_truth": "Man muss die PPD von Minolta herunterladen (Model c450i), den Drucker mit Yast Printer hinzufuegen (IP momentan 10.191.17.52), das Modell KONICA MINOLTA 750iSeriesPS(P) BEU v1.0 waehlen. In der CUPS-Webseite muss man unter Administration das Modell auf c450 setzen und bei Account Track den eigenen Drucker-PIN eingeben.",
+      "source_file": "it_bugs.md",
+      "context_keywords": [
+        "konica minolta",
+        "ppd",
+        "yast",
+        "cups",
+        "10.191.17.52"
+      ],
+      "difficulty": "hard"
+    }
+  ]
+}
