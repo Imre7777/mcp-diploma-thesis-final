@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-03-21T10:42:58.373090",
+  "iterations": 20,
+  "http": {
+    "transport": "HTTP",
+    "mean_ms": 113.11839004047215,
+    "median_ms": 109.94717665016651,
+    "min_ms": 108.62946696579456,
+    "max_ms": 142.9339088499546,
+    "stdev_ms": 7.975185506932293,
+    "successful": 20,
+    "iterations": 20
+  },
+  "stdio": {
+    "transport": "STDIO",
+    "mean_ms": 17.93661192059517,
+    "median_ms": 17.899069003760815,
+    "min_ms": 17.737405374646187,
+    "max_ms": 18.48400291055441,
+    "stdev_ms": 0.18054485423861003,
+    "successful": 20,
+    "iterations": 20
+  },
+  "analysis": {
+    "speedup": 6.306563945367374,
+    "overhead_ms": 95.18177811987698
+  }
+}
