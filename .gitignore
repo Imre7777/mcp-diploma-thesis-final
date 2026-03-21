@@ -99,10 +99,10 @@ backup/
 # Large embedding files (regenerate with scripts/ingest_embedded_chunks.py)
 embedded_chunks.jsonl
 
-# Benchmark output files (keep query_catalog.json, ignore results)
-data/benchmark/*_benchmark_*.json
-data/benchmark/*_benchmark_*.md
+# Benchmark output files (keep query_catalog.json and final results)
 !data/benchmark/query_catalog.json
+!data/benchmark/search_benchmark_20260321_091644.json
+!data/benchmark/search_benchmark_20260321_091644.md
 
 # ScaleKit Credentials (NEVER commit!)
 SCALEKIT_MCP_CREDENTIALS*.md

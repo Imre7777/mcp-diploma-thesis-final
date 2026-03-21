@@ -1,0 +1,1615 @@
+{
+  "config": {
+    "embedding_model": "text-embedding-3-large",
+    "qdrant_url": "http://qdrant:6333",
+    "collection": "educational_content",
+    "result_limit": 5
+  },
+  "total_queries": 78,
+  "iterations": 3,
+  "timings": [
+    {
+      "query_id": "notebook-01",
+      "question": "Wie viel RAM sollte ein Notebook fuer die Informatik mindest...",
+      "difficulty": "easy",
+      "embedding_ms": {
+        "mean": 434.415854824086,
+        "min": 165.41394125670195,
+        "max": 952.0110907033086
+      },
+      "search_ms": {
+        "mean": 25.29744462420543,
+        "min": 23.818410001695156,
+        "max": 28.088238090276718
+      },
+      "total_ms": {
+        "mean": 459.7132994482915,
+        "min": 189.2323512583971,
+        "max": 980.0993287935853
+      }
+    },
+    {
+      "query_id": "notebook-02",
+      "question": "Welcher Prozessor wird fuer Notebooks in der Informatik mind...",
+      "difficulty": "easy",
+      "embedding_ms": {
+        "mean": 149.90883506834507,
+        "min": 105.16333766281605,
+        "max": 177.90862917900085
+      },
+      "search_ms": {
+        "mean": 22.877469037969906,
+        "min": 22.78664242476225,
+        "max": 22.982141003012657
+      },
+      "total_ms": {
+        "mean": 172.786304106315,
+        "min": 128.02696134895086,
+        "max": 200.6952716037631
+      }
+    },
+    {
+      "query_id": "notebook-03",
+      "question": "Warum empfiehlt die HTL Leonding Erstklasslern ein gebraucht...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 167.99006021271148,
+        "min": 140.3010208159685,
+        "max": 209.28699988871813
+      },
+      "search_ms": {
+        "mean": 22.54405152052641,
+        "min": 22.346701472997665,
+        "max": 22.668550722301006
+      },
+      "total_ms": {
+        "mean": 190.5341117332379,
+        "min": 162.91792318224907,
+        "max": 231.6337013617158
+      }
+    },
+    {
+      "query_id": "brand-01",
+      "question": "Welche Notrufnummer muss bei einem Brand in der HTL Leonding...",
+      "difficulty": "easy",
+      "embedding_ms": {
+        "mean": 168.22823571662107,
+        "min": 120.92767748981714,
+        "max": 193.76404210925102
+      },
+      "search_ms": {
+        "mean": 22.233160212635994,
+        "min": 22.083482705056667,
+        "max": 22.387423552572727
+      },
+      "total_ms": {
+        "mean": 190.46139592925707,
+        "min": 143.15625187009573,
+        "max": 215.8475248143077
+      }
+    },
+    {
+      "query_id": "brand-02",
+      "question": "Wo sind die Sammelplaetze bei einem Feueralarm in der HTL Le...",
+      "difficulty": "easy",
+      "embedding_ms": {
+        "mean": 162.3140765974919,
+        "min": 135.92836074531078,
+        "max": 184.07259974628687
+      },
+      "search_ms": {
+        "mean": 22.180882282555103,
+        "min": 22.153036668896675,
+        "max": 22.21781387925148
+      },
+      "total_ms": {
+        "mean": 184.494958880047,
+        "min": 158.14617462456226,
+        "max": 206.22563641518354
+      }
+    },
+    {
+      "query_id": "brand-03",
+      "question": "Was sollen Schueler tun, wenn sie bei einem Brand das Klasse...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 184.77278916786113,
+        "min": 116.95417854934931,
+        "max": 272.133975289762
+      },
+      "search_ms": {
+        "mean": 22.158438029388588,
+        "min": 21.464543417096138,
+        "max": 23.17532431334257
+      },
+      "total_ms": {
+        "mean": 206.93122719724974,
+        "min": 138.78962490707636,
+        "max": 295.3092996031046
+      }
+    },
+    {
+      "query_id": "docker-01",
+      "question": "Welche IP-Adressbereiche werden im Schulnetz der HTL Leondin...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 146.9609383493662,
+        "min": 129.84601221978664,
+        "max": 179.4854011386633
+      },
+      "search_ms": {
+        "mean": 24.281231686472893,
+        "min": 22.189314477145672,
+        "max": 27.292207814753056
+      },
+      "total_ms": {
+        "mean": 171.24217003583908,
+        "min": 152.03532669693232,
+        "max": 206.77760895341635
+      }
+    },
+    {
+      "query_id": "docker-02",
+      "question": "Wie kann man die Docker-Netzwerkkonfiguration anpassen, dami...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 182.01145622879267,
+        "min": 176.63029953837395,
+        "max": 188.03353793919086
+      },
+      "search_ms": {
+        "mean": 34.965544318159424,
+        "min": 23.203082382678986,
+        "max": 41.60130489617586
+      },
+      "total_ms": {
+        "mean": 216.9770005469521,
+        "min": 211.23662032186985,
+        "max": 222.97183610498905
+      }
+    },
+    {
+      "query_id": "dsgvo-01",
+      "question": "Wie muessen Festplatten mit rotierenden Scheiben datenschutz...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 159.25475675612688,
+        "min": 134.18718799948692,
+        "max": 175.93030538409948
+      },
+      "search_ms": {
+        "mean": 44.49757126470407,
+        "min": 43.31013932824135,
+        "max": 46.39471881091595
+      },
+      "total_ms": {
+        "mean": 203.75232802083096,
+        "min": 177.49732732772827,
+        "max": 219.7181610390544
+      }
+    },
+    {
+      "query_id": "dsgvo-02",
+      "question": "Wer hat die Vorgehensweise zur Datentraegervernichtung an de...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 220.25720961391926,
+        "min": 192.76837445795536,
+        "max": 238.18476870656013
+      },
+      "search_ms": {
+        "mean": 43.32680410395066,
+        "min": 22.76410348713398,
+        "max": 55.15292566269636
+      },
+      "total_ms": {
+        "mean": 263.58401371786994,
+        "min": 247.92130012065172,
+        "max": 281.8818688392639
+      }
+    },
+    {
+      "query_id": "dsgvo-03",
+      "question": "Wie werden SSDs und USB-Sticks datenschutzkonform vernichtet...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 205.104594429334,
+        "min": 109.27034448832273,
+        "max": 345.62861174345016
+      },
+      "search_ms": {
+        "mean": 23.22974180181821,
+        "min": 22.294812835752964,
+        "max": 24.64441955089569
+      },
+      "total_ms": {
+        "mean": 228.3343362311522,
+        "min": 133.91476403921843,
+        "max": 368.37860476225615
+      }
+    },
+    {
+      "query_id": "liskov-01",
+      "question": "Wie kann man im EDV-Raum Liskov den eigenen Laptop mit dem B...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 158.54327225436768,
+        "min": 126.6318904235959,
+        "max": 181.41091242432594
+      },
+      "search_ms": {
+        "mean": 24.858595492939155,
+        "min": 22.92680647224188,
+        "max": 26.81195270270109
+      },
+      "total_ms": {
+        "mean": 183.40186774730682,
+        "min": 151.4689177274704,
+        "max": 208.22286512702703
+      }
+    },
+    {
+      "query_id": "liskov-02",
+      "question": "Wie kann man im Raum Liskov zwischen Tafel und Praesentation...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 180.7451822484533,
+        "min": 170.07232178002596,
+        "max": 201.1678572744131
+      },
+      "search_ms": {
+        "mean": 24.396938892702263,
+        "min": 22.94847182929516,
+        "max": 27.18418836593628
+      },
+      "total_ms": {
+        "mean": 205.14212114115557,
+        "min": 193.943839520216,
+        "max": 224.22601375728846
+      }
+    },
+    {
+      "query_id": "m365-01",
+      "question": "Auf wie vielen Geraeten duerfen Schueler Microsoft 365 insta...",
+      "difficulty": "easy",
+      "embedding_ms": {
+        "mean": 169.520183155934,
+        "min": 152.1441312506795,
+        "max": 179.03408035635948
+      },
+      "search_ms": {
+        "mean": 22.63455589612325,
+        "min": 21.97750099003315,
+        "max": 23.68564996868372
+      },
+      "total_ms": {
+        "mean": 192.15473905205727,
+        "min": 175.8297812193632,
+        "max": 201.01158134639263
+      }
+    },
+    {
+      "query_id": "m365-02",
+      "question": "Was sollte man bei der Aktivierung von Microsoft 365 bezuegl...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 170.63401577373347,
+        "min": 158.7057476863265,
+        "max": 190.37509430199862
+      },
+      "search_ms": {
+        "mean": 21.82649572690328,
+        "min": 21.517783403396606,
+        "max": 22.26883079856634
+      },
+      "total_ms": {
+        "mean": 192.46051150063673,
+        "min": 180.2235310897231,
+        "max": 212.0679672807455
+      }
+    },
+    {
+      "query_id": "trips-01",
+      "question": "Was hat die Kulturwoche Istrien 2023/24 pro Schueler gekoste...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 188.52564288924137,
+        "min": 161.74093913286924,
+        "max": 220.67884169518948
+      },
+      "search_ms": {
+        "mean": 22.550531352559727,
+        "min": 21.38704340904951,
+        "max": 24.074256420135498
+      },
+      "total_ms": {
+        "mean": 211.0761742418011,
+        "min": 183.12798254191875,
+        "max": 242.86913592368364
+      }
+    },
+    {
+      "query_id": "trips-02",
+      "question": "Welche Klassen haben an der Kulturwoche Istrien 2023/24 teil...",
+      "difficulty": "easy",
+      "embedding_ms": {
+        "mean": 173.81022218614817,
+        "min": 161.9306020438671,
+        "max": 183.71145520359278
+      },
+      "search_ms": {
+        "mean": 23.061087355017662,
+        "min": 22.51880895346403,
+        "max": 23.667446337640285
+      },
+      "total_ms": {
+        "mean": 196.87130954116583,
+        "min": 184.92760881781578,
+        "max": 206.2302641570568
+      }
+    },
+    {
+      "query_id": "social-01",
+      "question": "Wie kann man einen Artikel auf der HTL-Leonding-Homepage ver...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 144.27969325333834,
+        "min": 102.02393028885126,
+        "max": 209.88596510142088
+      },
+      "search_ms": {
+        "mean": 22.808102580408256,
+        "min": 22.201682440936565,
+        "max": 23.987924680113792
+      },
+      "total_ms": {
+        "mean": 167.08779583374658,
+        "min": 124.25863090902567,
+        "max": 232.08764754235744
+      }
+    },
+    {
+      "query_id": "social-02",
+      "question": "Welche Informationen sind fuer eine Social-Media-Veroeffentl...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 164.0183494115869,
+        "min": 118.00145264714956,
+        "max": 193.62759217619896
+      },
+      "search_ms": {
+        "mean": 36.93016277005275,
+        "min": 27.23387163132429,
+        "max": 42.58864186704159
+      },
+      "total_ms": {
+        "mean": 200.94851218163967,
+        "min": 160.59009451419115,
+        "max": 221.3939782232046
+      }
+    },
+    {
+      "query_id": "stoerung-01",
+      "question": "Wofuer ist der Medienkusto an der HTL Leonding NICHT zustaen...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 197.29289940247932,
+        "min": 179.36975322663784,
+        "max": 221.92650754004717
+      },
+      "search_ms": {
+        "mean": 22.856693404416244,
+        "min": 22.388458251953125,
+        "max": 23.609296418726444
+      },
+      "total_ms": {
+        "mean": 220.14959280689558,
+        "min": 201.942078769207,
+        "max": 244.3149657920003
+      }
+    },
+    {
+      "query_id": "stoerung-02",
+      "question": "Wie erstellt man eine Stoerungsmeldung an der HTL Leonding?",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 168.2901866734028,
+        "min": 147.39902038127184,
+        "max": 181.3163822516799
+      },
+      "search_ms": {
+        "mean": 22.68181275576353,
+        "min": 22.443216294050217,
+        "max": 22.978692315518856
+      },
+      "total_ms": {
+        "mean": 190.97199942916632,
+        "min": 170.02255003899336,
+        "max": 204.29507456719875
+      }
+    },
+    {
+      "query_id": "pa-01",
+      "question": "Wann ist die Deadline fuer die Project-Award-Einreichung 202...",
+      "difficulty": "easy",
+      "embedding_ms": {
+        "mean": 168.8569812104106,
+        "min": 154.8198712989688,
+        "max": 192.73218885064125
+      },
+      "search_ms": {
+        "mean": 21.658396658798058,
+        "min": 21.111932583153248,
+        "max": 22.66336139291525
+      },
+      "total_ms": {
+        "mean": 190.51537786920866,
+        "min": 176.01976729929447,
+        "max": 215.3955502435565
+      }
+    },
+    {
+      "query_id": "pa-02",
+      "question": "Wie lange darf eine Praesentation beim Project Award Main Ev...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 187.16081200788418,
+        "min": 161.31148766726255,
+        "max": 229.16785534471273
+      },
+      "search_ms": {
+        "mean": 22.11804687976837,
+        "min": 21.32924646139145,
+        "max": 23.418206721544266
+      },
+      "total_ms": {
+        "mean": 209.27885888765255,
+        "min": 182.640734128654,
+        "max": 252.586062066257
+      }
+    },
+    {
+      "query_id": "pa-03",
+      "question": "Welche Preise werden beim Project Award Main Event vergeben?",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 170.86057551205158,
+        "min": 131.9036576896906,
+        "max": 199.05313942581415
+      },
+      "search_ms": {
+        "mean": 21.5054905662934,
+        "min": 21.173005923628807,
+        "max": 21.877925843000412
+      },
+      "total_ms": {
+        "mean": 192.36606607834497,
+        "min": 153.0766636133194,
+        "max": 220.51867935806513
+      }
+    },
+    {
+      "query_id": "pa-04",
+      "question": "In welcher Sprache muss die Praesentation beim Project Award...",
+      "difficulty": "easy",
+      "embedding_ms": {
+        "mean": 181.04065551112095,
+        "min": 168.6569293960929,
+        "max": 191.80686213076115
+      },
+      "search_ms": {
+        "mean": 22.00733746091525,
+        "min": 21.69481571763754,
+        "max": 22.23397698253393
+      },
+      "total_ms": {
+        "mean": 203.0479929720362,
+        "min": 190.75014907866716,
+        "max": 214.04083911329508
+      }
+    },
+    {
+      "query_id": "pa-05",
+      "question": "Was muss bei der Project-Award-Einreichung als Video eingere...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 176.47779391457638,
+        "min": 168.91759261488914,
+        "max": 189.11124020814896
+      },
+      "search_ms": {
+        "mean": 23.358070912460487,
+        "min": 22.034497000277042,
+        "max": 25.7565900683403
+      },
+      "total_ms": {
+        "mean": 199.83586482703686,
+        "min": 193.43904592096806,
+        "max": 211.39436587691307
+      }
+    },
+    {
+      "query_id": "comp-01",
+      "question": "Welchen Platz hat Jakob Schaumberger bei den EuroSkills 2025...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 174.79143167535463,
+        "min": 169.05718203634024,
+        "max": 178.15986648201942
+      },
+      "search_ms": {
+        "mean": 22.45725877583027,
+        "min": 21.32683712989092,
+        "max": 24.166494607925415
+      },
+      "total_ms": {
+        "mean": 197.2486904511849,
+        "min": 190.9356266260147,
+        "max": 201.32374111562967
+      }
+    },
+    {
+      "query_id": "comp-02",
+      "question": "Welche Projekte wurden fuer Jugend Innovativ 2026 von der HT...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 192.65238444010416,
+        "min": 147.6284172385931,
+        "max": 257.2452798485756
+      },
+      "search_ms": {
+        "mean": 41.749980921546616,
+        "min": 23.44344649463892,
+        "max": 53.71589493006468
+      },
+      "total_ms": {
+        "mean": 234.4023653616508,
+        "min": 171.07186373323202,
+        "max": 310.96117477864027
+      }
+    },
+    {
+      "query_id": "csi-01",
+      "question": "Welche Ressourcen stehen fuer Computer Science International...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 152.46918828537068,
+        "min": 113.43952547758818,
+        "max": 174.55204855650663
+      },
+      "search_ms": {
+        "mean": 23.227231887479622,
+        "min": 22.437438368797302,
+        "max": 24.762246757745743
+      },
+      "total_ms": {
+        "mean": 175.69642017285028,
+        "min": 135.87696384638548,
+        "max": 197.03405909240246
+      }
+    },
+    {
+      "query_id": "trans-01",
+      "question": "Welches Uebersetzungstool wurde 2023 als bestes fuer Android...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 162.31151235600313,
+        "min": 137.07283791154623,
+        "max": 200.24123042821884
+      },
+      "search_ms": {
+        "mean": 23.814113810658455,
+        "min": 23.150984197854996,
+        "max": 24.865449406206608
+      },
+      "total_ms": {
+        "mean": 186.1256261666616,
+        "min": 160.49874573946,
+        "max": 225.10667983442545
+      }
+    },
+    {
+      "query_id": "medizint-01",
+      "question": "Welche Fachtheorie-Gegenstaende gibt es in der Biomedizin- u...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 193.48726700991392,
+        "min": 174.9543584883213,
+        "max": 206.76556788384914
+      },
+      "search_ms": {
+        "mean": 22.187686525285244,
+        "min": 21.427836269140244,
+        "max": 23.69449846446514
+      },
+      "total_ms": {
+        "mean": 215.67495353519917,
+        "min": 196.39508333057165,
+        "max": 228.1934041529894
+      }
+    },
+    {
+      "query_id": "schummeln-01",
+      "question": "Was passiert laut Schulrecht, wenn ein Schueler beim Schumme...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 202.80877966433764,
+        "min": 188.57297487556934,
+        "max": 220.52194364368916
+      },
+      "search_ms": {
+        "mean": 23.093757530053455,
+        "min": 21.646074950695038,
+        "max": 25.856235064566135
+      },
+      "total_ms": {
+        "mean": 225.9025371943911,
+        "min": 210.35193745046854,
+        "max": 246.3781787082553
+      }
+    },
+    {
+      "query_id": "maker-01",
+      "question": "Warum sollen bei der Maker Week keine 3D-Drucke eingeplant w...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 177.79867661496004,
+        "min": 176.6014127060771,
+        "max": 179.35230769217014
+      },
+      "search_ms": {
+        "mean": 23.35906308144331,
+        "min": 22.733026184141636,
+        "max": 24.325714446604252
+      },
+      "total_ms": {
+        "mean": 201.15773969640335,
+        "min": 200.4607580602169,
+        "max": 202.08533387631178
+      }
+    },
+    {
+      "query_id": "maker-02",
+      "question": "Wie wird die Verpflegung waehrend der Maker Week organisiert...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 152.49445413549742,
+        "min": 105.44378776103258,
+        "max": 179.46395557373762
+      },
+      "search_ms": {
+        "mean": 22.658816849191982,
+        "min": 22.597601637244225,
+        "max": 22.756488993763924
+      },
+      "total_ms": {
+        "mean": 175.15327098468939,
+        "min": 128.2002767547965,
+        "max": 202.06155721098185
+      }
+    },
+    {
+      "query_id": "maker-03",
+      "question": "Wie viele Schueler sollen pro Maker-Week-Projekt zusammenarb...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 228.57484997560582,
+        "min": 188.79211694002151,
+        "max": 294.1381447017193
+      },
+      "search_ms": {
+        "mean": 22.74439639101426,
+        "min": 22.357177920639515,
+        "max": 23.502906784415245
+      },
+      "total_ms": {
+        "mean": 251.31924636662006,
+        "min": 212.29502372443676,
+        "max": 316.4953226223588
+      }
+    },
+    {
+      "query_id": "oracle-01",
+      "question": "Wie lauten die Verbindungsdaten fuer die Oracle-Datenbank au...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 178.31215417633453,
+        "min": 149.3107434362173,
+        "max": 198.57899378985167
+      },
+      "search_ms": {
+        "mean": 44.29919272661209,
+        "min": 23.91932811588049,
+        "max": 65.35179074853659
+      },
+      "total_ms": {
+        "mean": 222.61134690294662,
+        "min": 173.2300715520978,
+        "max": 263.93078453838825
+      }
+    },
+    {
+      "query_id": "oracle-02",
+      "question": "Was ist das bekannte Problem mit dem DB-Manager auf dem Zeus...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 173.17573074251413,
+        "min": 151.1220745742321,
+        "max": 191.22966285794973
+      },
+      "search_ms": {
+        "mean": 23.362728767096996,
+        "min": 22.187530994415283,
+        "max": 25.65949596464634
+      },
+      "total_ms": {
+        "mean": 196.53845950961113,
+        "min": 173.30960556864738,
+        "max": 216.88915882259607
+      }
+    },
+    {
+      "query_id": "infra-01",
+      "question": "Wie ist die E-Mail-Adresse fuer Lehrer an der HTL Leonding a...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 174.88790893306336,
+        "min": 150.3437301144004,
+        "max": 191.6337488219142
+      },
+      "search_ms": {
+        "mean": 24.618579695622127,
+        "min": 21.940643899142742,
+        "max": 29.420937411487103
+      },
+      "total_ms": {
+        "mean": 199.50648862868547,
+        "min": 179.7646675258875,
+        "max": 214.12790659815073
+      }
+    },
+    {
+      "query_id": "infra-02",
+      "question": "Wie lautet die E-Mail-Adresse fuer Schueler an der HTL Leond...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 220.1028366883596,
+        "min": 179.90794032812119,
+        "max": 286.1999776214361
+      },
+      "search_ms": {
+        "mean": 23.319469454387825,
+        "min": 22.205401211977005,
+        "max": 25.524180382490158
+      },
+      "total_ms": {
+        "mean": 243.4223061427474,
+        "min": 202.1133415400982,
+        "max": 308.4288043901324
+      }
+    },
+    {
+      "query_id": "infra-03",
+      "question": "Welche WLAN-Netze gibt es an der HTL Leonding und wann verwe...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 152.68128365278244,
+        "min": 147.82797545194626,
+        "max": 160.64886189997196
+      },
+      "search_ms": {
+        "mean": 22.831776800254982,
+        "min": 22.14086428284645,
+        "max": 23.823772557079792
+      },
+      "total_ms": {
+        "mean": 175.5130604530374,
+        "min": 171.65174800902605,
+        "max": 183.17955546081066
+      }
+    },
+    {
+      "query_id": "infra-04",
+      "question": "Was ist Teaman und wofuer wird es verwendet?",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 174.61366672068834,
+        "min": 161.96491941809654,
+        "max": 182.31586087495089
+      },
+      "search_ms": {
+        "mean": 23.375647142529488,
+        "min": 22.879911586642265,
+        "max": 24.31489620357752
+      },
+      "total_ms": {
+        "mean": 197.98931386321783,
+        "min": 184.89705305546522,
+        "max": 206.6307570785284
+      }
+    },
+    {
+      "query_id": "fehlst-01",
+      "question": "Haben Schueler der 5. Klassen noch Verhaltensnoten?",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 194.91663482040167,
+        "min": 187.46841605752707,
+        "max": 205.35543467849493
+      },
+      "search_ms": {
+        "mean": 22.123648164172966,
+        "min": 21.57383318990469,
+        "max": 23.196927271783352
+      },
+      "total_ms": {
+        "mean": 217.04028298457465,
+        "min": 209.06860008835793,
+        "max": 228.55236195027828
+      }
+    },
+    {
+      "query_id": "schilf-01",
+      "question": "Worum ging es bei der SCHILF zu POSE-2 im Schuljahr 2024/25?",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 324.6276245142023,
+        "min": 179.52347546815872,
+        "max": 609.2856079339981
+      },
+      "search_ms": {
+        "mean": 23.238216216365498,
+        "min": 22.486970759928226,
+        "max": 24.520394392311573
+      },
+      "total_ms": {
+        "mean": 347.86584073056775,
+        "min": 202.2307589650154,
+        "max": 631.7725786939263
+      }
+    },
+    {
+      "query_id": "mail-01",
+      "question": "Wo koennen bestehende Schueler nach der Mail-Migration ihre ...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 148.11976936956248,
+        "min": 129.390568472445,
+        "max": 168.9283987507224
+      },
+      "search_ms": {
+        "mean": 39.350975615282856,
+        "min": 23.78701325505972,
+        "max": 47.28945530951023
+      },
+      "total_ms": {
+        "mean": 187.4707449848453,
+        "min": 176.68002378195524,
+        "max": 193.0167991667986
+      }
+    },
+    {
+      "query_id": "mail-02",
+      "question": "Ab wann kommen neue E-Mails an die students.htl-leonding.ac....",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 186.68200386067232,
+        "min": 147.68248703330755,
+        "max": 210.09265538305044
+      },
+      "search_ms": {
+        "mean": 50.00283351788918,
+        "min": 47.60370962321758,
+        "max": 53.338502533733845
+      },
+      "total_ms": {
+        "mean": 236.6848373785615,
+        "min": 195.28619665652514,
+        "max": 263.4311579167843
+      }
+    },
+    {
+      "query_id": "fest-01",
+      "question": "Wie lange vor der Feststellungspruefung muss der Termin beka...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 185.9364304691553,
+        "min": 179.24930807203054,
+        "max": 192.8125200793147
+      },
+      "search_ms": {
+        "mean": 41.04938885817925,
+        "min": 21.949495188891888,
+        "max": 56.33160099387169
+      },
+      "total_ms": {
+        "mean": 226.98581932733455,
+        "min": 201.19880326092243,
+        "max": 242.07906424999237
+      }
+    },
+    {
+      "query_id": "fest-02",
+      "question": "Warum ist von einer Feststellungspruefung zum Semester dring...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 178.93338979532322,
+        "min": 166.31884779781103,
+        "max": 194.3494463339448
+      },
+      "search_ms": {
+        "mean": 22.021697523693245,
+        "min": 21.926328539848328,
+        "max": 22.18958456069231
+      },
+      "total_ms": {
+        "mean": 200.95508731901646,
+        "min": 188.26802726835012,
+        "max": 216.5390308946371
+      }
+    },
+    {
+      "query_id": "abend-01",
+      "question": "Was ist das Fachtheorie-Fach bei der Matura in der Abendschu...",
+      "difficulty": "easy",
+      "embedding_ms": {
+        "mean": 155.93494909505048,
+        "min": 129.03925403952599,
+        "max": 170.73378153145313
+      },
+      "search_ms": {
+        "mean": 23.040495192011196,
+        "min": 22.55735732614994,
+        "max": 23.675494827330112
+      },
+      "total_ms": {
+        "mean": 178.9754442870617,
+        "min": 151.92788746207952,
+        "max": 193.29113885760307
+      }
+    },
+    {
+      "query_id": "abend-02",
+      "question": "Welche Schwerpunktfaecher gibt es bei der muendlichen Matura...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 144.84567319353422,
+        "min": 100.34634545445442,
+        "max": 167.71716438233852
+      },
+      "search_ms": {
+        "mean": 26.552613203724224,
+        "min": 22.042362950742245,
+        "max": 31.7936884239316
+      },
+      "total_ms": {
+        "mean": 171.39828639725843,
+        "min": 126.16813369095325,
+        "max": 199.51085280627012
+      }
+    },
+    {
+      "query_id": "abend-03",
+      "question": "Welche Voraussetzung muss ein Studierender der Abendschule f...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 146.87432441860437,
+        "min": 110.4307034984231,
+        "max": 165.70703499019146
+      },
+      "search_ms": {
+        "mean": 22.58978970348835,
+        "min": 22.388044744729996,
+        "max": 22.868502885103226
+      },
+      "total_ms": {
+        "mean": 169.46411412209272,
+        "min": 133.29920638352633,
+        "max": 188.09507973492146
+      }
+    },
+    {
+      "query_id": "aufstieg-01",
+      "question": "Wann ist eine Aufstiegsklausel (Aufsteigen mit einem Nicht g...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 156.1297702913483,
+        "min": 146.6111596673727,
+        "max": 165.86958896368742
+      },
+      "search_ms": {
+        "mean": 22.735578939318657,
+        "min": 21.66275680065155,
+        "max": 23.527848534286022
+      },
+      "total_ms": {
+        "mean": 178.86534923066696,
+        "min": 170.13900820165873,
+        "max": 187.53234576433897
+      }
+    },
+    {
+      "query_id": "aufstieg-02",
+      "question": "Wann steigt ein Schueler automatisch auf, ohne dass eine Abs...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 171.1126258596778,
+        "min": 158.57098065316677,
+        "max": 180.01380935311317
+      },
+      "search_ms": {
+        "mean": 22.374192873636883,
+        "min": 21.800310350954533,
+        "max": 22.985538467764854
+      },
+      "total_ms": {
+        "mean": 193.48681873331466,
+        "min": 181.55651912093163,
+        "max": 202.35053915530443
+      }
+    },
+    {
+      "query_id": "medt-01",
+      "question": "Welche drei Vertiefungen koennen Schueler der Medientechnik ...",
+      "difficulty": "easy",
+      "embedding_ms": {
+        "mean": 247.709344762067,
+        "min": 162.10706904530525,
+        "max": 357.76832792907953
+      },
+      "search_ms": {
+        "mean": 22.869089307884376,
+        "min": 21.899771876633167,
+        "max": 24.596170522272587
+      },
+      "total_ms": {
+        "mean": 270.57843406995136,
+        "min": 184.00684092193842,
+        "max": 379.8796534538269
+      }
+    },
+    {
+      "query_id": "medt-02",
+      "question": "Wann wechselt der 5. Jahrgang Medientechnik vom Wintersemest...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 176.20301308731237,
+        "min": 152.39690989255905,
+        "max": 202.6784410700202
+      },
+      "search_ms": {
+        "mean": 22.593869206806023,
+        "min": 22.25465700030327,
+        "max": 22.9865750297904
+      },
+      "total_ms": {
+        "mean": 198.7968822941184,
+        "min": 175.38348492234945,
+        "max": 224.93309807032347
+      }
+    },
+    {
+      "query_id": "medt-03",
+      "question": "Kann man die Spezialisierung in der Medientechnik beim Aufst...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 156.34653499970833,
+        "min": 117.29016620665789,
+        "max": 196.41787465661764
+      },
+      "search_ms": {
+        "mean": 41.38854922105869,
+        "min": 26.174893602728844,
+        "max": 51.10280029475689
+      },
+      "total_ms": {
+        "mean": 197.73508422076702,
+        "min": 143.46505980938673,
+        "max": 247.52067495137453
+      }
+    },
+    {
+      "query_id": "3d-01",
+      "question": "Welches Druckvolumen hat der Creality K1C 3D-Drucker?",
+      "difficulty": "easy",
+      "embedding_ms": {
+        "mean": 201.05755981057882,
+        "min": 179.60912361741066,
+        "max": 243.90861857682467
+      },
+      "search_ms": {
+        "mean": 23.776461991171043,
+        "min": 22.750411182641983,
+        "max": 24.58350360393524
+      },
+      "total_ms": {
+        "mean": 224.83402180174986,
+        "min": 203.60459480434656,
+        "max": 266.65902975946665
+      }
+    },
+    {
+      "query_id": "3d-02",
+      "question": "Was ist ein Blob-Problem beim Creality K1C und wie wird es b...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 192.04247929155827,
+        "min": 183.2084907218814,
+        "max": 198.91953095793724
+      },
+      "search_ms": {
+        "mean": 22.673596317569416,
+        "min": 22.447098046541214,
+        "max": 23.1005372479558
+      },
+      "total_ms": {
+        "mean": 214.71607560912767,
+        "min": 205.68164438009262,
+        "max": 221.36662900447845
+      }
+    },
+    {
+      "query_id": "3d-03",
+      "question": "Welche Filamente unterstuetzt der Creality K1C?",
+      "difficulty": "easy",
+      "embedding_ms": {
+        "mean": 200.14206661532322,
+        "min": 168.08139067143202,
+        "max": 245.11313997209072
+      },
+      "search_ms": {
+        "mean": 22.734700081249077,
+        "min": 22.456949576735497,
+        "max": 22.96166680753231
+      },
+      "total_ms": {
+        "mean": 222.8767666965723,
+        "min": 191.04305747896433,
+        "max": 267.5700895488262
+      }
+    },
+    {
+      "query_id": "mat-01",
+      "question": "Welches 3D-Druck-Material ist am besten fuer Aussenanwendung...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 217.72882466514906,
+        "min": 196.60384859889746,
+        "max": 246.04305252432823
+      },
+      "search_ms": {
+        "mean": 23.13561551272869,
+        "min": 22.353618405759335,
+        "max": 24.61346425116062
+      },
+      "total_ms": {
+        "mean": 240.86444017787775,
+        "min": 221.21731285005808,
+        "max": 268.48281640559435
+      }
+    },
+    {
+      "query_id": "mat-02",
+      "question": "Bis zu welcher Temperatur ist PLA waermeformbestaendig?",
+      "difficulty": "easy",
+      "embedding_ms": {
+        "mean": 190.54000172764063,
+        "min": 171.15276027470827,
+        "max": 217.8259752690792
+      },
+      "search_ms": {
+        "mean": 22.136774224539597,
+        "min": 22.097565233707428,
+        "max": 22.182396613061428
+      },
+      "total_ms": {
+        "mean": 212.67677595218024,
+        "min": 193.3351568877697,
+        "max": 239.92354050278664
+      }
+    },
+    {
+      "query_id": "luft-01",
+      "question": "Was misst das LuftCheck-Geraet und welcher Mikrocontroller s...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 203.36428626130024,
+        "min": 163.20458613336086,
+        "max": 269.66654043644667
+      },
+      "search_ms": {
+        "mean": 25.429949164390564,
+        "min": 23.311995901167393,
+        "max": 28.828863985836506
+      },
+      "total_ms": {
+        "mean": 228.7942354256908,
+        "min": 187.35357373952866,
+        "max": 298.4954044222832
+      }
+    },
+    {
+      "query_id": "luft-02",
+      "question": "Welche Fertigungsschritte lernen die Schueler beim Bau des L...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 162.611935287714,
+        "min": 145.916560664773,
+        "max": 178.00672445446253
+      },
+      "search_ms": {
+        "mean": 22.763323038816452,
+        "min": 22.55742996931076,
+        "max": 23.138553835451603
+      },
+      "total_ms": {
+        "mean": 185.37525832653046,
+        "min": 168.51054597645998,
+        "max": 200.5641544237733
+      }
+    },
+    {
+      "query_id": "reflow-01",
+      "question": "Welche Parameter hat der SPIDE Reflow Loetofen fuer kleine B...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 176.47076894839606,
+        "min": 161.2481214106083,
+        "max": 190.56762661784887
+      },
+      "search_ms": {
+        "mean": 34.90928808848063,
+        "min": 22.321470081806183,
+        "max": 57.46608134359121
+      },
+      "total_ms": {
+        "mean": 211.38005703687668,
+        "min": 186.1884342506528,
+        "max": 248.0337079614401
+      }
+    },
+    {
+      "query_id": "bugs-01",
+      "question": "Wie loest man das Let's Encrypt Zertifikatsproblem fuer SMTP...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 195.4409945756197,
+        "min": 164.4561793655157,
+        "max": 217.75269322097301
+      },
+      "search_ms": {
+        "mean": 23.00173944483201,
+        "min": 22.177988663315773,
+        "max": 24.142153561115265
+      },
+      "total_ms": {
+        "mean": 218.4427340204517,
+        "min": 187.1412554755807,
+        "max": 241.89484678208828
+      }
+    },
+    {
+      "query_id": "lizenz-01",
+      "question": "Wo finden Schueler lizenzfreie Fotos fuer Schulprojekte?",
+      "difficulty": "easy",
+      "embedding_ms": {
+        "mean": 166.99184197932482,
+        "min": 146.01109363138676,
+        "max": 185.8726367354393
+      },
+      "search_ms": {
+        "mean": 22.846222544709843,
+        "min": 22.507227025926113,
+        "max": 23.51351175457239
+      },
+      "total_ms": {
+        "mean": 189.83806452403465,
+        "min": 168.52902248501778,
+        "max": 209.3861484900117
+      }
+    },
+    {
+      "query_id": "lizenz-02",
+      "question": "Wo gibt es lizenzfreie Musikdateien fuer Schulprojekte an de...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 147.18846200654903,
+        "min": 103.26508060097694,
+        "max": 184.17948484420776
+      },
+      "search_ms": {
+        "mean": 22.791876768072445,
+        "min": 22.345764562487602,
+        "max": 23.623120971024036
+      },
+      "total_ms": {
+        "mean": 169.9803387746215,
+        "min": 126.88820157200098,
+        "max": 206.52524940669537
+      }
+    },
+    {
+      "query_id": "stundenabr-01",
+      "question": "Wie ruft man die Stundenabrechnung im WebUntis auf?",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 166.2582236652573,
+        "min": 131.25098776072264,
+        "max": 201.47645100951195
+      },
+      "search_ms": {
+        "mean": 23.16584251821041,
+        "min": 22.419375367462635,
+        "max": 24.483908899128437
+      },
+      "total_ms": {
+        "mean": 189.42406618346772,
+        "min": 153.67036312818527,
+        "max": 225.96035990864038
+      }
+    },
+    {
+      "query_id": "pitch-01",
+      "question": "Wie laeuft der DA Proposal Pitch Day ab?",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 148.84264642993608,
+        "min": 111.579823307693,
+        "max": 179.54318225383759
+      },
+      "search_ms": {
+        "mean": 22.071310319006443,
+        "min": 21.78351115435362,
+        "max": 22.61387277394533
+      },
+      "total_ms": {
+        "mean": 170.91395674894252,
+        "min": 133.36333446204662,
+        "max": 202.15705502778292
+      }
+    },
+    {
+      "query_id": "dathesis-01",
+      "question": "Welche ausgezeichneten Diplomarbeiten werden auf der LeoWiki...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 191.8901177123189,
+        "min": 170.57958990335464,
+        "max": 217.54575986415148
+      },
+      "search_ms": {
+        "mean": 23.34260568022728,
+        "min": 22.628001868724823,
+        "max": 24.753665551543236
+      },
+      "total_ms": {
+        "mean": 215.23272339254618,
+        "min": 195.33325545489788,
+        "max": 240.19190948456526
+      }
+    },
+    {
+      "query_id": "termine-01",
+      "question": "Wann war der Maturaball im Schuljahr 2024/2025?",
+      "difficulty": "easy",
+      "embedding_ms": {
+        "mean": 169.33708172291517,
+        "min": 147.27909211069345,
+        "max": 187.6584067940712
+      },
+      "search_ms": {
+        "mean": 21.36689145117998,
+        "min": 21.19501680135727,
+        "max": 21.533513441681862
+      },
+      "total_ms": {
+        "mean": 190.70397317409515,
+        "min": 168.81260555237532,
+        "max": 208.85342359542847
+      }
+    },
+    {
+      "query_id": "termine-02",
+      "question": "Wann war der Tag der offenen Tuer im Schuljahr 2024/2025?",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 184.36730466783047,
+        "min": 172.87361528724432,
+        "max": 192.0287311077118
+      },
+      "search_ms": {
+        "mean": 21.8886760994792,
+        "min": 21.42699621617794,
+        "max": 22.334079258143902
+      },
+      "total_ms": {
+        "mean": 206.25598076730967,
+        "min": 195.20769454538822,
+        "max": 213.45572732388973
+      }
+    },
+    {
+      "query_id": "minf-01",
+      "question": "Was aendert sich bei MINF ab dem Schuljahr 2025/26?",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 144.76475957781076,
+        "min": 119.59475465118885,
+        "max": 161.90652921795845
+      },
+      "search_ms": {
+        "mean": 34.083775244653225,
+        "min": 22.219080477952957,
+        "max": 57.04009998589754
+      },
+      "total_ms": {
+        "mean": 178.848534822464,
+        "min": 175.01207534223795,
+        "max": 184.89867448806763
+      }
+    },
+    {
+      "query_id": "beurt-01",
+      "question": "Welche Kriterien werden bei der Beurteilung einer Diplomarbe...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 165.87012074887753,
+        "min": 127.7009267359972,
+        "max": 194.37168259173632
+      },
+      "search_ms": {
+        "mean": 42.79667076965173,
+        "min": 37.53667697310448,
+        "max": 47.84480948001146
+      },
+      "total_ms": {
+        "mean": 208.66679151852927,
+        "min": 165.23760370910168,
+        "max": 242.21649207174778
+      }
+    },
+    {
+      "query_id": "beurt-02",
+      "question": "Welche Kriterien werden bei der Praesentation und Diskussion...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 193.12958512455225,
+        "min": 148.51157646626234,
+        "max": 216.01776778697968
+      },
+      "search_ms": {
+        "mean": 34.53301731497049,
+        "min": 22.43111375719309,
+        "max": 58.72861947864294
+      },
+      "total_ms": {
+        "mean": 227.66260243952274,
+        "min": 207.24019594490528,
+        "max": 238.44888154417276
+      }
+    },
+    {
+      "query_id": "align-01",
+      "question": "Wer ist Kustodiat fuer POSE an der HTL Leonding?",
+      "difficulty": "easy",
+      "embedding_ms": {
+        "mean": 167.37419491012892,
+        "min": 128.39806452393532,
+        "max": 193.39941255748272
+      },
+      "search_ms": {
+        "mean": 22.733339108526707,
+        "min": 22.39291090518236,
+        "max": 23.12644012272358
+      },
+      "total_ms": {
+        "mean": 190.10753401865563,
+        "min": 151.0787308216095,
+        "max": 215.79232346266508
+      }
+    },
+    {
+      "query_id": "start-01",
+      "question": "Welche Abteilungen werden auf der Hauptseite des LeoWiki unt...",
+      "difficulty": "easy",
+      "embedding_ms": {
+        "mean": 174.84261530141035,
+        "min": 147.733842022717,
+        "max": 192.35259108245373
+      },
+      "search_ms": {
+        "mean": 22.748783541222412,
+        "min": 22.030933760106564,
+        "max": 23.975245654582977
+      },
+      "total_ms": {
+        "mean": 197.59139884263277,
+        "min": 171.70908767729998,
+        "max": 214.3835248425603
+      }
+    },
+    {
+      "query_id": "wlan-01",
+      "question": "Wie kann man unter Windows 11 pruefen, mit welchem WLAN Acce...",
+      "difficulty": "medium",
+      "embedding_ms": {
+        "mean": 192.53578347464403,
+        "min": 171.44353222101927,
+        "max": 218.54432858526707
+      },
+      "search_ms": {
+        "mean": 22.511279520889122,
+        "min": 21.5057535097003,
+        "max": 24.32461269199848
+      },
+      "total_ms": {
+        "mean": 215.04706299553314,
+        "min": 195.76814491301775,
+        "max": 240.05008209496737
+      }
+    },
+    {
+      "query_id": "drucker-01",
+      "question": "Wie kann man den Konica Minolta Drucker unter Linux einbinde...",
+      "difficulty": "hard",
+      "embedding_ms": {
+        "mean": 161.5940056120356,
+        "min": 121.89716845750809,
+        "max": 216.72112308442593
+      },
+      "search_ms": {
+        "mean": 22.90431223809719,
+        "min": 22.43939135223627,
+        "max": 23.66352640092373
+      },
+      "total_ms": {
+        "mean": 184.4983178501328,
+        "min": 144.50718741863966,
+        "max": 239.1605144366622
+      }
+    }
+  ],
+  "errors": [],
+  "summary": {
+    "embedding_ms": {
+      "mean": 181.8101941806893,
+      "median": 174.8170234883825,
+      "stdev": 39.45763488886667,
+      "min": 144.27969325333834,
+      "max": 434.415854824086
+    },
+    "search_ms": {
+      "mean": 26.054119826573082,
+      "median": 22.890890638033547,
+      "stdev": 7.021020584271334,
+      "min": 21.36689145117998,
+      "max": 50.00283351788918
+    },
+    "total_ms": {
+      "mean": 207.86431400726238,
+      "median": 199.67117672786117,
+      "stdev": 39.84866407480645,
+      "min": 167.08779583374658,
+      "max": 459.7132994482915,
+      "p95": 263.58401371786994
+    },
+    "by_difficulty": {
+      "easy": {
+        "count": 17,
+        "mean_ms": 215.77810536266543,
+        "median_ms": 192.15473905205727
+      },
+      "medium": {
+        "count": 40,
+        "mean_ms": 203.67829534225166,
+        "median_ms": 202.45503385861716
+      },
+      "hard": {
+        "count": 21,
+        "mean_ms": 209.43128036719466,
+        "median_ms": 199.83586482703686
+      }
+    },
+    "errors": 0
+  }
+}
