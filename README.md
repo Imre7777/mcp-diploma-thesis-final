@@ -241,7 +241,7 @@ Ausführliche Dokumentation (Architektur, Deployment, Auth) im Ordner [`docs/`](
 
 ## 👥 Autoren
 
-- **Imre Obermüller** — [GitHub](https://github.com/Imre7777) · imre.obermueller@gmail.com
+- **Imre Obermüller** — [GitHub](https://github.com/Imre7777) · [LinkedIn](https://www.linkedin.com/in/imre-obermueller-453540435/) · imre.obermueller@gmail.com
 - **Jan Ritt**
 - Betreuung: **Rainer Stropek**
 
