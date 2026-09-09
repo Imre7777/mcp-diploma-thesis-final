@@ -9,7 +9,7 @@ A production-ready **Model Context Protocol (MCP)** server that gives LLMs secur
 <br>
 
 [![CI](https://github.com/Imre7777/mcp-diploma-thesis-final/actions/workflows/ci.yml/badge.svg)](https://github.com/Imre7777/mcp-diploma-thesis-final/actions/workflows/ci.yml)
-[![Live Demo](https://img.shields.io/badge/Live-leowiki--mcp.stream-2ea44f?logo=serverfault&logoColor=white)](https://leowiki-mcp.stream)
+[![Protocol](https://img.shields.io/badge/Protocol-MCP-1f6feb?logo=modelcontextprotocol&logoColor=white)](https://modelcontextprotocol.io)
 [![Grade](https://img.shields.io/badge/Diplomarbeit-Sehr%20gut-brightgreen)](#-academic-context)
 
 <br>
@@ -31,9 +31,9 @@ A production-ready **Model Context Protocol (MCP)** server that gives LLMs secur
 
 Dieses Repository ist die **Diplomarbeit** von **Imre Obermüller** und **Jan Ritt** an der **HTL Leonding** (Betreuung: **Rainer Stropek**), abgeschlossen 2026 mit der Beurteilung **„Sehr gut"**. Die Arbeit dient an der Schule inzwischen als **Referenzvorlage für weitere Jahrgänge**.
 
-Die Aufgabe: ein bestehendes Schul-Wiki („LeoWiki") so aufbereiten, dass ein LLM (z. B. Claude) **inhaltlich und rollengerecht** darauf zugreifen kann — Schüler:innen sehen andere Inhalte als Lehrkräfte, und alles läuft über einen sauber abgesicherten, öffentlich erreichbaren MCP-Server.
+Die Aufgabe: ein bestehendes Schul-Wiki („LeoWiki") so aufbereiten, dass ein LLM (z. B. Claude) **inhaltlich und rollengerecht** darauf zugreifen kann — Schüler:innen sehen andere Inhalte als Lehrkräfte, und alles lief über einen sauber abgesicherten MCP-Server, der im Rahmen der Arbeit auf einem Raspberry Pi deployed war.
 
-> 🔗 **Live:** [leowiki-mcp.stream](https://leowiki-mcp.stream) · **API-Docs (Swagger):** [/docs](https://leowiki-mcp.stream/docs)
+> ℹ️ Das Projekt wurde mit der Diplomarbeit (2026) **abgeschlossen** — die frühere Live-Instanz (`leowiki-mcp.stream`) ist **nicht mehr online**. Der Server ist über die [Quickstart](#-quick-start)-Anleitung jederzeit lokal lauffähig.
 
 ---
 
@@ -44,7 +44,7 @@ Die Aufgabe: ein bestehendes Schul-Wiki („LeoWiki") so aufbereiten, dass ein L
 - 🛡️ **OAuth 2.1** (Scalekit) mit JWT-Validierung, **HTTPS** via Caddy & Let's Encrypt, **DSGVO-konformes** Audit-Logging mit Pseudonymisierung
 - 🧩 **Voller MCP-Funktionsumfang:** 5 Tools, 6 Resources, 2 Prompts, 4 eigene Middleware-Komponenten (FastMCP 3.0)
 - 🔄 **Automatische Ingestion:** Watchdog-Service erkennt neue JSONL-Dateien und aktualisiert die Vektor-DB ohne Downtime
-- 🐳 **Containerisiert & deployed:** Multi-Service Docker-Compose-Stack, produktiv auf einem Raspberry Pi
+- 🐳 **Containerisiert & deployed:** Multi-Service Docker-Compose-Stack, im Rahmen der Arbeit auf einem Raspberry Pi in Betrieb
 - 📊 **Messbar:** eigene Benchmark-Suite (Such-Qualität & Transport-Vergleich) unter `data/benchmark/`
 
 ---
@@ -221,7 +221,7 @@ pytest tests/ --cov=src        # mit Coverage
   ![Swagger UI](docs/img/swagger.png)
 -->
 
-> Screenshots folgen. In der Zwischenzeit ist der Server **live testbar** unter [leowiki-mcp.stream/docs](https://leowiki-mcp.stream/docs), und Benchmark-Ergebnisse liegen unter [`data/benchmark/`](data/benchmark/).
+> Screenshots folgen. Reproduzierbare Benchmark-Ergebnisse liegen unter [`data/benchmark/`](data/benchmark/); der Server ist über die [Quickstart](#-quick-start)-Anleitung lokal lauffähig.
 
 ---
 
@@ -255,7 +255,7 @@ Ausführliche Dokumentation (Architektur, Deployment, Auth) im Ordner [`docs/`](
 
 <div align="center">
 
-**Status:** Production Ready · **Version:** 2.0.1
+**Status:** Diplomarbeit abgeschlossen (2026) · **Version:** 2.0.1
 
 *Educational project — HTL Leonding Diploma Thesis*
 
